@@ -1,9 +1,8 @@
-
+// pages/news/[slug].tsx - SEO-Optimized Article Page
 import ArticleContent from '@/components/ArticleContent';
 import ArticleHeader from '@/components/ArticleHeader';
 import ArticleNavigation from '@/components/ArticleNavigation';
 import ArticleNotFound from '@/components/ArticleNotFound';
-import ArticlePageSkeleton from '@/components/ArticlePageSkeleton';
 import ArticleReactions from '@/components/ArticleReactions';
 import ArticleTags from '@/components/ArticleTags';
 import AuthorBio from '@/components/AuthorBio';
@@ -18,70 +17,61 @@ import EnhancedArticleSEO from '@/components/SEO/EnhancedArticleSEO';
 import ShareButtons from '@/components/ShareButtons';
 import { useArticleReactions } from '@/hooks/useArticleReactions';
 import { useImmediateIndexing } from '@/hooks/useImmediateIndexing';
-import { usePublishedArticles } from '@/hooks/usePublishedArticles';
 import { useViewTracking } from '@/hooks/useViewTracking';
+import { fetchArticleBySlug, fetchPublishedArticles } from '@/lib/articles';
 import { NewsArticle } from '@/types/news';
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { GetServerSideProps, GetServerSidePropsContext } from 'next';
+import { ParsedUrlQuery } from 'querystring';
+import { useEffect } from 'react';
 
-const ArticlePage = () => {
-  const router = useRouter();
-  const { slug } = router.query;
-  const { articles, loading } = usePublishedArticles();
-  const [article, setArticle] = useState<NewsArticle | null>(null);
+interface ArticlePageProps {
+  article: NewsArticle | null;
+  relatedArticles: NewsArticle[];
+  error?: string;
+}
+
+interface Params extends ParsedUrlQuery {
+  slug: string;
+}
+
+const ArticlePage = ({ article, relatedArticles, error }: ArticlePageProps) => {
   const { notifySearchEngines } = useImmediateIndexing();
-
-  // Use our hooks
+  
+  // Use our hooks with the server-side article data
   const { reactions, userReaction, loading: reactionsLoading, handleReaction } = useArticleReactions(article?.id || '');
   useViewTracking(article?.slug || '');
 
   useEffect(() => {
-    if (!loading && articles.length > 0 && slug) {
-      const foundArticle = articles.find(a => a.slug === slug);
-      if (foundArticle) {
-        setArticle(foundArticle);
-        
-        // Notify search engines about article view for immediate indexing
-        const articleAge = Date.now() - new Date(foundArticle.publishedAt).getTime();
-        const oneHourMs = 60 * 60 * 1000;
-        
-        // For recently published articles (within 1 hour), trigger immediate indexing
-        if (articleAge < oneHourMs) {
-          notifySearchEngines(foundArticle);
-        }
+    if (article) {
+      // Notify search engines about article view for immediate indexing
+      const articleAge = Date.now() - new Date(article.publishedAt).getTime();
+      const oneHourMs = 60 * 60 * 1000;
+      
+      // For recently published articles (within 1 hour), trigger immediate indexing
+      if (articleAge < oneHourMs) {
+        notifySearchEngines(article);
       }
     }
-  }, [articles, loading, slug, notifySearchEngines]);
+  }, [article, notifySearchEngines]);
 
-  if (loading) {
-    return <ArticlePageSkeleton />;
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
+            <p className="text-gray-600">{error}</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
   }
 
   if (!article) {
     return <ArticleNotFound />;
   }
-
-  // Enhanced related articles logic with fallback
-  const getRelatedArticles = () => {
-    // First, try to get articles from the same category
-    const sameCategoryArticles = articles
-      .filter(a => a.id !== article.id && a.category.id === article.category.id)
-      .slice(0, 3);
-
-    // If we have enough articles from the same category, return them
-    if (sameCategoryArticles.length === 3) {
-      return sameCategoryArticles;
-    }
-
-    // If we need more articles, add articles from other categories
-    const otherCategoryArticles = articles
-      .filter(a => a.id !== article.id && a.category.id !== article.category.id)
-      .slice(0, 3 - sameCategoryArticles.length);
-
-    return [...sameCategoryArticles, ...otherCategoryArticles];
-  };
-
-  const relatedArticles = getRelatedArticles();
 
   const breadcrumbItems = [
     { name: 'Home', url: 'https://ghnewsmedia.com' },
@@ -140,6 +130,86 @@ const ArticlePage = () => {
       <ScrollToTop />
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps<ArticlePageProps, Params> = async (
+  context: GetServerSidePropsContext<Params>
+) => {
+  const { slug } = context.params!;
+  
+  try {
+    console.log('SSR: Fetching article for slug:', slug);
+    
+    // Fetch the specific article by slug
+    const { article, error: articleError } = await fetchArticleBySlug(slug);
+    
+    console.log('SSR: Article fetch result:', { article: !!article, error: articleError });
+    
+    if (articleError || !article) {
+      console.log('SSR: Article not found, returning 404');
+      return {
+        notFound: true, // This will show Next.js 404 page
+      };
+    }
+
+    // Fetch all articles to get related ones
+    const { articles } = await fetchPublishedArticles();
+    
+    // Enhanced related articles logic with fallback
+    const getRelatedArticles = (currentArticle: NewsArticle, allArticles: NewsArticle[]) => {
+      // First, try to get articles from the same category
+      const sameCategoryArticles = allArticles
+        .filter(a => a.id !== currentArticle.id && a.category.id === currentArticle.category.id)
+        .slice(0, 3);
+
+      // If we have enough articles from the same category, return them
+      if (sameCategoryArticles.length === 3) {
+        return sameCategoryArticles;
+      }
+
+      // If we need more articles, add articles from other categories
+      const otherCategoryArticles = allArticles
+        .filter(a => a.id !== currentArticle.id && a.category.id !== currentArticle.category.id)
+        .slice(0, 3 - sameCategoryArticles.length);
+
+      return [...sameCategoryArticles, ...otherCategoryArticles];
+    };
+
+    const relatedArticles = getRelatedArticles(article, articles);
+
+    // Set cache headers for better performance
+    context.res.setHeader(
+      'Cache-Control',
+      'public, s-maxage=300, stale-while-revalidate=600' // Cache for 5 minutes, serve stale for 10 minutes
+    );
+
+    // Set canonical URL header
+    context.res.setHeader('Link', `<https://ghnewsmedia.com/news/${article.slug}>; rel="canonical"`);
+    
+    // Set last modified header for better caching
+    if (article.updatedAt) {
+      context.res.setHeader('Last-Modified', new Date(article.updatedAt).toUTCString());
+    }
+
+    console.log('SSR: Successfully returning article props');
+
+    return {
+      props: {
+        article,
+        relatedArticles,
+      },
+    };
+  } catch (error) {
+    console.error('SSR: Error in getServerSideProps:', error);
+    
+    return {
+      props: {
+        article: null,
+        relatedArticles: [],
+        error: 'Failed to load article',
+      },
+    };
+  }
 };
 
 export default ArticlePage;

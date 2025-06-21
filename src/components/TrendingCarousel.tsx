@@ -1,11 +1,17 @@
-
+// components/TrendingCarousel.tsx - Updated for SEO
+import { NewsArticle } from '@/types/news';
 import { ChevronLeft, ChevronRight, Clock, Eye, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePublishedArticles } from '../hooks/usePublishedArticles';
 
-const TrendingCarousel = () => {
-  const { articles, loading } = usePublishedArticles();
+interface TrendingCarouselProps {
+  initialArticles?: NewsArticle[]; // Accept server-side articles
+}
+
+const TrendingCarousel = ({ initialArticles }: TrendingCarouselProps) => {
+  // Pass initial articles to avoid duplicate fetching
+  const { articles, loading } = usePublishedArticles(initialArticles);
   const trendingArticles = articles.filter(article => article.trending).slice(0, 5);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
@@ -38,7 +44,8 @@ const TrendingCarousel = () => {
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
 
-  if (loading) {
+  // Only show loading if we don't have initial articles
+  if (loading && !initialArticles) {
     return (
       <section className="mb-8 sm:mb-10 lg:mb-12">
         <div className="flex items-center mb-4 sm:mb-6">
@@ -179,6 +186,18 @@ const TrendingCarousel = () => {
           Article {currentSlide + 1} of {trendingArticles.length}
         </div>
       )}
+
+      {/* Hidden content for SEO - All trending articles */}
+      <div className="sr-only">
+        {trendingArticles.map((article, index) => (
+          <article key={article.id}>
+            <h3>{article.title}</h3>
+            <p>{article.excerpt}</p>
+            <div>Category: {article.category.name}</div>
+            <div>Published: {new Date(article.publishedAt).toLocaleDateString()}</div>
+          </article>
+        ))}
+      </div>
     </section>
   );
 };

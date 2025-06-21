@@ -1,16 +1,14 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
 	darkMode: "class",
-content: [
-  './app/**/*.{ts,tsx}', // for App Router
-  './pages/**/*.{ts,tsx}', // for Page Router
-  './components/**/*.{ts,tsx}',
-  './src/**/*.{ts,tsx}', // covers src layout if used
-  './node_modules/@shadcn/ui/**/*.{js,ts,jsx,tsx}', // for shadcn/ui components
-],
-
+	content: [
+		'./app/**/*.{ts,tsx}', // for App Router
+		'./pages/**/*.{ts,tsx}', // for Page Router
+		'./components/**/*.{ts,tsx}',
+		'./src/**/*.{ts,tsx}', // covers src layout if used
+		'./node_modules/@shadcn/ui/**/*.{js,ts,jsx,tsx}', // for shadcn/ui components
+	],
 	prefix: "",
 	theme: {
 		container: {
@@ -69,20 +67,17 @@ content: [
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				news: {
-					blue: '#1e40af',
-					gold: '#f59e0b',
-					gray: {
-						50: '#f9fafb',
-						100: '#f3f4f6',
-						200: '#e5e7eb',
-						300: '#d1d5db',
-						600: '#4b5563',
-						700: '#374151',
-						800: '#1f2937',
-						900: '#111827'
-					}
-				}
+				// Flattened news colors - now these will work as utility classes
+				'news-blue': '#1e40af',
+				'news-gold': '#f59e0b',
+				'news-gray-50': '#f9fafb',
+				'news-gray-100': '#f3f4f6',
+				'news-gray-200': '#e5e7eb',
+				'news-gray-300': '#d1d5db',
+				'news-gray-600': '#4b5563',
+				'news-gray-700': '#374151',
+				'news-gray-800': '#1f2937',
+				'news-gray-900': '#111827'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
