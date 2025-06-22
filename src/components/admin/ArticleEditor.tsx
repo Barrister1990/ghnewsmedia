@@ -206,7 +206,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className="min-h-[400px] border-0 resize-none focus:ring-0 focus:border-0 font-mono text-sm"
-        onSelect={(e) => {
+        onSelect={() => {
         
         }}
       />

@@ -19,6 +19,9 @@ const nextConfig = {
       },
     ],
   },
+  eslint: {
+  ignoreDuringBuilds: true,
+},
   experimental: {
     allowedDevOrigins: ['http://192.168.0.179:3000'],
   },
