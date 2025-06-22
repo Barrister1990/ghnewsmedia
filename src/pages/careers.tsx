@@ -48,8 +48,8 @@ const CareersPage = () => {
       </div>
 
       <div className="mt-10 text-center bg-gray-100 p-8 rounded-lg">
-        <h3 className="text-2xl font-bold">Don't see your dream job?</h3>
-        <p className="mt-2 text-gray-600">We're always looking for great talent. Send your CV to our HR team.</p>
+        <h3 className="text-2xl font-bold">Don&apos;t see your dream job?</h3>
+        <p className="mt-2 text-gray-600">We&apos;re always looking for great talent. Send your CV to our HR team.</p>
         <Button size="lg" className="mt-6 bg-accent hover:bg-accent-600 text-white">
           Submit Speculative Application
         </Button>

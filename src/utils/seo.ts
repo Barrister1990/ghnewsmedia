@@ -1,6 +1,5 @@
-
-import { NewsArticle, Author, Category } from '../types/news';
 import SEOService from '../services/seoService';
+import { NewsArticle } from '../types/news';
 
 const seoService = SEOService.getInstance();
 
@@ -84,7 +83,7 @@ export const generateMetaDescription = (excerpt: string, category?: string): str
 };
 
 // Enhanced image optimization for social media sharing
-export const optimizeImageForSEO = (imageUrl: string, title: string): string => {
+export const optimizeImageForSEO = (imageUrl: string, _title: string): string => {
   if (!imageUrl) {
     return 'https://ghnewsmedia.com/og-image.jpg';
   }

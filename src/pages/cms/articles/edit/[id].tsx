@@ -190,7 +190,7 @@ const articleId = id as string;
     setSeoData(newSEOData);
   };
 
-  const handleSchedulePublish = (date: string) => {
+  const handleSchedulePublish = () => {
     toast.info(`Article will be saved as draft (editors cannot schedule publishing)`);
   };
 

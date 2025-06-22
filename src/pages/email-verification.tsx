@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowRight, CheckCircle, Mail, Sparkles } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -82,7 +83,7 @@ const EmailVerificationPage = () => {
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Verification Failed</h1>
             <p className="text-gray-600">
-              We couldn't verify your email. Please check the link or try signing up again.
+              We couldn&apos;t verify your email. Please check the link or try signing up again.
             </p>
           </CardHeader>
           <CardContent className="pt-0">
@@ -123,7 +124,7 @@ const EmailVerificationPage = () => {
           </p>
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
             <p className="text-green-800 font-medium">
-              You're all set to start creating amazing content!
+              You&apos;re all set to start creating amazing content!
             </p>
           </div>
         </CardHeader>
@@ -133,7 +134,7 @@ const EmailVerificationPage = () => {
             <div className="bg-gray-50 rounded-lg p-6">
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
                 <ArrowRight className="h-5 w-5 mr-2 text-blue-600" />
-                What's Next?
+                What&apos;s Next?
               </h3>
               <ul className="space-y-2 text-gray-600">
                 <li className="flex items-start">
@@ -176,13 +177,13 @@ const EmailVerificationPage = () => {
             <div className="text-center pt-4">
               <p className="text-sm text-gray-500">
                 Need help getting started? Check out our{' '}
-                <a href="/about" className="text-blue-600 hover:underline">
+                <Link href="/about" className="text-blue-600 hover:underline">
                   documentation
-                </a>{' '}
+                </Link>{' '}
                 or{' '}
-                <a href="/contact" className="text-blue-600 hover:underline">
+                <Link href="/contact" className="text-blue-600 hover:underline">
                   contact support
-                </a>
+                </Link>
               </p>
             </div>
           </div>

@@ -6,7 +6,7 @@ import { Mail, Phone } from 'lucide-react';
 const AdvertisePage = () => {
   return (
     <StaticPageLayout title="Advertise With Us">
-      <h2>Reach Ghana's Most Engaged Audience</h2>
+      <h2>Reach Ghana&apos;s Most Engaged Audience</h2>
       <p>GhNewsMedia offers a unique opportunity to connect with a diverse, engaged, and influential audience across Ghana and beyond. Our readers are educated, affluent, and passionate about staying informed on the latest in politics, business, technology, and culture.</p>
       
       <div className="my-8 p-6 bg-blue-50 border-l-4 border-news-blue rounded-r-lg">
@@ -23,7 +23,7 @@ const AdvertisePage = () => {
       <p>We offer a range of advertising solutions, including display advertising, sponsored content, and newsletter sponsorship to meet your marketing objectives.</p>
 
       <h2>Get in Touch</h2>
-      <p>Our advertising team is ready to create a customized package that meets your brand's needs. Contact us today to receive our media kit and discuss your campaign.</p>
+      <p>Our advertising team is ready to create a customized package that meets your brand&apos;s needs. Contact us today to receive our media kit and discuss your campaign.</p>
 
       <div className="mt-6 flex flex-col sm:flex-row gap-6 items-start">
         <div className="flex items-center">

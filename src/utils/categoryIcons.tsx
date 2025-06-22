@@ -1,32 +1,30 @@
 
-import React from 'react';
-import { 
-  Newspaper, 
-  TrendingUp, 
-  Briefcase, 
-  Trophy, 
-  Gamepad2, 
-  Heart, 
-  Zap, 
-  Globe, 
-  Users, 
-  Car,
-  Plane,
-  Music,
-  Camera,
-  Laptop,
-  Building,
-  GraduationCap,
+import {
   Activity,
-  ShoppingBag,
-  Home,
+  Briefcase,
+  Building,
+  Camera,
+  Car,
   Clock,
-  LucideIcon
+  Gamepad2,
+  Globe,
+  GraduationCap,
+  Heart,
+  Home,
+  Laptop,
+  LucideIcon,
+  Music,
+  Newspaper,
+  Plane,
+  ShoppingBag,
+  TrendingUp,
+  Trophy,
+  Users,
+  Zap
 } from 'lucide-react';
+import React from 'react';
 
-interface CategoryIconProps {
-  className?: string;
-}
+
 
 // Get the appropriate Lucide icon component for a category name
 export const getCategoryIconComponent = (categoryName: string): LucideIcon => {

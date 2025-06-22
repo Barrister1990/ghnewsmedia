@@ -7,7 +7,7 @@ const PrivacyPolicyPage = () => {
       <p>Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
       
       <h2>Introduction</h2>
-      <p>GhNewsMedia ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website. Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the site.</p>
+      <p>GhNewsMedia (we, our, or us) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website. Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the site.</p>
 
       <h2>Information We Collect</h2>
       <p>We may collect information about you in a variety of ways. The information we may collect on the Site includes:</p>

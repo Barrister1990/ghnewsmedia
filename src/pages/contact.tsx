@@ -40,7 +40,7 @@ const ContactPage = () => {
             Contact Us
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Have a news tip, feedback, or want to get in touch? We're here to listen.
+            Have a news tip, feedback, or want to get in touch? We&apos;re here to listen.
           </p>
         </div>
 
@@ -181,8 +181,8 @@ const ContactPage = () => {
             <div className="bg-accent/10 rounded-2xl p-8">
               <h3 className="text-xl font-bold text-gray-900 mb-4">📰 Got a News Tip?</h3>
               <p className="text-gray-700 mb-4">
-                We value our community's input! If you have a story tip or witnessed 
-                something newsworthy, don't hesitate to reach out.
+                We value our community&apos;s input! If you have a story tip or witnessed 
+                something newsworthy, don&apos;t hesitate to reach out.
               </p>
               <div className="space-y-2 text-sm text-gray-600">
                 <p>• Use our secure tip line: tips@ghnewsmedia.com</p>

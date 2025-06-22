@@ -1,4 +1,3 @@
-
 import { NewsArticle } from '../types/news';
 
 class AdvancedSEOService {
@@ -32,7 +31,7 @@ class AdvancedSEOService {
     }
   }
 
-  private async submitToGoogleIndexing(url: string): Promise<void> {
+  private async submitToGoogleIndexing(_url: string): Promise<void> {
     // In production, this would use Google Indexing API with proper authentication
     // For now, we'll use the sitemap ping method
     try {
@@ -43,7 +42,7 @@ class AdvancedSEOService {
     }
   }
 
-  private async submitToBingIndexing(url: string): Promise<void> {
+  private async submitToBingIndexing(_url: string): Promise<void> {
     // Bing ping endpoint
     try {
       const pingUrl = `https://www.bing.com/ping?sitemap=${encodeURIComponent(this.baseUrl + '/sitemap.xml')}`;
@@ -121,7 +120,7 @@ class AdvancedSEOService {
   }
 
   // Optimize images for social media and search
-  optimizeImageForSEO(imageUrl: string, title: string): string {
+  optimizeImageForSEO(imageUrl: string, _title: string): string {
     if (!imageUrl) {
       return `${this.baseUrl}/og-default.jpg`;
     }

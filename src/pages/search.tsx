@@ -318,7 +318,7 @@ const SearchPage: React.FC = () => {
                   {query ? `No articles found for "${query}".` : 'No articles match your current filters.'}
                 </p>
                 <p className="text-gray-500 mb-6 sm:mb-8 text-sm sm:text-base">
-                  Try adjusting your search terms or filters to find what you're looking for.
+                  Try adjusting your search terms or filters to find what you&quot;re looking for.
                 </p>
                 <div className="flex flex-wrap justify-center gap-2">
                   <span className="text-xs sm:text-sm text-gray-500 mr-2">Popular searches:</span>

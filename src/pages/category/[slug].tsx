@@ -10,7 +10,7 @@ import { Category, NewsArticle } from '@/types/news';
 import { getCategoryIcon } from '@/utils/categoryIcons';
 import { generateMetaTitle, truncateDescription } from '@/utils/seo';
 import { GetServerSideProps } from 'next';
-
+import Link from 'next/link';
 interface CategoryPageProps {
   category: Category | null;
   articles: NewsArticle[];
@@ -40,12 +40,12 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
           <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">
             {error}
           </p>
-          <a 
+          <Link
             href="/" 
             className="bg-primary text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-primary-700 transition-colors text-sm sm:text-base"
           >
             Go Home
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -65,14 +65,14 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
             Category Not Found
           </h1>
           <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">
-            Sorry, the category you're looking for doesn't exist.
+            Sorry, the category you&apos;re looking for doesn&apos;t exist.
           </p>
-          <a 
+          <Link
             href="/" 
             className="bg-primary text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-primary-700 transition-colors text-sm sm:text-base"
           >
             Go Home
-          </a>
+          </Link>
         </div>
       </div>
     );

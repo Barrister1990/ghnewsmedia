@@ -60,3 +60,28 @@ export interface ReactionType {
   emoji: string;
   label: string;
 }
+export type RawArticle = {
+  id: string;
+  title: string;
+  slug?: string;
+  excerpt?: string;
+  content: string;
+  featured_image?: string;
+  author_id?: string;
+  author_name?: string;
+  author_avatar?: string;
+  category_id?: string;
+  category_name?: string;
+  category_color?: string;
+  category_icon?: string;
+  tag_names?: string[];
+  published_at?: string;
+  created_at?: string;
+  updated_at?: string;
+  read_time?: number;
+  views?: number;
+  featured?: boolean;
+  trending?: boolean;
+  status?: string;
+};
+

@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Author, NewsArticle } from '@/types/news';
 import { generateMetaTitle, truncateDescription } from '@/utils/seo';
 import { Facebook, Linkedin, Twitter } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
@@ -35,7 +36,8 @@ const transformToNewsArticle = (article: any): NewsArticle => {
       slug: article.category_name?.toLowerCase().replace(/\s+/g, '-') || 'general',
       description: '',
       color: article.category_color || '#3B82F6',
-      icon: article.category_icon || '📰'
+      icon: article.category_icon || '📰',
+      updated_at: article.updated_at
     },
     tags: article.tag_names || [],
     publishedAt: article.published_at || article.created_at,
@@ -110,7 +112,7 @@ const AuthorPage = () => {
         } else {
           setAuthor(null);
         }
-      } catch (err: any) {
+      } catch (err:any) {
         console.error("Error fetching author data:", err);
         setError(err.message || 'An unknown error occurred.');
       } finally {
@@ -138,9 +140,9 @@ const AuthorPage = () => {
         <div className="text-center p-4">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Error</h1>
           <p className="text-gray-600 mb-8">Could not load author details: {error}</p>
-          <a href="/" className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors">
+          <Link href="/" className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors">
             Go Home
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -156,10 +158,10 @@ const AuthorPage = () => {
         />
         <div className="text-center p-4">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Author Not Found</h1>
-          <p className="text-gray-600 mb-8">Sorry, the author you're looking for doesn't exist.</p>
-          <a href="/" className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors">
+          <p className="text-gray-600 mb-8">Sorry, the author you&apos;re looking for doesn&apos;t exist.</p>
+          <Link href="/" className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors">
             Go Home
-          </a>
+          </Link>
         </div>
       </div>
     );

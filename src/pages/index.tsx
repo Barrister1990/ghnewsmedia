@@ -1,5 +1,6 @@
 import { Search } from 'lucide-react';
 import { GetServerSideProps } from 'next';
+import Link from 'next/link';
 import { useState } from 'react';
 import BreakingNews from '../components/BreakingNews';
 import CategoriesGrid from '../components/CategoriesGrid';
@@ -97,7 +98,7 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
         <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
           <div className="text-center py-8 sm:py-12">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Unable to Load Articles</h2>
-            <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 px-4">We're experiencing some technical difficulties. Please try again later.</p>
+            <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 px-4">We&apos;re experiencing some technical difficulties. Please try again later.</p>
             <button 
               onClick={() => window.location.reload()}
               className="bg-primary text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-primary-700 transition-colors text-sm sm:text-base"
@@ -140,18 +141,18 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
         {/* Top Info Bar */}
         <section className="bg-white rounded-xl p-4 sm:p-6 shadow-sm mb-6 sm:mb-8 lg:mb-12">
           <div className="text-center">
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 lg:mb-4">Welcome to Ghana's Premier News Source</h2>
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 lg:mb-4">Welcome to Ghana&apos;s Premier News Source</h2>
             <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-5 lg:mb-6 px-2">
               Stay updated with the latest breaking news, politics, business, sports, and entertainment from across Ghana and West Africa. 
               Trusted by millions for accurate, timely reporting.
             </p>
-            <a 
+            <Link
               href="/search" 
               className="inline-flex items-center gap-2 bg-primary text-white px-4 sm:px-5 lg:px-6 py-2.5 sm:py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm sm:text-base"
             >
               <Search className="w-4 h-4 sm:w-5 sm:h-5" />
               <span>Explore News Archive</span>
-            </a>
+            </Link>
           </div>
         </section>
         
@@ -167,14 +168,14 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
               <section>
                 <div className="flex items-center justify-between mb-4 sm:mb-6">
                   <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Featured Stories</h2>
-                  <a 
+                  <Link 
                     href="/search" 
                     className="text-primary hover:text-primary-700 font-medium flex items-center gap-1 text-sm sm:text-base"
                   >
                     <Search className="w-3 h-3 sm:w-4 sm:h-4" />
                     <span className="hidden sm:inline">Search All</span>
                     <span className="sm:hidden">Search</span>
-                  </a>
+                  </Link>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                   {/* Main Featured Article */}
@@ -203,14 +204,14 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-2 sm:gap-4">
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Latest News</h2>
                 <div className="flex items-center gap-3 sm:gap-4">
-                  <a 
+                  <Link 
                     href="/search" 
                     className="text-primary hover:text-primary-700 font-medium flex items-center gap-1 text-sm sm:text-base"
                   >
                     <Search className="w-3 h-3 sm:w-4 sm:h-4" />
                     <span className="hidden sm:inline">Search</span>
                     <span className="sm:hidden">Find</span>
-                  </a>
+                  </Link>
                   {totalPages > 1 && (
                     <span className="text-gray-600 text-sm sm:text-base">
                       Page {currentPage} of {totalPages}
