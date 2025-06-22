@@ -108,7 +108,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({ article }) => {
       const headerMatch = trimmedBlock.match(/^(#+)\s+(.+)$/);
       if (headerMatch) {
         const [, hashes, text] = headerMatch;
-        const level = hashes.length;
+        const level = Math.min(hashes.length, 6);
         
         const headerClasses = {
           1: 'text-4xl font-bold mt-12 mb-6 text-gray-900',
@@ -119,16 +119,27 @@ const ArticleContent: React.FC<ArticleContentProps> = ({ article }) => {
           6: 'text-base font-bold mt-6 mb-3 text-gray-900'
         };
 
-        const HeaderTag = `h${Math.min(level, 6)}` as keyof JSX.IntrinsicElements;
-        
-        return React.createElement(
-          HeaderTag,
-          {
-            key: index,
-            className: headerClasses[Math.min(level, 6) as keyof typeof headerClasses]
-          },
-          text
-        );
+        // Use a more type-safe approach for dynamic header creation
+        const headerProps = {
+          key: index,
+          className: headerClasses[level as keyof typeof headerClasses]
+        };
+
+        switch (level) {
+          case 1:
+            return <h1 {...headerProps}>{text}</h1>;
+          case 2:
+            return <h2 {...headerProps}>{text}</h2>;
+          case 3:
+            return <h3 {...headerProps}>{text}</h3>;
+          case 4:
+            return <h4 {...headerProps}>{text}</h4>;
+          case 5:
+            return <h5 {...headerProps}>{text}</h5>;
+          case 6:
+          default:
+            return <h6 {...headerProps}>{text}</h6>;
+        }
       }
 
       // Handle blockquotes
