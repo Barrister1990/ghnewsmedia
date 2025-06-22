@@ -95,8 +95,18 @@ const Footer = () => {
             © 2024 GhNewsMedia. All rights reserved.
           </p>
           <p className="text-gray-400 text-sm mt-2 md:mt-0">
-            Made with ❤️ in Ghana
-          </p>
+  Developed by{' '}
+  <a
+    href="https://charlesawuku.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-gray-400 hover:underline"
+  >
+    Charles Awuku
+  </a>
+
+</p>
+
         </div>
       </div>
     </footer>
