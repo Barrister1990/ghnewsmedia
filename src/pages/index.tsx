@@ -1,5 +1,5 @@
-
 import { Search } from 'lucide-react';
+import { GetServerSideProps } from 'next';
 import { useState } from 'react';
 import BreakingNews from '../components/BreakingNews';
 import CategoriesGrid from '../components/CategoriesGrid';
@@ -16,13 +16,19 @@ import SitemapGenerator from '../components/SEO/SitemapGenerator';
 import SocialMediaFeed from '../components/SocialMediaFeed';
 import TrendingCarousel from '../components/TrendingCarousel';
 import TrendingTopics from '../components/TrendingTopics';
-import { usePublishedArticles } from '../hooks/usePublishedArticles';
+import { supabase } from '../integrations/supabase/client';
+import { transformToNewsArticle } from '../lib/articles';
+import { NewsArticle } from '../types/news';
 import { generateOrganizationStructuredData, generateWebSiteStructuredData } from '../utils/seo';
 
-const Index = () => {
+interface IndexProps {
+  articles: NewsArticle[];
+  error?: string;
+}
+
+const Index: React.FC<IndexProps> = ({ articles, error }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const articlesPerPage = 6;
-  const { articles, loading, error } = usePublishedArticles();
   
   const featuredArticles = articles.filter(article => article.featured);
   const latestArticles = articles.filter(article => !article.featured);
@@ -39,52 +45,39 @@ const Index = () => {
 
   const combinedStructuredData = [
     generateOrganizationStructuredData(),
-    generateWebSiteStructuredData()
+    generateWebSiteStructuredData(),
+    // Add homepage-specific structured data
+    {
+      "@context": "https://schema.org",
+      "@type": "NewsMediaOrganization",
+      "name": "GhNewsMedia",
+      "url": "https://ghnewsmedia.com",
+      "logo": "https://ghnewsmedia.com/logo.png",
+      "sameAs": [
+        "https://twitter.com/ghnewsmedia",
+        "https://facebook.com/ghnewsmedia",
+        "https://instagram.com/ghnewsmedia"
+      ],
+      "mainEntity": {
+        "@type": "ItemList",
+        "numberOfItems": articles.length,
+        "itemListElement": articles.slice(0, 10).map((article, index) => ({
+          "@type": "NewsArticle",
+          "position": index + 1,
+          "headline": article.title,
+          "url": `https://ghnewsmedia.com/news/${article.slug}`,
+          "datePublished": article.publishedAt,
+          "author": {
+            "@type": "Person",
+            "name": article.author.name
+          }
+        }))
+      }
+    }
   ];
 
   const seoTitle = "GhNewsMedia - Ghana's Premier Digital News Platform";
   const seoDescription = "Stay informed with Ghana's leading digital news platform. Get breaking news, politics, business, sports, and entertainment updates from trusted journalists across Ghana. Real-time coverage of Accra and beyond.";
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <EnhancedSEOHead
-          title={seoTitle}
-          description={seoDescription}
-          canonical="https://ghnewsmedia.com"
-          type="website"
-          tags={['Ghana news', 'breaking news', 'politics', 'business', 'sports', 'entertainment', 'Accra news', 'Ghana politics', 'West Africa news']}
-          structuredData={combinedStructuredData}
-          language="en-GB"
-        />
-        
-        <SitemapGenerator />
-        <ReadingProgress />
-        <Header />
-        
-        <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-          <div className="space-y-6 sm:space-y-8">
-            <div className="animate-pulse">
-              <div className="h-6 sm:h-8 bg-gray-200 rounded w-2/3 sm:w-1/3 mb-3 sm:mb-4"></div>
-              <div className="h-3 sm:h-4 bg-gray-200 rounded w-full sm:w-1/2 mb-6 sm:mb-8"></div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="bg-white rounded-lg shadow-sm p-3 sm:p-4">
-                    <div className="h-40 sm:h-48 bg-gray-200 rounded mb-3 sm:mb-4"></div>
-                    <div className="h-3 sm:h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                    <div className="h-3 sm:h-4 bg-gray-200 rounded w-1/2"></div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </main>
-        
-        <Footer />
-        <ScrollToTop />
-      </div>
-    );
-  }
 
   if (error) {
     return (
@@ -265,6 +258,57 @@ const Index = () => {
       <ScrollToTop />
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps<IndexProps> = async (context) => {
+  try {
+    // Fetch published articles from Supabase
+    const { data: articlesData, error: articlesError } = await supabase
+      .from('articles_with_details')
+      .select('*')
+      .eq('status', 'published')
+      .order('published_at', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: false })
+      .limit(50); // Limit for homepage performance
+
+    if (articlesError) {
+      console.error('Error fetching articles:', articlesError);
+      return {
+        props: {
+          articles: [],
+          error: 'Failed to load articles'
+        }
+      };
+    }
+
+    // Transform articles, handling potential null values
+    const transformedArticles = (articlesData || [])
+      .filter(article => article.id && article.title && article.content) // Filter out incomplete articles
+      .map(transformToNewsArticle);
+
+    // Set cache headers for better performance
+    // Homepage should be cached more aggressively since it's the main entry point
+    context.res.setHeader(
+      'Cache-Control',
+      'public, s-maxage=180, stale-while-revalidate=360'
+    );
+
+    return {
+      props: {
+        articles: transformedArticles,
+      },
+    };
+
+  } catch (error) {
+    console.error('Error in getServerSideProps:', error);
+    
+    return {
+      props: {
+        articles: [],
+        error: 'An unexpected error occurred while loading articles'
+      }
+    };
+  }
 };
 
 export default Index;

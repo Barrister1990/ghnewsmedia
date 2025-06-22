@@ -1,27 +1,28 @@
 
-import React from 'react';
-import { 
-  Newspaper, 
-  TrendingUp, 
-  Briefcase, 
-  Trophy, 
-  Gamepad2, 
-  Heart, 
-  Zap, 
-  Globe, 
-  Users, 
-  Car,
-  Plane,
-  Music,
-  Camera,
-  Laptop,
-  Building,
-  GraduationCap,
+import {
   Activity,
-  ShoppingBag,
+  Briefcase,
+  Building,
+  Camera,
+  Car,
+  Clock,
+  Gamepad2,
+  Globe,
+  GraduationCap,
+  Heart,
   Home,
-  Clock
+  Laptop,
+  Music,
+  Newspaper,
+  Plane,
+  ShoppingBag,
+  TrendingUp,
+  Trophy,
+  Users,
+  Zap
 } from 'lucide-react';
+import Link from 'next/link';
+import React from 'react';
 import { useSupabaseCategories } from '../hooks/useSupabaseCategories';
 
 // Mapping of category names to Lucide icons
@@ -93,7 +94,7 @@ const CategoriesGrid = () => {
       <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Browse by Category</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
         {categories.map((category) => (
-          <a
+          <Link
             key={category.id}
             href={`/category/${category.slug}`}
             className="group p-4 sm:p-5 lg:p-6 rounded-xl text-center transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
@@ -112,7 +113,7 @@ const CategoriesGrid = () => {
             >
               {category.name}
             </h3>
-          </a>
+          </Link>
         ))}
       </div>
     </section>

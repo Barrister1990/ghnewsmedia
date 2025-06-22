@@ -1,6 +1,5 @@
-
-import React, { useState } from 'react';
-import { Facebook, Twitter, MessageCircle, Link, Mail, Share2 } from 'lucide-react';
+import { Facebook, Link, Mail, MessageCircle, Share2, Twitter } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface ShareButtonsProps {
   url: string;
@@ -10,14 +9,20 @@ interface ShareButtonsProps {
   className?: string;
 }
 
-const ShareButtons: React.FC<ShareButtonsProps> = ({ 
-  url, 
-  title, 
+const ShareButtons: React.FC<ShareButtonsProps> = ({
+  url,
+  title,
   description = '',
   image = '',
-  className = '' 
+  className = ''
 }) => {
   const [copied, setCopied] = useState(false);
+  const [isShareSupported, setIsShareSupported] = useState(false);
+
+  // Check if Web Share API is supported
+  useEffect(() => {
+    setIsShareSupported(typeof navigator !== 'undefined' && 'share' in navigator);
+  }, []);
 
   const shareData = {
     url: encodeURIComponent(url),
@@ -60,11 +65,25 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (fallbackErr) {
+        console.error('Fallback copy failed:', fallbackErr);
+      }
+      document.body.removeChild(textArea);
     }
   };
 
   const handleNativeShare = async () => {
-    if (navigator.share) {
+    if (isShareSupported && navigator.share) {
       try {
         await navigator.share({
           title: title,
@@ -72,7 +91,10 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
           url: url,
         });
       } catch (err) {
-        console.error('Error sharing:', err);
+        // User cancelled the share or an error occurred
+        if (err instanceof Error && err.name !== 'AbortError') {
+          console.error('Error sharing:', err);
+        }
       }
     }
   };
@@ -89,6 +111,7 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
             rel="noopener noreferrer"
             className={`p-2 rounded-lg text-white transition-colors ${social.color}`}
             title={`Share on ${social.name}`}
+            aria-label={`Share on ${social.name}`}
           >
             <social.icon className="w-4 h-4" />
           </a>
@@ -97,21 +120,23 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
         <button
           onClick={copyToClipboard}
           className={`p-2 rounded-lg transition-colors ${
-            copied 
-              ? 'bg-green-500 hover:bg-green-600' 
+            copied
+              ? 'bg-green-500 hover:bg-green-600'
               : 'bg-gray-500 hover:bg-gray-600'
           } text-white`}
           title={copied ? 'Copied!' : 'Copy link'}
+          aria-label={copied ? 'Link copied to clipboard' : 'Copy link to clipboard'}
         >
           <Link className="w-4 h-4" />
         </button>
 
-        {/* Native share button for mobile devices */}
-        {navigator.share && (
+        {/* Native share button for supported devices */}
+        {isShareSupported && (
           <button
             onClick={handleNativeShare}
-            className="p-2 rounded-lg bg-primary hover:bg-primary-700 text-white transition-colors"
+            className="p-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
             title="Share via device"
+            aria-label="Share using device's native share menu"
           >
             <Share2 className="w-4 h-4" />
           </button>

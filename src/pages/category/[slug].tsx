@@ -1,60 +1,57 @@
-
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import NewsCard from '@/components/NewsCard';
 import ScrollToTop from '@/components/ScrollToTop';
 import BreadcrumbSEO from '@/components/SEO/BreadcrumbSEO';
 import SEOHead from '@/components/SEO/SEOHead';
-import { usePublishedArticles } from '@/hooks/usePublishedArticles';
-import { useSupabaseCategories } from '@/hooks/useSupabaseCategories';
+import { supabase } from '@/integrations/supabase/client';
+import { transformToNewsArticle } from '@/lib/articles';
+import { Category, NewsArticle } from '@/types/news';
 import { getCategoryIcon } from '@/utils/categoryIcons';
 import { generateMetaTitle, truncateDescription } from '@/utils/seo';
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { GetServerSideProps } from 'next';
 
-const CategoryPage = () => {
-    const router = useRouter();
-  const { slug } = router.query;
-  const { articles, loading: articlesLoading } = usePublishedArticles();
-  const { categories, loading: categoriesLoading } = useSupabaseCategories();
-  const [category, setCategory] = useState(null);
-  const [categoryArticles, setCategoryArticles] = useState([]);
+interface CategoryPageProps {
+  category: Category | null;
+  articles: NewsArticle[];
+  totalArticles: number;
+  error?: string;
+}
 
-  useEffect(() => {
-    if (!categoriesLoading && !articlesLoading && categories.length > 0 && articles.length > 0) {
-      const foundCategory = categories.find(c => c.slug === slug);
-      if (foundCategory) {
-        setCategory(foundCategory);
-        const filteredArticles = articles.filter(article => article.category.slug === slug);
-        setCategoryArticles(filteredArticles);
-      }
-    }
-  }, [categories, articles, categoriesLoading, articlesLoading, slug]);
-
-  if (categoriesLoading || articlesLoading) {
+const CategoryPage: React.FC<CategoryPageProps> = ({ 
+  category, 
+  articles, 
+  totalArticles, 
+  error 
+}) => {
+  // Handle error state
+  if (error) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-          <div className="text-center mb-8 sm:mb-12 animate-pulse">
-            <div className="h-8 sm:h-10 lg:h-12 bg-gray-200 rounded w-1/2 mx-auto mb-3 sm:mb-4"></div>
-            <div className="h-4 sm:h-5 lg:h-6 bg-gray-200 rounded w-1/3 mx-auto mb-6 sm:mb-8"></div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="bg-white rounded-xl shadow-sm p-3 sm:p-4">
-                  <div className="h-40 sm:h-48 bg-gray-200 rounded mb-3 sm:mb-4"></div>
-                  <div className="h-3 sm:h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-3 sm:h-4 bg-gray-200 rounded w-1/2"></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </main>
-        <Footer />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <SEOHead
+          title="Error - GhNewsMedia"
+          description="An error occurred while loading the category page."
+          canonical="https://ghnewsmedia.com"
+        />
+        <div className="text-center px-4">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
+            Something went wrong
+          </h1>
+          <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">
+            {error}
+          </p>
+          <a 
+            href="/" 
+            className="bg-primary text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-primary-700 transition-colors text-sm sm:text-base"
+          >
+            Go Home
+          </a>
+        </div>
       </div>
     );
   }
 
+  // Handle category not found
   if (!category) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -64,9 +61,16 @@ const CategoryPage = () => {
           canonical="https://ghnewsmedia.com/404"
         />
         <div className="text-center px-4">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Category Not Found</h1>
-          <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">Sorry, the category you're looking for doesn't exist.</p>
-          <a href="/" className="bg-primary text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-primary-700 transition-colors text-sm sm:text-base">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
+            Category Not Found
+          </h1>
+          <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">
+            Sorry, the category you're looking for doesn't exist.
+          </p>
+          <a 
+            href="/" 
+            className="bg-primary text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-primary-700 transition-colors text-sm sm:text-base"
+          >
             Go Home
           </a>
         </div>
@@ -87,8 +91,8 @@ const CategoryPage = () => {
     "url": `https://ghnewsmedia.com/category/${category.slug}`,
     "mainEntity": {
       "@type": "ItemList",
-      "numberOfItems": categoryArticles.length,
-      "itemListElement": categoryArticles.slice(0, 10).map((article, index) => ({
+      "numberOfItems": totalArticles,
+      "itemListElement": articles.slice(0, 10).map((article, index) => ({
         "@type": "NewsArticle",
         "position": index + 1,
         "headline": article.title,
@@ -139,13 +143,13 @@ const CategoryPage = () => {
               Latest {category.name} News
             </h2>
             <span className="text-gray-600 text-sm sm:text-base">
-              {categoryArticles.length} articles
+              {totalArticles} articles
             </span>
           </div>
           
-          {categoryArticles.length > 0 ? (
+          {articles.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {categoryArticles.map((article) => (
+              {articles.map((article) => (
                 <NewsCard key={article.id} article={article} />
               ))}
             </div>
@@ -163,6 +167,94 @@ const CategoryPage = () => {
       <ScrollToTop />
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps<CategoryPageProps> = async (context) => {
+  const { slug } = context.query;
+  
+  // Ensure slug is a string
+  if (!slug || typeof slug !== 'string') {
+    return {
+      notFound: true,
+    };
+  }
+
+  try {
+    // Fetch category data
+    const { data: categoryData, error: categoryError } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+
+    if (categoryError || !categoryData) {
+      return {
+        notFound: true,
+      };
+    }
+
+    // Transform category data
+    const category: Category = {
+      id: categoryData.id,
+      name: categoryData.name,
+      slug: categoryData.slug,
+      description: categoryData.description || '',
+      color: categoryData.color,
+      icon: categoryData.icon || '📰'
+    };
+
+    // Fetch articles for this category
+    const { data: articlesData, error: articlesError } = await supabase
+      .from('articles_with_details')
+      .select('*')
+      .eq('status', 'published')
+      .eq('category_id', categoryData.id) // Assuming your view has category_slug
+      .order('published_at', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: false });
+
+    if (articlesError) {
+      console.error('Error fetching articles:', articlesError);
+      return {
+        props: {
+          category,
+          articles: [],
+          totalArticles: 0,
+          error: 'Failed to load articles'
+        }
+      };
+    }
+
+    // Transform articles
+    const transformedArticles = (articlesData || [])
+      .filter(article => article.id && article.title && article.content)
+      .map(transformToNewsArticle);
+
+    // Set cache headers for better performance
+    context.res.setHeader(
+      'Cache-Control',
+      'public, s-maxage=300, stale-while-revalidate=600'
+    );
+
+    return {
+      props: {
+        category,
+        articles: transformedArticles,
+        totalArticles: transformedArticles.length,
+      },
+    };
+
+  } catch (error) {
+    console.error('Error in getServerSideProps:', error);
+    
+    return {
+      props: {
+        category: null,
+        articles: [],
+        totalArticles: 0,
+        error: 'An unexpected error occurred'
+      }
+    };
+  }
 };
 
 export default CategoryPage;

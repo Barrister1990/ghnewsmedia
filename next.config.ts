@@ -2,7 +2,25 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['images.unsplash.com', 'your-supabase-url.supabase.co'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'zodidixpxznfsopxdhyr.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+       {
+        protocol: 'https',
+        hostname: '**', // allow all HTTPS image sources
+      },
+    ],
+  },
+  experimental: {
+    allowedDevOrigins: ['http://192.168.0.179:3000'],
   },
   async rewrites() {
     return [
