@@ -92,8 +92,14 @@ const AnimatedLoading = () => {
   );
 };
 
+// Props interface for LoadingWrapper
+interface LoadingWrapperProps {
+  children: React.ReactNode;
+  loadingTime?: number;
+}
+
 // Loading wrapper component with timer
-const LoadingWrapper = ({ children, loadingTime = 3000 }) => {
+const LoadingWrapper: React.FC<LoadingWrapperProps> = ({ children, loadingTime = 3000 }) => {
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
@@ -108,12 +114,8 @@ const LoadingWrapper = ({ children, loadingTime = 3000 }) => {
     return <AnimatedLoading />;
   }
 
-  return children;
+  return <>{children}</>;
 };
-
-
-
 
 // Named exports
 export { AnimatedLoading, LoadingWrapper };
-
