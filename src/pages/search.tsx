@@ -1,3 +1,4 @@
+import { NewsArticle } from '@/types/news';
 import { Search } from 'lucide-react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -8,7 +9,6 @@ import Header from '../components/Header';
 import NewsCard from '../components/NewsCard';
 import ScrollToTop from '../components/ScrollToTop';
 import { usePublishedArticles } from '../hooks/usePublishedArticles';
-
 interface SearchFilters {
   category: string;
   dateRange: string;
@@ -17,30 +17,7 @@ interface SearchFilters {
   tags: string[];
 }
 
-interface NewsArticle {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  featuredImage: string;
-  tags: string[];
-  author: {
-    name: string;
-    avatar?: string;
-  };
-  category: {
-    name: string;
-    slug: string;
-  };
-  publishedAt: string;
-  updatedAt: string;
-  views: number;
-  readTime: number;
-  trending?: boolean;
-  featured?: boolean;
-  status?: string;
-}
+
 
 const SearchPage: React.FC = () => {
   const router = useRouter();
