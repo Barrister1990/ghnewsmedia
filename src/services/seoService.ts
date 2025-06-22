@@ -1,5 +1,5 @@
 
-import { NewsArticle, Category } from '../types/news';
+import { Category, NewsArticle } from '../types/news';
 
 class SEOService {
   private static instance: SEOService;
