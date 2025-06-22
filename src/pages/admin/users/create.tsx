@@ -10,8 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
@@ -26,7 +26,7 @@ const formSchema = z.object({
 });
 
 const CreateUser = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -98,7 +98,7 @@ const CreateUser = () => {
       }
 
       toast.success('User created successfully! They will receive a confirmation email.');
-      navigate('/admin/users');
+      router.push('/admin/users');
     } catch (error) {
       console.error('Error creating user:', error);
       toast.error('Failed to create user');
@@ -112,7 +112,7 @@ const CreateUser = () => {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => navigate('/admin/users')}
+          onClick={() => router.push('/admin/users')}
           className="flex items-center gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -250,7 +250,7 @@ const CreateUser = () => {
               />
 
               <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => navigate('/admin/users')}>
+                <Button type="button" variant="outline" onClick={() => router.push('/admin/users')}>
                   Cancel
                 </Button>
                 <Button type="submit">Create User</Button>
