@@ -1,4 +1,3 @@
-
 import { AnimatedLoading } from '@/components/admin/AnimatedLoading';
 import CMSLayout from '@/components/cms/CMSLayout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -12,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Save, Upload, User } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+
 interface Profile {
   name: string;
   avatar: string | null;
@@ -37,11 +37,17 @@ const CMSProfile = () => {
   }, [user]);
 
   const fetchProfile = async () => {
+    // Add guard clause to ensure user and user.id exist
+    if (!user?.id) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('profiles')
         .select('name, avatar')
-        .eq('id', user?.id)
+        .eq('id', user.id) // Now TypeScript knows user.id is defined
         .single();
 
       if (error && error.code !== 'PGRST116') {
@@ -73,9 +79,11 @@ const CMSProfile = () => {
   };
 
   const uploadAvatar = async (file: File): Promise<string | null> => {
+    if (!user?.id) return null;
+
     try {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user?.id}-${Math.random()}.${fileExt}`;
+      const fileName = `${user.id}-${Math.random()}.${fileExt}`;
       const filePath = `avatars/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
@@ -98,7 +106,7 @@ const CMSProfile = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user?.id) return;
 
     setSaving(true);
     try {
