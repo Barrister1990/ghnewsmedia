@@ -29,7 +29,8 @@ export const transformToNewsArticle = (article: any): NewsArticle => {
       slug: article.category_name?.toLowerCase().replace(/\s+/g, '-') || 'general',
       description: '',
       color: article.category_color || '#3B82F6',
-      icon: article.category_icon || '📰'
+      icon: article.category_icon || '📰',
+      updated_at: article.updated_at
     },
     tags: article.tag_names || [],
     publishedAt: article.published_at || article.created_at || new Date().toISOString(),

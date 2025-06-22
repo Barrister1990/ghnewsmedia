@@ -1,38 +1,135 @@
 // pages/sitemap.xml.tsx
 import { fetchPublishedArticles } from '@/lib/articles';
+import { fetchAllCategories } from '@/lib/categories';
 import { GetServerSideProps } from 'next';
 
 const Sitemap = () => null;
 
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
-  const { articles } = await fetchPublishedArticles();
+  try {
+    // Fetch data from your database/API
+    const { articles } = await fetchPublishedArticles();
+    const { categories } = await fetchAllCategories();
+    // const { authors } = await fetchAllAuthors(); // Uncomment if you have authors
+
+    const baseUrl = 'https://ghnewsmedia.com';
+    const currentDate = new Date().toISOString();
+
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   
-  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-      <url>
-        <loc>https://ghnewsmedia.com</loc>
-        <changefreq>daily</changefreq>
-        <priority>1.0</priority>
-      </url>
-      ${articles
-        .map((article) => {
-          return `
-            <url>
-              <loc>https://ghnewsmedia.com/news/${article.slug}</loc>
-              <lastmod>${article.updatedAt}</lastmod>
-              <changefreq>weekly</changefreq>
-              <priority>0.8</priority>
-            </url>
-          `;
-        })
-        .join('')}
-    </urlset>`;
+  <!-- Homepage -->
+  <url>
+    <loc>${baseUrl}</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <!-- Static pages -->
+  <url>
+    <loc>${baseUrl}/about</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/contact</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/careers</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/search</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <!-- Category pages -->
+  ${categories
+    .map((category) => {
+      return `  <url>
+    <loc>${baseUrl}/category/${category.slug}</loc>
+    <lastmod>${category.updated_at || currentDate}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>`;
+    })
+    .join('\n')}
+  
+  <!-- Author pages (uncomment if needed) -->
+  ${/* authors
+    .map((author) => {
+      return `  <url>
+    <loc>${baseUrl}/author/${author.slug || author.id}</loc>
+    <lastmod>${author.updated_at || currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>`;
+    })
+    .join('\n') || */ ''}
+  
+  <!-- News articles with Google News sitemap -->
+  ${articles
+    .map((article) => {
+      // Check if article is recent (within 3 days for Google News)
+      const isRecentNews = new Date(article.updatedAt || article.publishedAt) > 
+        new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+      
+      return `  <url>
+    <loc>${baseUrl}/news/${article.slug}</loc>
+    <lastmod>${article.updatedAt || article.publishedAt}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    ${isRecentNews ? `<news:news>
+      <news:publication>
+        <news:name>GhNewsMedia</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>${article.updatedAt || article.publishedAt}</news:publication_date>
+      <news:title>${escapeXml(article.title)}</news:title>
+    </news:news>` : ''}
+  </url>`;
+    })
+    .join('\n')}
+    
+</urlset>`;
 
-  res.setHeader('Content-Type', 'text/xml');
-  res.write(sitemap);
-  res.end();
+    res.setHeader('Content-Type', 'text/xml');
+    res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate');
+    res.write(sitemap);
+    res.end();
 
-  return { props: {} };
+    return { props: {} };
+  } catch (error) {
+    console.error('Error generating sitemap:', error);
+    res.statusCode = 500;
+    res.end();
+    return { props: {} };
+  }
 };
+
+// Helper function to escape XML characters
+function escapeXml(unsafe: string): string {
+  return unsafe.replace(/[<>&'"]/g, function (c) {
+    switch (c) {
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '&': return '&amp;';
+      case "'": return '&apos;';
+      case '"': return '&quot;';
+      default: return c;
+    }
+  });
+}
 
 export default Sitemap;

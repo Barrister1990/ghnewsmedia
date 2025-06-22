@@ -200,7 +200,8 @@ export const getServerSideProps: GetServerSideProps<CategoryPageProps> = async (
       slug: categoryData.slug,
       description: categoryData.description || '',
       color: categoryData.color,
-      icon: categoryData.icon || '📰'
+      icon: categoryData.icon || '📰',
+      updated_at: categoryData.updated_at
     };
 
     // Fetch articles for this category

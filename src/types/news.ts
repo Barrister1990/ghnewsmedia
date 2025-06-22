@@ -44,6 +44,7 @@ export interface Category {
   description: string;
   color: string;
   icon: string;
+  updated_at: string;
 }
 
 export interface Comment {
