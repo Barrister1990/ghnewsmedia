@@ -10,7 +10,8 @@ export const transformToCategory = (cat: any): Category => {
     slug: cat.slug,
     description: cat.description || '',
     color: cat.color,
-    icon: cat.icon || '📰'
+    icon: cat.icon || '📰',
+    updated_at: cat.updated_at
   };
 };
 
