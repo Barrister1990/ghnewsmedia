@@ -1,13 +1,13 @@
 
-import { NewsArticle, Author, Category } from '../types/news';
+import { Author, Category, NewsArticle } from '../types/news';
 
 export const categories: Category[] = [
-  { id: '1', name: 'Politics', slug: 'politics', description: 'Ghana politics and governance', color: '#1e40af', icon: '🏛️' },
-  { id: '2', name: 'Business', slug: 'business', description: 'Business and economy news', color: '#059669', icon: '💼' },
-  { id: '3', name: 'Sports', slug: 'sports', description: 'Sports news and updates', color: '#dc2626', icon: '⚽' },
-  { id: '4', name: 'Technology', slug: 'technology', description: 'Tech and innovation', color: '#7c3aed', icon: '💻' },
-  { id: '5', name: 'Entertainment', slug: 'entertainment', description: 'Entertainment and lifestyle', color: '#f59e0b', icon: '🎭' },
-  { id: '6', name: 'Health', slug: 'health', description: 'Health and wellness', color: '#10b981', icon: '🏥' }
+  { id: '1', name: 'Politics', slug: 'politics', description: 'Ghana politics and governance', color: '#1e40af', icon: '🏛️', updated_at: "" },
+  { id: '2', name: 'Business', slug: 'business', description: 'Business and economy news', color: '#059669', icon: '💼', updated_at: "" },
+  { id: '3', name: 'Sports', slug: 'sports', description: 'Sports news and updates', color: '#dc2626', icon: '⚽', updated_at: "" },
+  { id: '4', name: 'Technology', slug: 'technology', description: 'Tech and innovation', color: '#7c3aed', icon: '💻', updated_at: "" },
+  { id: '5', name: 'Entertainment', slug: 'entertainment', description: 'Entertainment and lifestyle', color: '#f59e0b', icon: '🎭', updated_at: "" },
+  { id: '6', name: 'Health', slug: 'health', description: 'Health and wellness', color: '#10b981', icon: '🏥', updated_at: "" }
 ];
 
 export const authors: Author[] = [
