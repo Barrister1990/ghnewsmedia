@@ -25,6 +25,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
+
 const articleSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must be less than 200 characters'),
   excerpt: z.string().min(1, 'Excerpt is required').max(500, 'Excerpt must be less than 500 characters'),
@@ -63,9 +64,10 @@ interface SEOData {
 }
 
 const CMSEditArticle = () => {
-const router = useRouter();
-const { id } = router.query;
-const articleId = id as string;
+  const router = useRouter();
+  const { id } = router.query;
+  // Fix 1: Ensure articleId is always a string
+  const articleId = Array.isArray(id) ? id[0] : id;
   const { user } = useAuth();
   const { notifySearchEngines } = useImmediateIndexing();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -112,7 +114,7 @@ const articleId = id as string;
   };
 
   const fetchArticle = async () => {
-    if (!id) return;
+    if (!articleId) return;
 
     try {
       const { data, error } = await supabase
@@ -195,7 +197,7 @@ const articleId = id as string;
   };
 
   const onSubmit = async (data: ArticleFormData) => {
-    if (!user || !id) {
+    if (!user || !articleId) {
       toast.error('Invalid article or user');
       return;
     }
@@ -234,8 +236,9 @@ const articleId = id as string;
 
       // Then add new tags
       if (selectedTags.length > 0) {
+        // Fix 2: Ensure articleId is string for tag inserts
         const tagInserts = selectedTags.map(tagId => ({
-          article_id: id,
+          article_id: articleId, // Now guaranteed to be string
           tag_id: tagId
         }));
 
@@ -250,7 +253,7 @@ const articleId = id as string;
       const currentCategory = categories.find(cat => cat.id === data.category_id);
       if (currentCategory) {
         const updatedArticle = {
-          id: id,
+          id: articleId, // Fix 3: Use articleId which is now guaranteed to be string
           title: data.title,
           slug: data.slug,
           excerpt: data.excerpt || '',
@@ -270,7 +273,8 @@ const articleId = id as string;
             slug: currentCategory.name.toLowerCase().replace(/\s+/g, '-'),
             description: '',
             color: currentCategory.color,
-            icon: '📰'
+            icon: '📰',
+            updated_at: new Date().toISOString()
           },
           tags: selectedTags,
           publishedAt: new Date().toISOString(),

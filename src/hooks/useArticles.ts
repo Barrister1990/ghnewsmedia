@@ -1,6 +1,5 @@
-
-import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface Article {
@@ -29,26 +28,99 @@ interface Article {
   } | null;
 }
 
+// Interface for raw Supabase data
+interface SupabaseArticleData {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string;
+  featured_image: string | null;
+  status: 'draft' | 'published' | 'archived';
+  featured: boolean;
+  trending: boolean;
+  views: number;
+  published_at: string | null;
+  created_at: string;
+  author_id: string;
+  category_id: string;
+  meta_title: string | null;
+  meta_description: string | null;
+  keywords: string[] | null;
+  categories: {
+    name: string;
+    color: string;
+  } | null;
+  profiles: {
+    name: string;
+  } | null;
+}
+
 export const useArticles = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchArticles = async () => {
     try {
-      const { data, error } = await supabase
+      // Try different approaches to get the related data
+      let data, error;
+      
+      // First, try with the foreign key constraint names you used
+      ({ data, error } = await supabase
         .from('articles')
         .select(`
           *,
           categories!articles_category_id_fkey(name, color),
           profiles!articles_author_id_fkey(name)
         `)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }));
+
+      // If that fails, try with simpler foreign key references
+      if (error && error.message.includes('could not find the relation')) {
+        console.log('Trying alternative foreign key references...');
+        ({ data, error } = await supabase
+          .from('articles')
+          .select(`
+            *,
+            categories(name, color),
+            profiles(name)
+          `)
+          .order('created_at', { ascending: false }));
+      }
+
+      // If still failing, try without foreign key names
+      if (error && error.message.includes('could not find the relation')) {
+        console.log('Trying without explicit foreign key references...');
+        ({ data, error } = await supabase
+          .from('articles')
+          .select(`
+            *,
+            category_id,
+            author_id
+          `)
+          .order('created_at', { ascending: false }));
+      }
 
       if (error) throw error;
       
       // Transform the data to match our interface
-      const transformedData = (data || []).map(item => ({
-        ...item,
+      const transformedData: Article[] = (data as unknown as SupabaseArticleData[] || []).map(item => ({
+        id: item.id,
+        title: item.title,
+        slug: item.slug,
+        excerpt: item.excerpt || undefined,
+        content: item.content,
+        featured_image: item.featured_image || undefined,
+        status: item.status,
+        featured: item.featured,
+        trending: item.trending,
+        views: item.views,
+        published_at: item.published_at,
+        created_at: item.created_at,
+        author_id: item.author_id,
+        meta_title: item.meta_title || undefined,
+        meta_description: item.meta_description || undefined,
+        keywords: item.keywords || undefined,
         category: item.categories ? (Array.isArray(item.categories) ? item.categories[0] : item.categories) : null,
         profiles: item.profiles ? (Array.isArray(item.profiles) ? item.profiles[0] : item.profiles) : null
       }));

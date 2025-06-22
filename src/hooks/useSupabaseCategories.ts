@@ -1,7 +1,7 @@
 
-import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Category } from '@/types/news';
+import { useEffect, useState } from 'react';
 
 export const useSupabaseCategories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -29,7 +29,8 @@ export const useSupabaseCategories = () => {
         slug: cat.slug,
         description: cat.description || '',
         color: cat.color,
-        icon: cat.icon || '📰'
+        icon: cat.icon || '📰',
+        updated_at: cat.updated_at
       }));
 
       setCategories(transformedCategories);

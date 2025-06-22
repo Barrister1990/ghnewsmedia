@@ -1,9 +1,9 @@
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, User } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getCategoryIcon } from '@/utils/categoryIcons';
+import { Calendar, Clock, User } from 'lucide-react';
+import React from 'react';
 
 interface ArticlePreviewProps {
   title: string;

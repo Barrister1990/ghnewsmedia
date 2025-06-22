@@ -1,4 +1,3 @@
-
 import AdminLayout from '@/components/admin/AdminLayout';
 import ArticleEditor from '@/components/admin/ArticleEditor';
 import ArticlePreview from '@/components/admin/ArticlePreview';
@@ -25,7 +24,7 @@ interface Article {
   slug: string;
   excerpt?: string | null;
   content: string;
-  featured_image?: string;
+  featured_image?: string | null; // Changed from string | undefined to string | null
   category_id: string;
   status: 'draft' | 'published' | 'archived';
   featured: boolean;
@@ -74,7 +73,7 @@ const articleId = id as string;
     slug: '',
     excerpt: '',
     content: '',
-    featured_image: '',
+    featured_image: null, // Changed from '' to null to match the type
     category_id: '',
     status: 'draft',
     featured: false,
@@ -229,7 +228,7 @@ const articleId = id as string;
           title={article.title}
           excerpt={article.excerpt || ''}
           content={article.content}
-          featuredImage={article.featured_image}
+          featuredImage={article.featured_image || undefined}
           category={currentCategory}
           readTime={article.read_time}
         />
@@ -403,8 +402,8 @@ const articleId = id as string;
               </CardHeader>
               <CardContent>
                 <ImageUpload
-                  value={article.featured_image}
-                  onChange={(url) => setArticle({ ...article, featured_image: url })}
+                  value={article.featured_image || ''} // Handle null case here
+                  onChange={(url) => setArticle({ ...article, featured_image: url || null })}
                   placeholder="Upload or enter featured image URL"
                 />
               </CardContent>

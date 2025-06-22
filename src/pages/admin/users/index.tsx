@@ -16,8 +16,8 @@ interface UserProfile {
   id: string;
   name: string;
   bio?: string | null;
-  avatar?: string ;
-  title?: string;
+  avatar?: string | null; // Changed from string | undefined to string | null
+  title?: string | null;  // Also changed this to match database schema
   created_at: string;
   user_roles?: {
     role: 'admin' | 'editor' | 'moderator' | 'user';
@@ -147,7 +147,7 @@ const UsersManagement = () => {
                   <TableCell>
                     <div className="flex items-center space-x-3">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.avatar} />
+                         <AvatarImage src={user.avatar ?? undefined} />
                         <AvatarFallback>
                           {user.name?.charAt(0).toUpperCase()}
                         </AvatarFallback>
