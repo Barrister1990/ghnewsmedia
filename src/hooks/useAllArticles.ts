@@ -1,6 +1,5 @@
-
-import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface Article {
@@ -65,9 +64,9 @@ export const useAllArticles = () => {
         id: article.id || '',
         title: article.title || '',
         slug: article.slug || '',
-        excerpt: article.excerpt,
+        excerpt: article.excerpt || undefined,
         content: article.content || '',
-        featured_image: article.featured_image,
+        featured_image: article.featured_image || undefined,
         status: article.status || 'draft',
         featured: article.featured || false,
         trending: article.trending || false,
@@ -77,22 +76,22 @@ export const useAllArticles = () => {
         updated_at: article.updated_at || '',
         author_id: article.author_id || '',
         category_id: article.category_id || '',
-        meta_title: article.meta_title,
-        meta_description: article.meta_description,
-        keywords: article.keywords,
+        meta_title: article.meta_title || undefined,
+        meta_description: article.meta_description || undefined,
+        keywords: article.keywords || undefined,
         category: article.category_id ? {
           id: article.category_id,
           name: article.category_name || 'Unknown',
           color: article.category_color || '#3B82F6',
           slug: article.category_id,
           description: undefined,
-          icon: article.category_icon
+          icon: article.category_icon || undefined
         } : null,
         author: article.author_id ? {
           id: article.author_id,
           name: article.author_name || 'Unknown Author',
           bio: undefined,
-          avatar: article.author_avatar,
+          avatar: article.author_avatar || undefined,
           title: undefined
         } : null
       }));

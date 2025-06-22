@@ -1,16 +1,16 @@
-
-import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface Category {
   id: string;
   name: string;
   slug: string;
-  description?: string;
+  description?: string | null;  // Changed to allow null
   color: string;
-  icon?: string;
+  icon?: string | null;         // Changed to allow null
   created_at: string;
+  updated_at?: string;          // Added this field since Supabase returns it
 }
 
 export const useCategories = () => {
@@ -34,7 +34,7 @@ export const useCategories = () => {
     }
   };
 
-  const createCategory = async (categoryData: Omit<Category, 'id' | 'created_at'>) => {
+  const createCategory = async (categoryData: Omit<Category, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       const { error } = await supabase
         .from('categories')
