@@ -294,7 +294,7 @@ export const getServerSideProps: GetServerSideProps<IndexProps> = async (context
     );
 
     return {
-      props: {
+      props: { 
         articles: transformedArticles,
       },
     };

@@ -1,18 +1,16 @@
-
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { 
-  BarChart, 
-  Clock, 
-  Eye, 
-  Target, 
-  TrendingUp, 
-  Users, 
+import {
+  AlertTriangle,
+  BarChart,
+  Clock,
+  Eye,
   FileText,
-  AlertTriangle
+  Target,
+  TrendingUp
 } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 interface ContentAnalyticsProps {
   content: string;
@@ -41,6 +39,15 @@ interface ContentMetrics {
   contentScore: number;
 }
 
+interface ContentScoreData {
+  wordCount: number;
+  headingCount: number;
+  paragraphCount: number;
+  fleschScore: number;
+  imageCount: number;
+  linkCount: number;
+}
+
 const ContentAnalytics: React.FC<ContentAnalyticsProps> = ({
   content,
   title,
@@ -49,13 +56,84 @@ const ContentAnalytics: React.FC<ContentAnalyticsProps> = ({
   const [metrics, setMetrics] = useState<ContentMetrics | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  useEffect(() => {
-    if (content) {
-      analyzeContent();
-    }
-  }, [content]);
+  const calculateAvgSyllables = useCallback((words: string[]): number => {
+    const syllableCount = words.reduce((total, word) => {
+      return total + countSyllables(word);
+    }, 0);
+    return syllableCount / words.length || 0;
+  }, []);
 
-  const analyzeContent = () => {
+  const countSyllables = useCallback((word: string): number => {
+    word = word.toLowerCase();
+    if (word.length <= 3) return 1;
+    word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '');
+    word = word.replace(/^y/, '');
+    const matches = word.match(/[aeiouy]{1,2}/g);
+    return matches ? matches.length : 1;
+  }, []);
+
+  const getReadingLevel = useCallback((score: number): string => {
+    if (score >= 90) return 'Very Easy';
+    if (score >= 80) return 'Easy';
+    if (score >= 70) return 'Fairly Easy';
+    if (score >= 60) return 'Standard';
+    if (score >= 50) return 'Fairly Difficult';
+    if (score >= 30) return 'Difficult';
+    return 'Very Difficult';
+  }, []);
+
+  const countDifficultWords = useCallback((words: string[]): number => {
+    const difficultWords = words.filter(word => {
+      return word.length > 6 && countSyllables(word) > 2;
+    });
+    return difficultWords.length;
+  }, [countSyllables]);
+
+  const analyzeSentiment = useCallback((text: string): 'positive' | 'negative' | 'neutral' => {
+    // Simplified sentiment analysis
+    const positiveWords = ['good', 'great', 'excellent', 'amazing', 'wonderful', 'fantastic', 'success', 'win', 'victory', 'achievement'];
+    const negativeWords = ['bad', 'terrible', 'awful', 'horrible', 'disaster', 'crisis', 'problem', 'issue', 'concern', 'worry'];
+    
+    const words = text.toLowerCase().split(/\s+/);
+    const positiveCount = words.filter(word => positiveWords.includes(word)).length;
+    const negativeCount = words.filter(word => negativeWords.includes(word)).length;
+    
+    if (positiveCount > negativeCount) return 'positive';
+    if (negativeCount > positiveCount) return 'negative';
+    return 'neutral';
+  }, []);
+
+  const calculateContentScore = useCallback((data: ContentScoreData): number => {
+    let score = 0;
+    
+    // Word count (optimal: 1000-2000 words)
+    if (data.wordCount >= 1000 && data.wordCount <= 2000) score += 25;
+    else if (data.wordCount >= 500) score += 15;
+    else if (data.wordCount >= 300) score += 10;
+    
+    // Heading structure
+    if (data.headingCount >= 3) score += 20;
+    else if (data.headingCount >= 1) score += 10;
+    
+    // Readability
+    if (data.fleschScore >= 60 && data.fleschScore <= 80) score += 20;
+    else if (data.fleschScore >= 50) score += 15;
+    
+    // Media elements
+    if (data.imageCount >= 2) score += 15;
+    else if (data.imageCount >= 1) score += 10;
+    
+    // Internal/external links
+    if (data.linkCount >= 3) score += 10;
+    else if (data.linkCount >= 1) score += 5;
+    
+    // Paragraph structure
+    if (data.paragraphCount >= 5) score += 10;
+    
+    return Math.min(score, 100);
+  }, []);
+
+  const analyzeContent = useCallback(() => {
     setIsAnalyzing(true);
     
     // Basic content analysis
@@ -105,84 +183,13 @@ const ContentAnalytics: React.FC<ContentAnalyticsProps> = ({
 
     setMetrics(analyzedMetrics);
     setIsAnalyzing(false);
-  };
+  }, [content, calculateAvgSyllables, getReadingLevel, countDifficultWords, analyzeSentiment, calculateContentScore]);
 
-  const calculateAvgSyllables = (words: string[]): number => {
-    const syllableCount = words.reduce((total, word) => {
-      return total + countSyllables(word);
-    }, 0);
-    return syllableCount / words.length || 0;
-  };
-
-  const countSyllables = (word: string): number => {
-    word = word.toLowerCase();
-    if (word.length <= 3) return 1;
-    word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '');
-    word = word.replace(/^y/, '');
-    const matches = word.match(/[aeiouy]{1,2}/g);
-    return matches ? matches.length : 1;
-  };
-
-  const getReadingLevel = (score: number): string => {
-    if (score >= 90) return 'Very Easy';
-    if (score >= 80) return 'Easy';
-    if (score >= 70) return 'Fairly Easy';
-    if (score >= 60) return 'Standard';
-    if (score >= 50) return 'Fairly Difficult';
-    if (score >= 30) return 'Difficult';
-    return 'Very Difficult';
-  };
-
-  const countDifficultWords = (words: string[]): number => {
-    const difficultWords = words.filter(word => {
-      return word.length > 6 && countSyllables(word) > 2;
-    });
-    return difficultWords.length;
-  };
-
-  const analyzeSentiment = (text: string): 'positive' | 'negative' | 'neutral' => {
-    // Simplified sentiment analysis
-    const positiveWords = ['good', 'great', 'excellent', 'amazing', 'wonderful', 'fantastic', 'success', 'win', 'victory', 'achievement'];
-    const negativeWords = ['bad', 'terrible', 'awful', 'horrible', 'disaster', 'crisis', 'problem', 'issue', 'concern', 'worry'];
-    
-    const words = text.toLowerCase().split(/\s+/);
-    const positiveCount = words.filter(word => positiveWords.includes(word)).length;
-    const negativeCount = words.filter(word => negativeWords.includes(word)).length;
-    
-    if (positiveCount > negativeCount) return 'positive';
-    if (negativeCount > positiveCount) return 'negative';
-    return 'neutral';
-  };
-
-  const calculateContentScore = (data: any): number => {
-    let score = 0;
-    
-    // Word count (optimal: 1000-2000 words)
-    if (data.wordCount >= 1000 && data.wordCount <= 2000) score += 25;
-    else if (data.wordCount >= 500) score += 15;
-    else if (data.wordCount >= 300) score += 10;
-    
-    // Heading structure
-    if (data.headingCount >= 3) score += 20;
-    else if (data.headingCount >= 1) score += 10;
-    
-    // Readability
-    if (data.fleschScore >= 60 && data.fleschScore <= 80) score += 20;
-    else if (data.fleschScore >= 50) score += 15;
-    
-    // Media elements
-    if (data.imageCount >= 2) score += 15;
-    else if (data.imageCount >= 1) score += 10;
-    
-    // Internal/external links
-    if (data.linkCount >= 3) score += 10;
-    else if (data.linkCount >= 1) score += 5;
-    
-    // Paragraph structure
-    if (data.paragraphCount >= 5) score += 10;
-    
-    return Math.min(score, 100);
-  };
+  useEffect(() => {
+    if (content) {
+      analyzeContent();
+    }
+  }, [content, analyzeContent]);
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600';
@@ -196,9 +203,16 @@ const ContentAnalytics: React.FC<ContentAnalyticsProps> = ({
     return 'text-red-600';
   };
 
+  // Use title and category in the component (example usage)
+  const displayTitle = title || 'Untitled Content';
+  const displayCategory = category || 'General';
+
   if (!metrics && !isAnalyzing) {
     return (
       <Card>
+        <CardHeader>
+          <CardTitle>{displayTitle} - {displayCategory}</CardTitle>
+        </CardHeader>
         <CardContent className="pt-6">
           <p className="text-gray-500 text-center">Start writing to see content analytics</p>
         </CardContent>
@@ -209,6 +223,9 @@ const ContentAnalytics: React.FC<ContentAnalyticsProps> = ({
   if (isAnalyzing) {
     return (
       <Card>
+        <CardHeader>
+          <CardTitle>{displayTitle} - {displayCategory}</CardTitle>
+        </CardHeader>
         <CardContent className="pt-6">
           <div className="flex items-center justify-center space-x-2">
             <BarChart className="w-4 h-4 animate-spin" />
@@ -227,7 +244,7 @@ const ContentAnalytics: React.FC<ContentAnalyticsProps> = ({
           <CardTitle className="flex items-center justify-between">
             <span className="flex items-center space-x-2">
               <Target className="w-4 h-4" />
-              <span>Content Score</span>
+              <span>Content Score - {displayTitle}</span>
             </span>
             <span className={`text-2xl font-bold ${getScoreColor(metrics!.contentScore)}`}>
               {metrics!.contentScore}%
@@ -239,6 +256,7 @@ const ContentAnalytics: React.FC<ContentAnalyticsProps> = ({
           <p className="text-sm text-gray-600">
             Based on word count, structure, readability, and media elements
           </p>
+          <p className="text-xs text-gray-500 mt-1">Category: {displayCategory}</p>
         </CardContent>
       </Card>
 

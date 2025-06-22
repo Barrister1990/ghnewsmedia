@@ -1,6 +1,5 @@
-
+import { Calendar, Filter, Tag, User, X } from 'lucide-react';
 import React, { useState } from 'react';
-import { Filter, X, Calendar, User, Tag } from 'lucide-react';
 import { useSupabaseCategories } from '../hooks/useSupabaseCategories';
 
 interface SearchFilters {
@@ -48,7 +47,7 @@ const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
 
   const popularTags = ['breaking news', 'politics', 'business', 'sports', 'technology', 'health', 'education'];
 
-  const updateFilters = (key: keyof SearchFilters, value: any) => {
+  const updateFilters = <K extends keyof SearchFilters>(key: K, value: SearchFilters[K]) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
     onFiltersChange(newFilters);

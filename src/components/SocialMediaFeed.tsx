@@ -1,11 +1,10 @@
 
-import React from 'react';
-import { Facebook, Twitter, Instagram, Youtube, RefreshCw } from 'lucide-react';
-import { useSocialMediaData } from '../hooks/useSocialMediaData';
 import { formatDistanceToNow } from 'date-fns';
+import { Facebook, Instagram, RefreshCw, Twitter, Youtube } from 'lucide-react';
+import { useSocialMediaData } from '../hooks/useSocialMediaData';
 
 const SocialMediaFeed = () => {
-  const { accounts, posts, stats, loading, error, refetch } = useSocialMediaData();
+  const { accounts, posts, loading, error, refetch } = useSocialMediaData();
 
   const getPlatformIcon = (platform: string) => {
     switch (platform.toLowerCase()) {

@@ -189,7 +189,7 @@ const TrendingCarousel = ({ initialArticles }: TrendingCarouselProps) => {
 
       {/* Hidden content for SEO - All trending articles */}
       <div className="sr-only">
-        {trendingArticles.map((article, index) => (
+        {trendingArticles.map((article) => (
           <article key={article.id}>
             <h3>{article.title}</h3>
             <p>{article.excerpt}</p>

@@ -1,11 +1,11 @@
 
-import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Upload, Link, X } from 'lucide-react';
-import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { Link, Upload } from 'lucide-react';
+import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 interface ImageUploadDialogProps {
   isOpen: boolean;

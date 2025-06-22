@@ -1,25 +1,26 @@
-
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { useSupabaseCategories } from '@/hooks/useSupabaseCategories';
+import React, { useState } from 'react';
+
+interface ArticleData {
+  title: string;
+  excerpt: string;
+  content: string;
+  category_id: string;
+  featured_image: string;
+  meta_title: string;
+  meta_description: string;
+  slug: string;
+}
 
 interface CMSArticleEditorProps {
-  initialData?: {
-    title?: string;
-    excerpt?: string;
-    content?: string;
-    category_id?: string;
-    featured_image?: string;
-    meta_title?: string;
-    meta_description?: string;
-    slug?: string;
-  };
-  onSave: (articleData: any) => Promise<void>;
+  initialData?: Partial<ArticleData>;
+  onSave: (articleData: ArticleData) => Promise<void>;
   onCancel: () => void;
   saveButtonText?: string;
   loading?: boolean;
@@ -33,7 +34,7 @@ const CMSArticleEditor: React.FC<CMSArticleEditorProps> = ({
   loading = false
 }) => {
   const { categories } = useSupabaseCategories();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ArticleData>({
     title: initialData.title || '',
     excerpt: initialData.excerpt || '',
     content: initialData.content || '',
@@ -44,7 +45,7 @@ const CMSArticleEditor: React.FC<CMSArticleEditorProps> = ({
     slug: initialData.slug || ''
   });
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: keyof ArticleData, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value

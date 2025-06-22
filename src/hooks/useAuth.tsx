@@ -1,15 +1,14 @@
-
-import { useState, useEffect, createContext, useContext } from 'react';
-import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { AuthError, Session, User } from '@supabase/supabase-js';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, name?: string) => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+  signUp: (email: string, password: string, name?: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
   userRole: string | null;
@@ -98,8 +97,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       return { error };
     } catch (error) {
+      console.error('Sign in error:', error);
       toast.error('An unexpected error occurred');
-      return { error };
+      return { error: null };
     }
   };
 
@@ -124,8 +124,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       return { error };
     } catch (error) {
+      console.error('Sign up error:', error);
       toast.error('An unexpected error occurred');
-      return { error };
+      return { error: null };
     }
   };
 
@@ -134,6 +135,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await supabase.auth.signOut();
       toast.success('Successfully signed out!');
     } catch (error) {
+      console.error('Sign out error:', error);
       toast.error('Error signing out');
     }
   };

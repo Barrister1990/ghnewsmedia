@@ -1,27 +1,21 @@
-
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 
 const AdminLink = () => {
-  // Add error handling for when component is used outside AuthProvider
-  let authData;
+  // Always call the hook, but handle the error in the component logic
+  let authData = null;
+  let authError = false;
+  
   try {
     authData = useAuth();
-  } catch (error) {
-    // If useAuth fails (not within AuthProvider), show login link
-    return (
-      <Link href="/auth">
-        <Button variant="outline" size="sm">
-          Admin Login
-        </Button>
-      </Link>
-    );
+  } catch {
+    // If useAuth fails (not within AuthProvider), set error flag
+    authError = true;
   }
 
-  const { isAdmin, user } = authData;
-
-  if (!user || !isAdmin) {
+  // If there's an auth error or no user/admin access, show login link
+  if (authError || !authData?.user || !authData?.isAdmin) {
     return (
       <Link href="/auth">
         <Button variant="outline" size="sm">

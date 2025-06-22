@@ -11,7 +11,7 @@ const Footer = () => {
           <div className="space-y-4">
             <h3 className="text-2xl font-bold text-gradient">GhNewsMedia</h3>
             <p className="text-gray-300 text-sm leading-relaxed">
-              Ghana's premier digital news platform, delivering accurate, timely, and comprehensive news coverage across politics, business, sports, and more.
+              Ghana&apos;s premier digital news platform, delivering accurate, timely, and comprehensive news coverage across politics, business, sports, and more.
             </p>
             <div className="flex space-x-4">
               <Facebook className="w-5 h-5 hover:text-accent cursor-pointer transition-colors" />

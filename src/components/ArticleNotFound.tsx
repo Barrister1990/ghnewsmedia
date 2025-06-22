@@ -1,5 +1,5 @@
 
-import React from 'react';
+import Link from 'next/link';
 import { NewsArticle } from '../types/news';
 import ArticleSEO from './SEO/ArticleSEO';
 
@@ -25,7 +25,8 @@ const ArticleNotFound = () => {
       slug: "error",
       description: "Error pages",
       color: "#ef4444",
-      icon: "AlertTriangle"
+      icon: "AlertTriangle",
+      updated_at:""
     },
     tags: [],
     publishedAt: new Date().toISOString(),
@@ -48,10 +49,10 @@ const ArticleNotFound = () => {
       <ArticleSEO article={notFoundArticle} />
       <div className="text-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Article Not Found</h1>
-        <p className="text-gray-600 mb-8">Sorry, the article you're looking for doesn't exist.</p>
-        <a href="/" className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors">
+        <p className="text-gray-600 mb-8">Sorry, the article you&apos;re looking for doesn&apos;t exist.</p>
+        <Link href="/" className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors">
           Go Home
-        </a>
+        </Link>
       </div>
     </div>
   );

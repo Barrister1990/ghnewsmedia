@@ -1,5 +1,6 @@
 
 import { Award, Globe, Target, Users } from 'lucide-react';
+import Link from 'next/link';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import ScrollToTop from '../components/ScrollToTop';
@@ -16,7 +17,7 @@ const AboutPage = () => {
             About GhNewsMedia
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Ghana's premier digital news platform, delivering accurate, timely, and comprehensive 
+            Ghana&apos;s premier digital news platform, delivering accurate, timely, and comprehensive 
             news coverage across politics, business, sports, and more since 2020.
           </p>
         </div>
@@ -127,14 +128,14 @@ const AboutPage = () => {
           <div className="bg-gradient-to-r from-primary to-accent rounded-2xl p-8 text-white">
             <h2 className="text-3xl font-bold mb-4">Get in Touch</h2>
             <p className="text-lg mb-6 opacity-90">
-              Have a story tip or want to collaborate? We'd love to hear from you.
+              Have a story tip or want to collaborate? We&apos;d love to hear from you.
             </p>
-            <a
+            <Link
               href="/contact"
               className="inline-block bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
             >
               Contact Us
-            </a>
+            </Link>
           </div>
         </section>
       </main>

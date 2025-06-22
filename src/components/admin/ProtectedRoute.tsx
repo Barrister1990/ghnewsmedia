@@ -92,7 +92,7 @@ const AccessDeniedScreen = () => {
             Access Denied
           </h1>
           <p className="text-white/80 text-lg mb-8 leading-relaxed animate-fade-in delay-200">
-            You don't have the required permissions to access this page. 
+            You don&apos;t have the required permissions to access this page. 
             Please contact your administrator if you believe this is an error.
           </p>
           

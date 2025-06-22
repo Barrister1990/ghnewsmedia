@@ -1,20 +1,17 @@
-
 import React, { useEffect } from 'react';
 import { usePublishedArticles } from '../../hooks/usePublishedArticles';
 import { useSupabaseCategories } from '../../hooks/useSupabaseCategories';
 import { dynamicSitemapGenerator } from '../../utils/dynamicSitemapGenerator';
-import AdvancedSEOService from '../../services/advancedSEOService';
 
 const SitemapGenerator: React.FC = () => {
   const { articles, loading: articlesLoading } = usePublishedArticles();
   const { categories, loading: categoriesLoading } = useSupabaseCategories();
-  const seoService = AdvancedSEOService.getInstance();
 
   useEffect(() => {
     if (!articlesLoading && !categoriesLoading && articles.length > 0) {
       // Generate comprehensive sitemap with news and image tags
       const sitemap = dynamicSitemapGenerator.generateComprehensiveSitemap(articles, categories);
-      const rssFeed = dynamicSitemapGenerator.generateRSSFeed(articles);
+      dynamicSitemapGenerator.generateRSSFeed(articles);
 
       // In production, these would be saved to your server/CDN
       console.log('SEO: Enhanced sitemap generated with', articles.length, 'articles');

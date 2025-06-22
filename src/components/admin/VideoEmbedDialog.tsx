@@ -1,12 +1,11 @@
-
-import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Facebook, Instagram, Youtube } from 'lucide-react';
+import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { Youtube, Facebook, Instagram } from 'lucide-react';
 
 interface VideoEmbedDialogProps {
   isOpen: boolean;
@@ -14,12 +13,14 @@ interface VideoEmbedDialogProps {
   onVideoInsert: (embedCode: string) => void;
 }
 
+type Platform = 'youtube' | 'facebook' | 'instagram';
+
 const VideoEmbedDialog: React.FC<VideoEmbedDialogProps> = ({
   isOpen,
   onClose,
   onVideoInsert
 }) => {
-  const [platform, setPlatform] = useState<'youtube' | 'facebook' | 'instagram'>('youtube');
+  const [platform, setPlatform] = useState<Platform>('youtube');
   const [url, setUrl] = useState('');
 
   const extractYouTubeId = (url: string) => {
@@ -40,7 +41,7 @@ const VideoEmbedDialog: React.FC<VideoEmbedDialogProps> = ({
     return match ? match[1] : null;
   };
 
-  const generateEmbedCode = (platform: string, url: string) => {
+  const generateEmbedCode = (platform: Platform, url: string) => {
     switch (platform) {
       case 'youtube':
         const youtubeId = extractYouTubeId(url);
@@ -89,7 +90,7 @@ const VideoEmbedDialog: React.FC<VideoEmbedDialogProps> = ({
     toast.success('Video embed inserted successfully');
   };
 
-  const getPlatformIcon = (platform: string) => {
+  const getPlatformIcon = (platform: Platform) => {
     switch (platform) {
       case 'youtube':
         return <Youtube className="w-4 h-4" />;
@@ -111,7 +112,7 @@ const VideoEmbedDialog: React.FC<VideoEmbedDialogProps> = ({
         <div className="space-y-4">
           <div>
             <Label htmlFor="platform">Platform</Label>
-            <Select value={platform} onValueChange={(value: any) => setPlatform(value)}>
+            <Select value={platform} onValueChange={(value: Platform) => setPlatform(value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select platform" />
               </SelectTrigger>

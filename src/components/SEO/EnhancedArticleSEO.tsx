@@ -15,8 +15,6 @@ const EnhancedArticleSEO: React.FC<EnhancedArticleSEOProps> = ({ article }) => {
   const metaTags = seoService.generateSearchMetaTags(article);
   const socialTags = seoService.generateSocialMediaTags(article);
   const structuredData = seoService.generateAdvancedArticleSchema(article);
-  
-  const optimizedImage = seoService.optimizeImageForSEO(article.featuredImage, article.title);
 
   return (
     <>

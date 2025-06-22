@@ -6,7 +6,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
 import { Menu } from 'lucide-react';
 import Link from 'next/link';
@@ -23,7 +22,7 @@ interface CMSHeaderProps {
 const CMSHeader: React.FC<CMSHeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
   const { userRole } = useAuth();
   const router = useRouter();
-  const isMobile = useIsMobile();
+
 
   return (
     <>

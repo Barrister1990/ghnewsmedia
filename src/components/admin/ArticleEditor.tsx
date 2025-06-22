@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Bold, Italic, List, Quote, Link, Image, Heading1, Heading2, Video } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Bold, Heading1, Heading2, Image, Italic, Link, List, Quote, Video } from 'lucide-react';
+import React, { useState } from 'react';
 import ImageUploadDialog from './ImageUploadDialog';
 import VideoEmbedDialog from './VideoEmbedDialog';
 
@@ -17,12 +17,11 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({
   onChange,
   placeholder = 'Start writing...'
 }) => {
-  const [cursorPosition, setCursorPosition] = useState(0);
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
   const [isVideoDialogOpen, setIsVideoDialogOpen] = useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
-  const insertMarkdown = (syntax: string, placeholder = '') => {
+  const insertMarkdown = (syntax: string) => {
     if (!textareaRef.current) return;
 
     const textarea = textareaRef.current;
@@ -209,7 +208,6 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({
         className="min-h-[400px] border-0 resize-none focus:ring-0 focus:border-0 font-mono text-sm"
         onSelect={(e) => {
           const target = e.target as HTMLTextAreaElement;
-          setCursorPosition(target.selectionStart);
         }}
       />
 
