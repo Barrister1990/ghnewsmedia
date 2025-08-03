@@ -4,6 +4,7 @@ import Link from 'next/link';
 import React from 'react';
 import { NewsArticle } from '../../types/news';
 import { getCategoryIcon } from '../../utils/categoryIcons';
+import { getFullImageUrl } from '../../utils/helpers';
 import { formatDate } from './utils';
 
 interface FeaturedCardProps {
@@ -23,7 +24,7 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({ article, className = '' }) 
       `}>
         <div className="relative h-64 sm:h-72 md:h-80 lg:h-96">
           <Image
-            src={article.featuredImage}
+            src={getFullImageUrl(article.featuredImage)}
             alt={article.title}
             fill
             className="

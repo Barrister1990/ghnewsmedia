@@ -58,12 +58,14 @@ const ArticlePage = ({ article, relatedArticles, error }: ArticlePageProps) => {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
+        <main className="container mx-auto px-4 py-8" role="main" aria-labelledby="error-heading">
+          <section className="text-center">
+            <h1 id="error-heading" className="text-2xl font-bold text-red-600 mb-4">
+              Error
+            </h1>
             <p className="text-gray-600">{error}</p>
-          </div>
-        </div>
+          </section>
+        </main>
         <Footer />
       </div>
     );
@@ -84,16 +86,18 @@ const ArticlePage = ({ article, relatedArticles, error }: ArticlePageProps) => {
   return (
     <div className="min-h-screen bg-gray-50">
       <EnhancedArticleSEO article={article} />
-      
+
       <ReadingProgress />
       <Header />
-      
-      <article className="container mx-auto px-4 py-8 max-w-4xl">
-        <BreadcrumbSEO items={breadcrumbItems} />
-        
-        <ArticleHeader article={article} />
-        <ArticleContent article={article} />
-        
+
+      <main className="container mx-auto px-4 py-8" role="main" aria-label={`Article: ${article.title}`}>
+        <article className="max-w-4xl mx-auto">
+          <BreadcrumbSEO items={breadcrumbItems} />
+
+          <ArticleHeader article={article} />
+          <ArticleContent article={article} relatedArticles={relatedArticles} />
+        </article>
+
         {/* Share buttons positioned after article content */}
         <div className="mb-8 flex justify-center">
           <ShareButtons
@@ -104,28 +108,28 @@ const ArticlePage = ({ article, relatedArticles, error }: ArticlePageProps) => {
             className="bg-white rounded-xl p-4 shadow-sm"
           />
         </div>
-        
+
         <ArticleTags tags={article.tags || []} />
-        
+
         <ArticleReactions
           reactions={reactions}
           userReaction={userReaction}
           loading={reactionsLoading}
           onReaction={handleReaction}
         />
-        
+
         <AuthorBio author={article.author} />
 
         <ArticleNavigation category={article.category} author={article.author} />
-        
+
         <RelatedArticles articles={relatedArticles} />
-        
+
         {/* Comments Section - Now positioned after Related Articles */}
-        <div className="mt-12">
+        <section className="mt-12" aria-label="Comments section">
           <NewCommentSection articleId={article.id} />
-        </div>
-      </article>
-      
+        </section>
+      </main>
+
       <Footer />
       <ScrollToTop />
     </div>
@@ -136,17 +140,12 @@ export const getServerSideProps: GetServerSideProps<ArticlePageProps, Params> = 
   context: GetServerSidePropsContext<Params>
 ) => {
   const { slug } = context.params!;
-  
+
   try {
-    console.log('SSR: Fetching article for slug:', slug);
-    
     // Fetch the specific article by slug
     const { article, error: articleError } = await fetchArticleBySlug(slug);
-    
-    console.log('SSR: Article fetch result:', { article: !!article, error: articleError });
-    
+
     if (articleError || !article) {
-      console.log('SSR: Article not found, returning 404');
       return {
         notFound: true, // This will show Next.js 404 page
       };
@@ -154,12 +153,12 @@ export const getServerSideProps: GetServerSideProps<ArticlePageProps, Params> = 
 
     // Fetch all articles to get related ones
     const { articles } = await fetchPublishedArticles();
-    
+
     // Enhanced related articles logic with fallback
     const getRelatedArticles = (currentArticle: NewsArticle, allArticles: NewsArticle[]) => {
       // First, try to get articles from the same category
       const sameCategoryArticles = allArticles
-        .filter(a => a.id !== currentArticle.id && a.category.id === currentArticle.category.id)
+        .filter((a) => a.id !== currentArticle.id && a.category.id === currentArticle.category.id)
         .slice(0, 3);
 
       // If we have enough articles from the same category, return them
@@ -169,7 +168,7 @@ export const getServerSideProps: GetServerSideProps<ArticlePageProps, Params> = 
 
       // If we need more articles, add articles from other categories
       const otherCategoryArticles = allArticles
-        .filter(a => a.id !== currentArticle.id && a.category.id !== currentArticle.category.id)
+        .filter((a) => a.id !== currentArticle.id && a.category.id !== currentArticle.category.id)
         .slice(0, 3 - sameCategoryArticles.length);
 
       return [...sameCategoryArticles, ...otherCategoryArticles];
@@ -178,20 +177,15 @@ export const getServerSideProps: GetServerSideProps<ArticlePageProps, Params> = 
     const relatedArticles = getRelatedArticles(article, articles);
 
     // Set cache headers for better performance
-    context.res.setHeader(
-      'Cache-Control',
-      'public, s-maxage=300, stale-while-revalidate=600' // Cache for 5 minutes, serve stale for 10 minutes
-    );
+    context.res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600'); // Cache for 5 minutes, serve stale for 10 minutes
 
     // Set canonical URL header
     context.res.setHeader('Link', `<https://ghnewsmedia.com/news/${article.slug}>; rel="canonical"`);
-    
+
     // Set last modified header for better caching
     if (article.updatedAt) {
       context.res.setHeader('Last-Modified', new Date(article.updatedAt).toUTCString());
     }
-
-    console.log('SSR: Successfully returning article props');
 
     return {
       props: {
@@ -200,8 +194,6 @@ export const getServerSideProps: GetServerSideProps<ArticlePageProps, Params> = 
       },
     };
   } catch (error) {
-    console.error('SSR: Error in getServerSideProps:', error);
-    
     return {
       props: {
         article: null,

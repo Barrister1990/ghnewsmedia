@@ -68,6 +68,7 @@ const CreateArticle = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
   const [seoData, setSeoData] = useState<SEOData | null>(null);
   const [activeTab, setActiveTab] = useState('content');
 
@@ -117,7 +118,7 @@ const CreateArticle = () => {
 
   const handleTitleChange = (title: string) => {
     form.setValue('title', title);
-    if (!form.getValues('slug')) {
+    if (!isSlugManuallyEdited) {
       form.setValue('slug', generateSlug(title));
     }
   };
@@ -297,6 +298,10 @@ const CreateArticle = () => {
                                 <Input
                                   placeholder="article-url-slug"
                                   {...field}
+                                  onChange={(e) => {
+                                    field.onChange(e);
+                                    setIsSlugManuallyEdited(true);
+                                  }}
                                 />
                               </FormControl>
                               <FormDescription>

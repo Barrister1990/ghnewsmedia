@@ -1,6 +1,6 @@
 
-import React from 'react';
 import { Button } from '@/components/ui/button';
+import React from 'react';
 
 interface PlaceholderImagesProps {
   onImageSelect: (imageId: string) => void;
@@ -8,11 +8,11 @@ interface PlaceholderImagesProps {
 
 const PlaceholderImages: React.FC<PlaceholderImagesProps> = ({ onImageSelect }) => {
   const placeholderImages = [
-    'photo-1649972904349-6e44c42644a7',
-    'photo-1488590528505-98d2b5aba04b',
-    'photo-1518770660439-4636190af475',
-    'photo-1461749280684-dccba630e2f6',
-    'photo-1486312338219-ce68d2c6f44d'
+    '/photo-1649972904349-6e44c42644a7',
+    '/photo-1488590528505-98d2b5aba04b',
+    '/photo-1518770660439-4636190af475',
+    '/photo-1461749280684-dccba630e2f6',
+    '/photo-1486312338219-ce68d2c6f44d'
   ];
 
   return (

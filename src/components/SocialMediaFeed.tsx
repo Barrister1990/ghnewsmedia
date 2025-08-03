@@ -1,10 +1,10 @@
-
-import { formatDistanceToNow } from 'date-fns';
 import { Facebook, Instagram, RefreshCw, Twitter, Youtube } from 'lucide-react';
+import Link from 'next/link';
 import { useSocialMediaData } from '../hooks/useSocialMediaData';
+import { Skeleton } from './ui/skeleton';
 
 const SocialMediaFeed = () => {
-  const { accounts, posts, loading, error, refetch } = useSocialMediaData();
+  const { accounts, loading, error, refetch } = useSocialMediaData();
 
   const getPlatformIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
@@ -16,13 +16,13 @@ const SocialMediaFeed = () => {
     }
   };
 
-  const getPlatformColor = (platform: string) => {
+  const getPlatformColors = (platform: string) => {
     switch (platform.toLowerCase()) {
-      case 'facebook': return 'bg-blue-600';
-      case 'twitter': return 'bg-sky-500';
-      case 'instagram': return 'bg-pink-600';
-      case 'youtube': return 'bg-red-600';
-      default: return 'bg-gray-600';
+      case 'facebook': return 'bg-blue-600 hover:bg-blue-700';
+      case 'twitter': return 'bg-sky-500 hover:bg-sky-600';
+      case 'instagram': return 'bg-pink-600 hover:bg-pink-700';
+      case 'youtube': return 'bg-red-600 hover:bg-red-700';
+      default: return 'bg-gray-600 hover:bg-gray-700';
     }
   };
 
@@ -37,123 +37,85 @@ const SocialMediaFeed = () => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-        <h3 className="font-bold text-lg text-gray-900 mb-4">Follow Us</h3>
-        <div className="animate-pulse space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="text-center">
-                <div className="w-12 h-12 bg-gray-200 rounded-lg mx-auto mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-12 mx-auto mb-1"></div>
-                <div className="h-3 bg-gray-200 rounded w-16 mx-auto"></div>
-              </div>
-            ))}
-          </div>
+      <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <h3 className="font-bold text-xl text-gray-900 mb-4">Follow Us</h3>
+        <div className="grid grid-cols-2 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="p-4 rounded-lg bg-gray-50">
+              <Skeleton className="h-8 w-8 rounded-lg mb-3" />
+              <Skeleton className="h-5 w-12 mb-1" />
+              <Skeleton className="h-3 w-16" />
+            </div>
+          ))}
         </div>
-      </div>
+      </section>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-lg text-gray-900">Follow Us</h3>
-          <button
-            onClick={refetch}
-            className="p-1 hover:bg-gray-100 rounded transition-colors"
-            title="Refresh"
-          >
+          <h3 className="font-bold text-xl text-gray-900">Follow Us</h3>
+          <button onClick={refetch} className="p-1 hover:bg-gray-100 rounded-full transition-colors" title="Refresh">
             <RefreshCw className="w-4 h-4 text-gray-500" />
           </button>
         </div>
-        <div className="text-center py-4">
-          <p className="text-red-600 text-sm mb-2">Failed to load social media data</p>
-          <button
-            onClick={refetch}
-            className="text-primary hover:text-primary-700 text-sm font-medium"
-          >
+        <div className="text-center py-6">
+          <p className="text-red-600 text-sm mb-3">Failed to load social media data</p>
+          <button onClick={refetch} className="text-primary hover:text-primary-700 text-sm font-medium">
             Try again
           </button>
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+    <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-lg text-gray-900">Follow Us</h3>
-        <button
-          onClick={refetch}
-          className="p-1 hover:bg-gray-100 rounded transition-colors"
-          title="Refresh"
-        >
+        <h3 className="font-bold text-xl text-gray-900">Follow Us</h3>
+        <button onClick={refetch} className="p-1 hover:bg-gray-100 rounded-full transition-colors" title="Refresh">
           <RefreshCw className="w-4 h-4 text-gray-500" />
         </button>
       </div>
       
-      {/* Social Media Stats */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <div className="grid grid-cols-2 gap-4">
         {accounts.map((account) => {
           const Icon = getPlatformIcon(account.platform);
-          const colorClass = getPlatformColor(account.platform);
+          const colorClass = getPlatformColors(account.platform);
           
+          const content = (
+            <div className={`p-4 rounded-lg text-white ${!account.profile_url && 'cursor-default'}`}>
+              <Icon className="w-7 h-7 mb-3" />
+              <div className="font-bold text-xl">{formatFollowers(account.followers_count)}</div>
+              <div className="text-sm opacity-90">Followers</div>
+            </div>
+          );
+
+          if (account.profile_url) {
+            return (
+             <Link
+  href={account.profile_url}
+  key={account.id}
+  target="_blank"
+  rel="noopener noreferrer"
+  className={`block transition-colors ${colorClass}`}
+>
+  {content}
+</Link>
+
+            );
+          }
+
           return (
-            <div key={account.id} className="text-center">
-              <div className={`${colorClass} text-white p-3 rounded-lg mx-auto w-fit mb-2`}>
-                <Icon className="w-5 h-5" />
-              </div>
-              <div className="font-semibold text-sm">{formatFollowers(account.followers_count)}</div>
-              <div className="text-xs text-gray-500">{account.platform}</div>
+            <div key={account.id} className={`block transition-colors ${colorClass}`}>
+              {content}
             </div>
           );
         })}
       </div>
-
-      {/* Recent Posts */}
-      {posts.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="font-medium text-gray-900 text-sm">Recent Posts</h4>
-          {posts.map((post) => (
-            <div key={post.id} className="border-l-2 border-primary pl-3 py-2">
-              <div className="flex items-center space-x-2 mb-1">
-                <span className="text-xs font-medium text-primary">
-                  {post.account?.platform || 'Unknown'}
-                </span>
-                <span className="text-xs text-gray-500">•</span>
-                <span className="text-xs text-gray-500">
-                  {formatDistanceToNow(new Date(post.posted_at), { addSuffix: true })}
-                </span>
-              </div>
-              <p className="text-sm text-gray-700 leading-relaxed mb-2">{post.content}</p>
-              {post.engagement && (
-                <div className="text-xs text-gray-500">{post.engagement}</div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-      
-      <div className="mt-4 pt-4 border-t border-gray-100">
-        <div className="flex justify-center space-x-3">
-          {accounts.map((account) => {
-            const Icon = getPlatformIcon(account.platform);
-            const colorClass = getPlatformColor(account.platform);
-            
-            return (
-              <button
-                key={account.id}
-                className={`${colorClass} text-white p-2 rounded-full hover:opacity-90 transition-opacity`}
-                title={`Follow us on ${account.platform} (${account.handle})`}
-              >
-                <Icon className="w-4 h-4" />
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
+    </section>
   );
 };
 

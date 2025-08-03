@@ -4,6 +4,7 @@ import Link from 'next/link';
 import React from 'react';
 import { NewsArticle } from '../../types/news';
 import { getCategoryIcon } from '../../utils/categoryIcons';
+import { getFullImageUrl } from '../../utils/helpers';
 
 interface DefaultCardProps {
   article: NewsArticle;
@@ -24,7 +25,7 @@ const DefaultCard: React.FC<DefaultCardProps> = ({ article, className = '' }) =>
         {/* Image Container - Mobile First */}
         <div className="relative overflow-hidden bg-gray-100">
           <Image
-            src={article.featuredImage}
+            src={getFullImageUrl(article.featuredImage)}
             alt={article.title}
             width={400}
             height={200}

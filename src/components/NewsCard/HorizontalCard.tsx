@@ -4,6 +4,7 @@ import Link from 'next/link';
 import React from 'react';
 import { NewsArticle } from '../../types/news';
 import { getCategoryIcon } from '../../utils/categoryIcons';
+import { getFullImageUrl } from '../../utils/helpers';
 
 interface HorizontalCardProps {
   article: NewsArticle;
@@ -27,7 +28,7 @@ const HorizontalCard: React.FC<HorizontalCardProps> = ({ article, className = ''
           <div className="relative sm:w-1/3 lg:w-2/5">
             <div className="relative overflow-hidden bg-gray-100">
               <Image
-                src={article.featuredImage}
+                src={getFullImageUrl(article.featuredImage)}
                 alt={article.title}
                 width={400}
                 height={200}

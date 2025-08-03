@@ -1,4 +1,4 @@
-import { Facebook, Home, Info, Phone, Search, Twitter, X, Zap } from 'lucide-react';
+import { Facebook, Search, Twitter, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
@@ -10,7 +10,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
- const router = useRouter();
+  const router = useRouter();
   const { categories } = useSupabaseCategories();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -39,6 +39,27 @@ const Header = () => {
     link.href = href;
     document.head.appendChild(link);
   };
+
+
+  // Group categories by main categories (you can customize this based on your data structure)
+  const mainCategories = [
+    { name: 'News', subcategories: categories.filter(cat => cat.name.toLowerCase().includes('news') || cat.slug.includes('news')) },
+    { name: 'Sports', subcategories: categories.filter(cat => cat.name.toLowerCase().includes('sport') || cat.slug.includes('sport')) },
+    { name: 'Entertainment', subcategories: categories.filter(cat => cat.name.toLowerCase().includes('entertainment') || cat.slug.includes('entertainment')) },
+    { name: 'Lifestyle', subcategories: categories.filter(cat => cat.name.toLowerCase().includes('lifestyle') || cat.slug.includes('lifestyle')) },
+    { name: 'Business', subcategories: categories.filter(cat => cat.name.toLowerCase().includes('business') || cat.slug.includes('business')) },
+  ];
+
+  // Add remaining categories that don't fit into main categories
+  const usedCategoryIds = new Set();
+  mainCategories.forEach(mainCat => {
+    mainCat.subcategories.forEach(subCat => usedCategoryIds.add(subCat.id));
+  });
+  
+  const remainingCategories = categories.filter(cat => !usedCategoryIds.has(cat.id));
+  if (remainingCategories.length > 0) {
+    mainCategories.push({ name: 'Other', subcategories: remainingCategories });
+  }
 
   return (
     <header className="bg-white shadow-lg sticky top-0 z-50">
@@ -180,121 +201,93 @@ const Header = () => {
         )}
       </div>
 
-      {/* Mobile Menu - Completely Redesigned */}
+      {/* Mobile Menu - Simplified */}
       {isMenuOpen && (
         <>
           {/* Backdrop */}
           <div 
-            className="lg:hidden fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm z-40"
+            className="lg:hidden fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm z-40"
             onClick={() => setIsMenuOpen(false)}
           />
           
-          {/* Mobile Menu Panel */}
-          <div className="lg:hidden fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-out">
+          {/* Mobile Menu Panel - Simplified */}
+          <div className="lg:hidden fixed inset-0 bg-white z-50 overflow-y-auto">
             {/* Menu Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-100">
-              <div className="flex items-center">
-                <div className="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-lg flex items-center justify-center mr-3">
-                  <Zap className="w-4 h-4 text-white" />
-                </div>
-                <span className="font-bold text-gray-800">Menu</span>
-              </div>
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-800">GhNewsMedia</h2>
               <button
                 onClick={() => setIsMenuOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
-                <X className="w-5 h-5 text-gray-600" />
+                <X className="w-6 h-6 text-gray-600" />
               </button>
             </div>
 
-            {/* Menu Content */}
-            <div className="px-6 py-4 h-full overflow-y-auto">
+            {/* Menu Content - Simplified */}
+            <div className="pb-20">
+              {/* Home Link */}
+              <Link 
+                href="/" 
+                className="flex items-center px-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <span className="text-lg font-medium text-gray-800">Home</span>
+              </Link>
+
+              {/* All Categories as Simple Links */}
+              {categories.map((category) => (
+                <Link
+                  key={category.id}
+                  href={`/category/${category.slug}`}
+                  className="flex items-center px-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <span className="text-lg font-medium text-gray-800">{category.name}</span>
+                </Link>
+              ))}
+
+              {/* Other Links */}
+              <Link 
+                href="/search" 
+                className="flex items-center px-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <span className="text-lg font-medium text-gray-800">Search</span>
+              </Link>
+              
+              <Link 
+                href="/about" 
+                className="flex items-center px-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <span className="text-lg font-medium text-gray-800">About</span>
+              </Link>
+              
+              <Link 
+                href="/contact" 
+                className="flex items-center px-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <span className="text-lg font-medium text-gray-800">Contact</span>
+              </Link>
+
               {/* Admin Link - Mobile */}
-              <div className="mb-6">
+              <div className="px-4 py-4 border-b border-gray-100">
                 <AdminLink />
               </div>
 
-              {/* Navigation Links */}
-              <nav className="space-y-1">
-                <Link 
-                  href="/" 
-                  className="flex items-center px-4 py-3 rounded-xl font-medium text-gray-800 hover:bg-gray-50 hover:text-primary transition-all duration-200 group"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center mr-3 group-hover:bg-blue-100">
-                    <Home className="w-4 h-4 text-blue-600" />
-                  </div>
-                  Home
-                </Link>
-
-                {/* Categories */}
-                <div className="py-2">
-                  <h3 className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Categories</h3>
-                  {categories.map((category, index) => (
-                    <Link
-                      key={category.id}
-                      href={`/category/${category.slug}`}
-                      className="flex items-center px-4 py-3 rounded-xl font-medium text-gray-700 hover:bg-gray-50 hover:text-primary transition-all duration-200 group"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-xs font-bold text-white bg-gradient-to-r ${
-                        index % 4 === 0 ? 'from-blue-500 to-blue-600' :
-                        index % 4 === 1 ? 'from-green-500 to-green-600' :
-                        index % 4 === 2 ? 'from-purple-500 to-purple-600' :
-                        'from-orange-500 to-orange-600'
-                      }`}>
-                        {category.name.charAt(0)}
-                      </div>
-                      {category.name}
-                    </Link>
-                  ))}
+              {/* Social Links */}
+              <div className="px-4 py-6">
+                <div className="flex items-center space-x-4">
+                  <Facebook className="w-10 h-10 p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 cursor-pointer transition-colors" />
+                  <Twitter className="w-10 h-10 p-2 bg-sky-50 text-sky-600 rounded-lg hover:bg-sky-100 cursor-pointer transition-colors" />
                 </div>
+              </div>
 
-                {/* Other Links */}
-                <div className="border-t border-gray-100 pt-4 mt-4">
-                  <Link 
-                    href="/search" 
-                    className="flex items-center px-4 py-3 rounded-xl font-medium text-gray-700 hover:bg-gray-50 hover:text-primary transition-all duration-200 group"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-gray-200">
-                      <Search className="w-4 h-4 text-gray-600" />
-                    </div>
-                    Search
-                  </Link>
-                  
-                  <Link 
-                    href="/about" 
-                    className="flex items-center px-4 py-3 rounded-xl font-medium text-gray-700 hover:bg-gray-50 hover:text-primary transition-all duration-200 group"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center mr-3 group-hover:bg-green-100">
-                      <Info className="w-4 h-4 text-green-600" />
-                    </div>
-                    About
-                  </Link>
-                  
-                  <Link 
-                    href="/contact" 
-                    className="flex items-center px-4 py-3 rounded-xl font-medium text-gray-700 hover:bg-gray-50 hover:text-primary transition-all duration-200 group"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <div className="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center mr-3 group-hover:bg-purple-100">
-                      <Phone className="w-4 h-4 text-purple-600" />
-                    </div>
-                    Contact
-                  </Link>
-                </div>
-
-                {/* Social Links */}
-                <div className="border-t border-gray-100 pt-4 mt-6">
-                  <h3 className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Follow Us</h3>
-                  <div className="flex items-center px-4 py-2 space-x-4">
-                    <Facebook className="w-8 h-8 p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 cursor-pointer transition-colors" />
-                    <Twitter className="w-8 h-8 p-2 bg-sky-50 text-sky-600 rounded-lg hover:bg-sky-100 cursor-pointer transition-colors" />
-                  </div>
-                </div>
-              </nav>
+              {/* Website URL Footer */}
+              <div className="px-4 py-4 text-center">
+                <span className="text-sm text-gray-500">ghnewsmedia.com</span>
+              </div>
             </div>
           </div>
         </>

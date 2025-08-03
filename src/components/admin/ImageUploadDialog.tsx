@@ -215,10 +215,10 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
             <p className="mb-1">Quick placeholder images:</p>
             <div className="flex flex-wrap gap-1">
               {[
-                'photo-1649972904349-6e44c42644a7',
-                'photo-1488590528505-98d2b5aba04b',
-                'photo-1518770660439-4636190af475',
-                'photo-1461749280684-dccba630e2f6'
+                '/photo-1649972904349-6e44c42644a7',
+                '/photo-1488590528505-98d2b5aba04b',
+                '/photo-1518770660439-4636190af475',
+                '/photo-1461749280684-dccba630e2f6'
               ].map((photo) => (
                 <Button
                   key={photo}

@@ -1,12 +1,13 @@
 
-import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from 'react';
 
 interface SocialMediaAccount {
   id: string;
   platform: string;
   handle: string;
   followers_count: number;
+  profile_url?: string;
 }
 
 interface SocialMediaPost {

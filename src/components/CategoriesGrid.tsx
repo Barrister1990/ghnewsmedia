@@ -1,20 +1,14 @@
 
 import {
-  Activity,
   Briefcase,
-  Building,
-  Camera,
   Car,
-  Clock,
   Gamepad2,
   Globe,
   GraduationCap,
   Heart,
-  Home,
   Laptop,
   Music,
   Newspaper,
-  Plane,
   ShoppingBag,
   TrendingUp,
   Trophy,
@@ -27,36 +21,27 @@ import { useSupabaseCategories } from '../hooks/useSupabaseCategories';
 
 // Mapping of category names to Lucide icons
 const getCategoryIcon = (categoryName: string) => {
-  // Map common category names to Lucide icons
-  const iconMap: { [key: string]: React.ReactNode } = {
-    'politics': <Users className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-    'business': <Briefcase className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
+  // Map generic category names to Lucide icons
+  const genericIconMap: { [key: string]: React.ReactNode } = {
+    'politics & government': <Users className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
+    'business & finance': <Briefcase className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
     'sports': <Trophy className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
     'entertainment': <Music className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-    'technology': <Laptop className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-    'health': <Heart className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-    'science': <Zap className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-    'world': <Globe className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-    'local': <Home className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-    'breaking': <Zap className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
+    'technology & science': <Laptop className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
+    'health & lifestyle': <Heart className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
+    'world & local': <Globe className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
+    'breaking news': <Zap className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
     'gaming': <Gamepad2 className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-    'travel': <Plane className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-    'automotive': <Car className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-    'lifestyle': <Activity className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
+    'travel & automotive': <Car className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
     'education': <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-    'finance': <TrendingUp className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-    'real estate': <Building className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-    'shopping': <ShoppingBag className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-    'photography': <Camera className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-    'trending': <TrendingUp className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-    'latest': <Clock className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-    'news': <Newspaper className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-    'general': <Newspaper className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />
+    'shopping & photography': <ShoppingBag className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
+    'trending & latest': <TrendingUp className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
+    'news & general': <Newspaper className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />
   };
 
-  // Try to find a match by category name (case insensitive)
+  // Normalize and match generic categories
   const normalizedName = categoryName.toLowerCase();
-  for (const [key, icon] of Object.entries(iconMap)) {
+  for (const [key, icon] of Object.entries(genericIconMap)) {
     if (normalizedName.includes(key)) {
       return icon;
     }
@@ -89,29 +74,62 @@ const CategoriesGrid = () => {
     return null;
   }
 
+  // Map categories to generic names
+  const mapToGenericCategory = (name: string) => {
+    const lowerName = name.toLowerCase();
+    if (lowerName.includes('politics') || lowerName.includes('government')) return 'Politics & Government';
+    if (lowerName.includes('business') || lowerName.includes('finance')) return 'Business & Finance';
+    if (lowerName.includes('technology') || lowerName.includes('science')) return 'Technology & Science';
+    if (lowerName.includes('health') || lowerName.includes('lifestyle')) return 'Health & Lifestyle';
+    if (lowerName.includes('world') || lowerName.includes('local')) return 'World & Local';
+    if (lowerName.includes('breaking')) return 'Breaking News';
+    if (lowerName.includes('travel') || lowerName.includes('automotive')) return 'Travel & Automotive';
+    if (lowerName.includes('shopping') || lowerName.includes('photography')) return 'Shopping & Photography';
+    if (lowerName.includes('trending') || lowerName.includes('latest')) return 'Trending & Latest';
+    if (lowerName.includes('education')) return 'Education';
+    if (lowerName.includes('sports')) return 'Sports';
+    if (lowerName.includes('entertainment')) return 'Entertainment';
+    return 'News & General';
+  };
+
+  // Create a map to group categories by generic name
+  const groupedCategories: { [key: string]: { color: string; slug: string; id: string }[] } = {};
+  categories.forEach((category) => {
+    const genericName = mapToGenericCategory(category.name);
+    if (!groupedCategories[genericName]) {
+      groupedCategories[genericName] = [];
+    }
+    groupedCategories[genericName].push({
+      color: category.color,
+      slug: category.slug,
+      id: category.id,
+    });
+  });
+
+  // Render grouped categories
   return (
     <section className="mb-8 sm:mb-10 lg:mb-12">
       <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Browse by Category</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-        {categories.map((category) => (
+        {Object.entries(groupedCategories).map(([genericName, cats]) => (
           <Link
-            key={category.id}
-            href={`/category/${category.slug}`}
+            key={genericName}
+            href={`/category/${cats[0].slug}`}
             className="group p-4 sm:p-5 lg:p-6 rounded-xl text-center transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
             style={{
-              backgroundColor: `${category.color}15`,
-              borderColor: category.color,
+              backgroundColor: `${cats[0].color}15`,
+              borderColor: cats[0].color,
               borderWidth: '2px'
             }}
           >
-            <div className="mb-2 sm:mb-3 flex justify-center" style={{ color: category.color }}>
-              {getCategoryIcon(category.name)}
+            <div className="mb-2 sm:mb-3 flex justify-center" style={{ color: cats[0].color }}>
+              {getCategoryIcon(genericName)}
             </div>
             <h3
               className="font-semibold text-xs sm:text-sm group-hover:scale-110 transition-transform leading-tight"
-              style={{ color: category.color }}
+              style={{ color: cats[0].color }}
             >
-              {category.name}
+              {genericName}
             </h3>
           </Link>
         ))}

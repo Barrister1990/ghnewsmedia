@@ -3,6 +3,7 @@ import Link from 'next/link';
 import React from 'react';
 import { NewsArticle } from '../../types/news';
 import { getCategoryIcon } from '../../utils/categoryIcons';
+import { getFullImageUrl } from '../../utils/helpers';
 import { formatDate } from './utils';
 
 interface CompactCardProps {
@@ -26,7 +27,7 @@ const CompactCard: React.FC<CompactCardProps> = ({ article, className = '' }) =>
           <div className="relative flex-shrink-0">
             <div className="relative overflow-hidden rounded-md bg-gray-100 sm:rounded-lg">
               <Image
-                src={article.featuredImage}
+                src={getFullImageUrl(article.featuredImage)}
                 alt={article.title}
                 width={60}
                 height={60}
