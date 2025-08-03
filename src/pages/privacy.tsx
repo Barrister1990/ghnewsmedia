@@ -23,9 +23,9 @@ const PrivacyPolicyPage = () => {
       <p>If you have questions or comments about this Privacy Policy, please contact us at:</p>
       <p>
         GhNewsMedia<br/>
-        123 Independence Avenue<br/>
+      <br/>
         Accra, Ghana<br/>
-        Email: privacy@ghnewsmedia.com
+        Email: ghnewsmedia@gmail.com
       </p>
     </StaticPageLayout>
   );

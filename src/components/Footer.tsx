@@ -1,4 +1,4 @@
-import { Facebook, Mail, MapPin, MessageCircle, Phone, Twitter } from 'lucide-react';
+import { Facebook, Mail, MapPin, MessageCircle, Phone, Twitter, Youtube } from 'lucide-react';
 import Link from 'next/link';
 import { categories } from '../data/mockData';
 
@@ -14,9 +14,38 @@ const Footer = () => {
               Ghana&apos;s premier digital news platform, delivering accurate, timely, and comprehensive news coverage across politics, business, sports, and more.
             </p>
             <div className="flex space-x-4">
-              <Facebook className="w-5 h-5 hover:text-accent cursor-pointer transition-colors" />
-              <Twitter className="w-5 h-5 hover:text-accent cursor-pointer transition-colors" />
-              <MessageCircle className="w-5 h-5 hover:text-accent cursor-pointer transition-colors" />
+              <a
+                href="https://www.facebook.com/profile.php?id=61577876216304&mibextid=ZbWKwL"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Follow us on Facebook"
+              >
+                <Facebook className="w-5 h-5 hover:text-accent cursor-pointer transition-colors" />
+              </a>
+              <a
+                href="https://x.com/ghnewsmedia?t=Fx80oa-73oEdgyznOxM_Yg&s=09"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Follow us on X (Twitter)"
+              >
+                <Twitter className="w-5 h-5 hover:text-accent cursor-pointer transition-colors" />
+              </a>
+              <a
+                href="https://youtube.com/@ghnewsmedia?si=X7l2KfRAkWHG2bAu"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Subscribe to our YouTube channel"
+              >
+                <Youtube className="w-5 h-5 hover:text-accent cursor-pointer transition-colors" />
+              </a>
+              <a
+                href="https://whatsapp.com/channel/0029Vb66ViJK5cDJ8RjFSR2D"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Join our WhatsApp channel"
+              >
+                <MessageCircle className="w-5 h-5 hover:text-accent cursor-pointer transition-colors" />
+              </a>
             </div>
           </div>
 
@@ -42,12 +71,9 @@ const Footer = () => {
           <div className="space-y-4">
             <h4 className="text-lg font-semibold">Quick Links</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/about" className="text-gray-300 hover:text-accent transition-colors">About Us</Link></li>
-              <li><Link href="/contact" className="text-gray-300 hover:text-accent transition-colors">Contact</Link></li>
               <li><Link href="/privacy" className="text-gray-300 hover:text-accent transition-colors">Privacy Policy</Link></li>
               <li><Link href="/terms" className="text-gray-300 hover:text-accent transition-colors">Terms of Service</Link></li>
               <li><Link href="/advertise" className="text-gray-300 hover:text-accent transition-colors">Advertise With Us</Link></li>
-              <li><Link href="/careers" className="text-gray-300 hover:text-accent transition-colors">Careers</Link></li>
             </ul>
           </div>
 
@@ -58,17 +84,17 @@ const Footer = () => {
               <div className="flex items-center">
                 <MapPin className="w-4 h-4 mr-2 text-accent" />
                 <span className="text-gray-300">
-                  123 Independence Avenue<br />
+                  <br />
                   Accra, Ghana
                 </span>
               </div>
               <div className="flex items-center">
                 <Phone className="w-4 h-4 mr-2 text-accent" />
-                <span className="text-gray-300">+233 (0) 302 123 456</span>
+                <span className="text-gray-300">+233 (0) 50 065 1988</span>
               </div>
               <div className="flex items-center">
                 <Mail className="w-4 h-4 mr-2 text-accent" />
-                <span className="text-gray-300">news@ghnewsmedia.com</span>
+                <span className="text-gray-300">ghnewsmedia7@gmail.com</span>
               </div>
             </div>
 
@@ -92,21 +118,20 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-gray-700 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            © 2024 GhNewsMedia. All rights reserved.
+            © {new Date().getFullYear()} GhNewsMedia. All rights reserved.
           </p>
+
           <p className="text-gray-400 text-sm mt-2 md:mt-0">
-  Developed by{' '}
-  <a
-    href="https://charlesawuku.com"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="text-gray-400 hover:underline"
-  >
-    Charles Awuku
-  </a>
-
-</p>
-
+            Developed by{' '}
+            <a
+              href="https://charlesawuku.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:underline"
+            >
+              Charles Awuku
+            </a>
+          </p>
         </div>
       </div>
     </footer>

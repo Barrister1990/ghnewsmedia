@@ -1,9 +1,8 @@
-import { Facebook, Search, Twitter, X } from 'lucide-react';
+import { Facebook, Search, Twitter, X, Youtube } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 
-import AdminLink from '@/components/AdminLink';
 import { useSupabaseCategories } from '../hooks/useSupabaseCategories';
 
 const Header = () => {
@@ -40,26 +39,46 @@ const Header = () => {
     document.head.appendChild(link);
   };
 
-
-  // Group categories by main categories (you can customize this based on your data structure)
-  const mainCategories = [
-    { name: 'News', subcategories: categories.filter(cat => cat.name.toLowerCase().includes('news') || cat.slug.includes('news')) },
-    { name: 'Sports', subcategories: categories.filter(cat => cat.name.toLowerCase().includes('sport') || cat.slug.includes('sport')) },
-    { name: 'Entertainment', subcategories: categories.filter(cat => cat.name.toLowerCase().includes('entertainment') || cat.slug.includes('entertainment')) },
-    { name: 'Lifestyle', subcategories: categories.filter(cat => cat.name.toLowerCase().includes('lifestyle') || cat.slug.includes('lifestyle')) },
-    { name: 'Business', subcategories: categories.filter(cat => cat.name.toLowerCase().includes('business') || cat.slug.includes('business')) },
+  // Define menu items in the requested order
+  const menuItems = [
+    { name: 'Home', href: '/' },
+    { name: 'News', href: '/category/news' },
+    { name: 'Entertainment', href: '/category/entertainment' },
+    { name: 'Sports', href: '/category/sports' },
+    { name: 'Business', href: '/category/business' },
+    { name: 'Lifestyle', href: '/category/lifestyle' },
+    { name: 'Tech', href: '/category/tech' },
+    { name: 'Features', href: '/category/features' },
+    { name: 'Opinions', href: '/category/opinions' },
   ];
 
-  // Add remaining categories that don't fit into main categories
-  const usedCategoryIds = new Set();
-  mainCategories.forEach(mainCat => {
-    mainCat.subcategories.forEach(subCat => usedCategoryIds.add(subCat.id));
-  });
-  
-  const remainingCategories = categories.filter(cat => !usedCategoryIds.has(cat.id));
-  if (remainingCategories.length > 0) {
-    mainCategories.push({ name: 'Other', subcategories: remainingCategories });
-  }
+  // Social media links
+  const socialLinks = [
+    { 
+      name: 'X (Twitter)', 
+      icon: Twitter, 
+      url: 'https://x.com/ghnewsmedia?t=Fx80oa-73oEdgyznOxM_Yg&s=09',
+      bgColor: 'bg-gray-50',
+      textColor: 'text-gray-700',
+      hoverBg: 'hover:bg-gray-100'
+    },
+    { 
+      name: 'Facebook', 
+      icon: Facebook, 
+      url: 'https://www.facebook.com/profile.php?id=61577876216304&mibextid=ZbWKwL',
+      bgColor: 'bg-blue-50',
+      textColor: 'text-blue-600',
+      hoverBg: 'hover:bg-blue-100'
+    },
+    { 
+      name: 'YouTube', 
+      icon: Youtube, 
+      url: 'https://youtube.com/@ghnewsmedia?si=X7l2KfRAkWHG2bAu',
+      bgColor: 'bg-red-50',
+      textColor: 'text-red-600',
+      hoverBg: 'hover:bg-red-100'
+    }
+  ];
 
   return (
     <header className="bg-white shadow-lg sticky top-0 z-50">
@@ -81,8 +100,30 @@ const Header = () => {
           </div>
           <div className="flex items-center space-x-3">
             <span>Follow Us:</span>
-            <Facebook className="w-4 h-4 hover:text-accent cursor-pointer transition-colors" />
-            <Twitter className="w-4 h-4 hover:text-accent cursor-pointer transition-colors" />
+            <a 
+              href="https://www.facebook.com/profile.php?id=61577876216304&mibextid=ZbWKwL"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Follow us on Facebook"
+            >
+              <Facebook className="w-4 h-4 hover:text-accent cursor-pointer transition-colors" />
+            </a>
+            <a 
+              href="https://x.com/ghnewsmedia?t=Fx80oa-73oEdgyznOxM_Yg&s=09"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Follow us on X (Twitter)"
+            >
+              <Twitter className="w-4 h-4 hover:text-accent cursor-pointer transition-colors" />
+            </a>
+            <a 
+              href="https://youtube.com/@ghnewsmedia?si=X7l2KfRAkWHG2bAu"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Subscribe to our YouTube channel"
+            >
+              <Youtube className="w-4 h-4 hover:text-accent cursor-pointer transition-colors" />
+            </a>
           </div>
         </div>
       </div>
@@ -106,23 +147,16 @@ const Header = () => {
             </Link>
           </div>
 
-          {/* Desktop Navigation - Optimized without icons */}
+          {/* Desktop Navigation - Updated menu items */}
           <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
-            <Link 
-              href="/" 
-              className="font-medium text-gray-800 hover:text-primary transition-colors"
-              onMouseEnter={() => handleLinkHover('/')}
-            >
-              Home
-            </Link>
-            {categories.slice(0, 5).map((category) => (
+            {menuItems.slice(0, 6).map((item) => (
               <Link
-                key={category.id}
-                href={`/category/${category.slug}`}
+                key={item.name}
+                href={item.href}
                 className="font-medium text-gray-800 hover:text-primary transition-colors"
-                onMouseEnter={() => handleLinkHover(`/category/${category.slug}`)}
+                onMouseEnter={() => handleLinkHover(item.href)}
               >
-                {category.name}
+                {item.name}
               </Link>
             ))}
             <Link 
@@ -132,21 +166,11 @@ const Header = () => {
             >
               Search
             </Link>
-            <Link 
-              href="/about" 
-              className="font-medium text-gray-800 hover:text-primary transition-colors"
-              onMouseEnter={() => handleLinkHover('/about')}
-            >
-              About
-            </Link>
+           
           </nav>
 
-          {/* Mobile Actions - Redesigned */}
+          {/* Mobile Actions */}
           <div className="flex items-center space-x-1 lg:space-x-4">
-            <div className="hidden lg:block">
-              <AdminLink />
-            </div>
-            
             {/* Search Button - Mobile Optimized */}
             <button
               onClick={handleSearchIconClick}
@@ -201,7 +225,7 @@ const Header = () => {
         )}
       </div>
 
-      {/* Mobile Menu - Simplified */}
+      {/* Mobile Menu - Updated with new menu structure */}
       {isMenuOpen && (
         <>
           {/* Backdrop */}
@@ -210,7 +234,7 @@ const Header = () => {
             onClick={() => setIsMenuOpen(false)}
           />
           
-          {/* Mobile Menu Panel - Simplified */}
+          {/* Mobile Menu Panel */}
           <div className="lg:hidden fixed inset-0 bg-white z-50 overflow-y-auto">
             {/* Menu Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
@@ -223,26 +247,17 @@ const Header = () => {
               </button>
             </div>
 
-            {/* Menu Content - Simplified */}
+            {/* Menu Content */}
             <div className="pb-20">
-              {/* Home Link */}
-              <Link 
-                href="/" 
-                className="flex items-center px-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <span className="text-lg font-medium text-gray-800">Home</span>
-              </Link>
-
-              {/* All Categories as Simple Links */}
-              {categories.map((category) => (
+              {/* Main Menu Items */}
+              {menuItems.map((item) => (
                 <Link
-                  key={category.id}
-                  href={`/category/${category.slug}`}
+                  key={item.name}
+                  href={item.href}
                   className="flex items-center px-4 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <span className="text-lg font-medium text-gray-800">{category.name}</span>
+                  <span className="text-lg font-medium text-gray-800">{item.name}</span>
                 </Link>
               ))}
 
@@ -271,21 +286,42 @@ const Header = () => {
                 <span className="text-lg font-medium text-gray-800">Contact</span>
               </Link>
 
-              {/* Admin Link - Mobile */}
-              <div className="px-4 py-4 border-b border-gray-100">
-                <AdminLink />
-              </div>
-
               {/* Social Links */}
               <div className="px-4 py-6">
-                <div className="flex items-center space-x-4">
-                  <Facebook className="w-10 h-10 p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 cursor-pointer transition-colors" />
-                  <Twitter className="w-10 h-10 p-2 bg-sky-50 text-sky-600 rounded-lg hover:bg-sky-100 cursor-pointer transition-colors" />
+                <h3 className="text-sm font-semibold text-gray-600 mb-3">Follow Us</h3>
+                <div className="flex items-center space-x-3">
+                  {socialLinks.map((social) => {
+                    const IconComponent = social.icon;
+                    return (
+                      <a
+                        key={social.name}
+                        href={social.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`w-12 h-12 p-2.5 ${social.bgColor} ${social.textColor} rounded-lg ${social.hoverBg} cursor-pointer transition-colors flex items-center justify-center`}
+                        aria-label={`Visit our ${social.name} page`}
+                      >
+                        <IconComponent className="w-6 h-6" />
+                      </a>
+                    );
+                  })}
+                </div>
+                
+                {/* WhatsApp Channel Link */}
+                <div className="mt-4">
+                  <a
+                    href="https://whatsapp.com/channel/0029Vb66ViJK5cDJ8RjFSR2D"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-lg hover:bg-green-600 transition-colors"
+                  >
+                    📱 Join WhatsApp Channel
+                  </a>
                 </div>
               </div>
 
               {/* Website URL Footer */}
-              <div className="px-4 py-4 text-center">
+              <div className="px-4 py-4 text-center border-t border-gray-100">
                 <span className="text-sm text-gray-500">ghnewsmedia.com</span>
               </div>
             </div>

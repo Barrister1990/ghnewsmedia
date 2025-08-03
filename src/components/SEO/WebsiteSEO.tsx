@@ -43,7 +43,7 @@ const WebsiteSEO: React.FC<WebsiteSEOProps> = ({
     "url": siteUrl,
     "logo": logoUrl,
     "description": description,
-    "foundingDate": "2024",
+    "foundingDate": "2025",
     "address": {
       "@type": "PostalAddress",
       "addressCountry": "GH",
@@ -53,15 +53,17 @@ const WebsiteSEO: React.FC<WebsiteSEOProps> = ({
       {
         "@type": "ContactPoint",
         "contactType": "Editorial",
-        "email": "editorial@ghnewsmedia.com"
+        "email": "ghnewsmedia7@gmail.com"
       }
     ],
-    "sameAs": [
-      "https://facebook.com/ghnewsmedia",
-      "https://twitter.com/ghnewsmedia",
-      "https://instagram.com/ghnewsmedia",
-      "https://linkedin.com/company/ghnewsmedia"
-    ]
+"sameAs": [
+  "https://x.com/ghnewsmedia?t=Fx80oa-73oEdgyznOxM_Yg&s=09",
+  "https://www.facebook.com/profile.php?id=61577876216304&mibextid=ZbWKwL",
+  "https://www.instagram.com/ghnewsmedia",
+  "https://youtube.com/@ghnewsmedia?si=X7l2KfRAkWHG2bAu",
+  "https://whatsapp.com/channel/0029Vb66ViJK5cDJ8RjFSR2D"
+]
+
   };
 
   // Debug logging for development

@@ -30,14 +30,14 @@ const AdvertisePage = () => {
             <Mail className="w-5 h-5 mr-3 text-accent" />
             <div>
                 <h4 className="font-semibold">Email Us</h4>
-                <a href="mailto:advertising@ghnewsmedia.com" className="text-news-blue hover:underline">advertising@ghnewsmedia.com</a>
+                <a href="mailto:ghnewsmedia7@gmail.com" className="text-news-blue hover:underline">ghnewsmedia7@gmail.com</a>
             </div>
         </div>
         <div className="flex items-center">
             <Phone className="w-5 h-5 mr-3 text-accent" />
             <div>
                 <h4 className="font-semibold">Call Us</h4>
-                <p>+233 (0) 302 123 789</p>
+                <p>+233 (0) 50 065 1988</p>
             </div>
         </div>
       </div>

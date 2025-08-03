@@ -19,9 +19,9 @@ const TermsOfServicePage = () => {
       <p>To resolve a complaint or receive further information, please contact us at:</p>
       <p>
         GhNewsMedia<br/>
-        123 Independence Avenue<br/>
+        <br/>
         Accra, Ghana<br/>
-        Email: contact@ghnewsmedia.com
+        Email: ghnewsmedia7@gmail.com
       </p>
     </StaticPageLayout>
   );
