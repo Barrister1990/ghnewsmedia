@@ -27,22 +27,21 @@ const HorizontalCard: React.FC<HorizontalCardProps> = ({ article, className = ''
           {/* Image Container - Mobile first */}
           <div className="relative sm:w-1/3 lg:w-2/5">
             <div className="relative overflow-hidden bg-gray-100">
-              <Image
-                src={getFullImageUrl(article.featuredImage)}
-                alt={article.title}
-                width={400}
-                height={200}
-                className="
-                  w-full h-44 object-cover
-                  transition-transform duration-700 ease-out
-                  group-hover:scale-105
-                  sm:h-32 md:h-36 lg:h-40
-                "
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 40vw"
-                priority={false}
-                placeholder="blur"
-                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-              />
+<Image
+  src={getFullImageUrl(article.featuredImage)}
+  alt={article.title}
+  width={400}
+  height={200}
+  className="
+    w-full h-full object-cover
+    transition-transform duration-700 ease-out
+    group-hover:scale-105
+  "
+  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+  priority={false}
+  placeholder="blur"
+  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+/>
               
               {/* Image overlay on hover */}
               <div className="

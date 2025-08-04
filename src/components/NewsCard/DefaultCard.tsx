@@ -30,7 +30,7 @@ const DefaultCard: React.FC<DefaultCardProps> = ({ article, className = '' }) =>
             width={400}
             height={200}
             className="
-              w-full h-44 object-cover
+              w-full h-full object-cover
               transition-transform duration-700 ease-out
               group-hover:scale-105
               sm:h-48 md:h-52 lg:h-56

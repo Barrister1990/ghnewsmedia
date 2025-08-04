@@ -20,7 +20,7 @@ const SimplifiedCard: React.FC<SimplifiedCardProps> = ({ article, className = ''
             alt={article.title}
             width={400}
             height={200}
-            className="w-full h-32 object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
           />
         </div>
         <div className="p-3">
