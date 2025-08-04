@@ -1,4 +1,5 @@
 import AdminLayout from '@/components/admin/AdminLayout';
+import { AnimatedLoading } from '@/components/admin/AnimatedLoading';
 import ArticleEditor from '@/components/admin/ArticleEditor';
 import ArticlePreview from '@/components/admin/ArticlePreview';
 import ContentAnalytics from '@/components/admin/ContentAnalytics';
@@ -17,7 +18,6 @@ import { ArrowLeft, BarChart, Eye, EyeOff, FileText, Save, Search, Send } from '
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-
 interface Article {
   id: string;
   title: string;
@@ -185,9 +185,15 @@ const articleId = id as string;
     }
   };
 
-  if (loading) {
-    return <div className="animate-pulse">Loading article...</div>;
-  }
+
+
+    if (loading) {
+      return (
+   <AdminLayout>
+        <AnimatedLoading />
+        </AdminLayout>
+      );
+    }
 
   const currentCategory = categories.find(cat => cat.id === article.category_id);
 
