@@ -116,13 +116,13 @@ const ArticlesList = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
                     <DropdownMenuItem asChild>
-                      <Link href={`/admin/news/edit/${article.id}`} className="w-full">
+                      <Link href={`/admin/articles/edit/${article.id}`} className="w-full">
                         <Edit className="w-4 h-4 mr-2" />
                         Edit
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href={`/article/${article.slug}`} target="_blank" className="w-full">
+                      <Link href={`/news/${article.slug}`} target="_blank" className="w-full">
                         <Eye className="w-4 h-4 mr-2" />
                         View
                       </Link>

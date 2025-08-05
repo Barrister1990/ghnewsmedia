@@ -12,7 +12,10 @@ interface TrendingCarouselProps {
 const TrendingCarousel = ({ initialArticles }: TrendingCarouselProps) => {
   // Pass initial articles to avoid duplicate fetching
   const { articles, loading } = usePublishedArticles(initialArticles);
-  const trendingArticles = articles.filter(article => article.trending).slice(0, 5);
+  const trendingArticles = articles
+  .filter(article => article.trending)
+  .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+  .slice(0, 5);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 

@@ -231,9 +231,15 @@ export const getServerSideProps: GetServerSideProps<IndexProps> = async (context
     }
 
     // Transform articles, handling potential null values
-    const transformedArticles = (articlesData || [])
-      .filter(article => article.id && article.title && article.content) // Filter out incomplete articles
-      .map(transformToNewsArticle);
+const transformedArticles = (articlesData || [])
+  .filter(article => article.id && article.title && article.content) // Filter out incomplete articles
+  .map(transformToNewsArticle)
+  .sort((a, b) => {
+    const dateA = new Date(a.publishedAt).getTime();
+    const dateB = new Date(b.publishedAt).getTime();
+    return dateB - dateA; // Descending: latest first
+  });
+
 
     // Set cache headers for better performance
     // Homepage should be cached more aggressively since it's the main entry point

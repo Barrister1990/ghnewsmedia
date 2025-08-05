@@ -124,23 +124,27 @@ class AdvancedSEOService {
     if (!imageUrl) {
       return `${this.baseUrl}/og-default.jpg`;
     }
-    
-    // If it's already a full URL, return as is
+  
+    let absoluteUrl;
+  
+    // If it's already a full URL, use it as is
     if (imageUrl.startsWith('http')) {
-      return imageUrl;
+      absoluteUrl = imageUrl;
+    } else {
+      // If it's a relative URL, make it absolute
+      absoluteUrl = `${this.baseUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
     }
-    
-    // If it's a relative URL, make it absolute
-    if (imageUrl.startsWith('/')) {
-      return `${this.baseUrl}${imageUrl}`;
-    }
-    
+  
     // Add optimization parameters for better social media display
-    if (imageUrl.includes('supabase') || imageUrl.includes('unsplash')) {
-      return `${imageUrl}?w=1200&h=630&fit=crop&q=90&fm=jpg`;
+    if (absoluteUrl.includes('supabase') || absoluteUrl.includes('unsplash')) {
+      // Ensure we don't add duplicate query parameters
+      const url = new URL(absoluteUrl);
+      if (!url.searchParams.has('w')) {
+        return `${absoluteUrl}?w=1200&h=630&fit=crop&q=90&fm=jpg`;
+      }
     }
-    
-    return imageUrl;
+  
+    return absoluteUrl;
   }
 
   // Generate social media meta tags optimized for each platform
