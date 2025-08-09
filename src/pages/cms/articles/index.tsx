@@ -14,8 +14,9 @@ const CMSArticlesManagement = () => {
   const { articles, loading, refetch } = useAllArticles();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [trendingFilter, setTrendingFilter] = useState<boolean | null>(null);
 
-  const filteredArticles = filterArticles(articles, searchTerm, statusFilter);
+  const filteredArticles = filterArticles(articles, searchTerm, statusFilter, trendingFilter);
 
   const handleRefresh = () => {
     refetch();
@@ -62,11 +63,13 @@ const CMSArticlesManagement = () => {
         setSearchTerm={setSearchTerm}
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
+        trendingFilter={trendingFilter}
+        setTrendingFilter={setTrendingFilter}
         totalArticles={filteredArticles.length}
       />
 
       <div className="bg-white rounded-lg shadow">
-        <CMSArticlesList />
+        <CMSArticlesList articles={filteredArticles} loading={loading} />
       </div>
     </div>
     </CMSLayout>

@@ -1,17 +1,20 @@
 
-import { useRouter } from 'next/router';
-
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useAllArticles } from '@/hooks/useAllArticles';
 import { useAuth } from '@/hooks/useAuth';
+import { AdminArticle as Article } from '@/types/news';
 import { Edit, Eye } from 'lucide-react';
+import { useRouter } from 'next/router';
 
-const CMSArticlesList = () => {
-const router = useRouter();
+interface CMSArticlesListProps {
+  articles: Article[];
+  loading: boolean;
+}
+
+const CMSArticlesList = ({ articles, loading }: CMSArticlesListProps) => {
+  const router = useRouter();
   const { user } = useAuth();
-  const { articles, loading } = useAllArticles();
 
   const getStatusColor = (status: string) => {
     switch (status) {
