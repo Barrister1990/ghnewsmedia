@@ -30,9 +30,15 @@ const articleSchema = z.object({
   slug: z.string().min(1, 'Slug is required').regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be lowercase with hyphens'),
   category_id: z.string().min(1, 'Category is required'),
   featured_image: z.string().optional(),
+  featured_image_credit: z.string().optional(),
   featured: z.boolean(),
   trending: z.boolean(),
-  read_time: z.number().min(1, 'Read time must be at least 1 minute')
+  read_time: z.number().min(1, 'Read time must be at least 1 minute'),
+  meta_title: z.string().optional(),
+  meta_description: z.string().optional(),
+  keywords: z.array(z.string()).optional(),
+  additional_keywords: z.array(z.string()).optional(),
+  focus_keyword: z.string().optional()
 });
 
 type ArticleFormData = z.infer<typeof articleSchema>;
@@ -58,6 +64,7 @@ interface SEOData {
     description: string;
     keywords: string;
   };
+  additional_keywords: string[];
 }
 
 const CMSCreateArticle = () => {
@@ -66,7 +73,23 @@ const CMSCreateArticle = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
-  const [seoData, setSeoData] = useState<SEOData | null>(null);
+  const [seoData, setSeoData] = useState<SEOData>({
+    metaTitle: '',
+    metaDescription: '',
+    keywords: [],
+    focusKeyword: '',
+    ogTitle: '',
+    ogDescription: '',
+    twitterTitle: '',
+    twitterDescription: '',
+    canonicalUrl: '',
+    schema: {
+      headline: '',
+      description: '',
+      keywords: ''
+    },
+    additional_keywords: []
+  });
   const [activeTab, setActiveTab] = useState('content');
 
   const form = useForm<ArticleFormData>({
@@ -78,11 +101,19 @@ const CMSCreateArticle = () => {
       slug: '',
       category_id: '',
       featured_image: '',
+      featured_image_credit: '',
       featured: false,
       trending: false,
-      read_time: 5
+      read_time: 5,
+      meta_title: '',
+      meta_description: '',
+      keywords: [],
+      additional_keywords: [],
+      focus_keyword: ''
     }
   });
+
+  const featuredImageCredit = form.watch('featured_image_credit');
 
   React.useEffect(() => {
     fetchCategories();
@@ -133,6 +164,11 @@ const CMSCreateArticle = () => {
 
   const handleSEOChange = (newSEOData: SEOData) => {
     setSeoData(newSEOData);
+    form.setValue('meta_title', newSEOData.metaTitle);
+    form.setValue('meta_description', newSEOData.metaDescription);
+    form.setValue('keywords', newSEOData.keywords);
+    form.setValue('additional_keywords', newSEOData.additional_keywords);
+    form.setValue('focus_keyword', newSEOData.focusKeyword);
   };
 
   const handleSchedulePublish = (date: string) => {
@@ -147,18 +183,10 @@ const CMSCreateArticle = () => {
 
       // Force status to be 'draft' for editors
       const articleData = {
-        title: data.title,
-        slug: data.slug,
-        excerpt: data.excerpt || null,
-        content: data.content,
-        featured_image: data.featured_image || null,
-        author_id: user.id,
-        category_id: data.category_id,
+        ...data,
         status: 'draft' as const, // Properly typed as const
-        featured: data.featured,
-        trending: data.trending,
-        read_time: data.read_time,
-        published_at: null
+        published_at: null,
+        author_id: user.id
       };
 
       const { data: article, error } = await supabase
@@ -365,6 +393,7 @@ const CMSCreateArticle = () => {
                       content={form.getValues('content')}
                       slug={form.getValues('slug')}
                       category={currentCategory?.name || ''}
+                      seoData={seoData}
                       onSEOChange={handleSEOChange}
                     />
                   </TabsContent>
@@ -528,6 +557,8 @@ const CMSCreateArticle = () => {
                             <ImageUpload
                               value={field.value}
                               onChange={field.onChange}
+                              credit={featuredImageCredit}
+                              onCreditChange={(credit) => form.setValue('featured_image_credit', credit)}
                               placeholder="Upload featured image"
                             />
                           </FormControl>
