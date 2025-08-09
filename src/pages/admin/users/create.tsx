@@ -241,6 +241,8 @@ const CreateUser = () => {
                       <ImageUpload
                         value={field.value}
                         onChange={field.onChange}
+                        credit=""
+                        onCreditChange={() => {}}
                         placeholder="Upload profile image or enter image URL"
                       />
                     </FormControl>
