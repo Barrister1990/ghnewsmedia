@@ -11,41 +11,24 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
+import { AdminArticle } from '@/types/news';
 import { Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
-interface Article {
-  id: string;
-  title: string;
-  slug: string;
-  status: 'draft' | 'published' | 'archived';
-  featured: boolean;
-  trending: boolean;
-  views: number;
-  published_at: string | null;
-  created_at: string;
-  author_id: string;
-  category: {
-    name: string;
-    color: string;
-  } | null;
-  profiles: {
-    name: string;
-  } | null;
-}
-
 interface ArticleTableProps {
-  articles: Article[];
+  articles: AdminArticle[];
   onUpdateStatus: (articleId: string, newStatus: 'draft' | 'published' | 'archived') => void;
   onToggleFeatured: (articleId: string, currentFeatured: boolean) => void;
+  onToggleTrending: (articleId: string, currentTrending: boolean) => void;
   onDelete: (articleId: string) => void;
 }
 
-const ArticleTable = ({ 
-  articles, 
-  onUpdateStatus, 
-  onToggleFeatured, 
-  onDelete 
+const ArticleTable = ({
+  articles,
+  onUpdateStatus,
+  onToggleFeatured,
+  onToggleTrending,
+  onDelete
 }: ArticleTableProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -70,6 +53,7 @@ const ArticleTable = ({
               <TableHead>Category</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Featured</TableHead>
+              <TableHead>Trending</TableHead>
               <TableHead>Views</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Actions</TableHead>
@@ -92,6 +76,9 @@ const ArticleTable = ({
                 </TableCell>
                 <TableCell>
                   {article.featured && <Badge variant="secondary">Featured</Badge>}
+                </TableCell>
+                <TableCell>
+                  {article.trending && <Badge variant="secondary">Trending</Badge>}
                 </TableCell>
                 <TableCell>{article.views}</TableCell>
                 <TableCell>
@@ -127,6 +114,13 @@ const ArticleTable = ({
                       onClick={() => onToggleFeatured(article.id, article.featured)}
                     >
                       {article.featured ? 'Unfeature' : 'Feature'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onToggleTrending(article.id, article.trending)}
+                    >
+                      {article.trending ? 'Untrend' : 'Trend'}
                     </Button>
                     <Button
                       size="sm"

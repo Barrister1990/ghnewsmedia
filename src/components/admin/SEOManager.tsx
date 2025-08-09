@@ -15,6 +15,7 @@ interface SEOManagerProps {
   content: string;
   slug: string;
   category: string;
+  seoData: SEOData;
   onSEOChange: (seoData: SEOData) => void;
 }
 
@@ -33,6 +34,7 @@ interface SEOData {
     description: string;
     keywords: string;
   };
+  additional_keywords: string[];
 }
 
 const SEOManager: React.FC<SEOManagerProps> = ({
@@ -41,50 +43,56 @@ const SEOManager: React.FC<SEOManagerProps> = ({
   content,
   slug,
   category,
+  seoData,
   onSEOChange
 }) => {
-  const [seoData, setSEOData] = useState<SEOData>({
-    metaTitle: '',
-    metaDescription: '',
-    keywords: [],
-    focusKeyword: '',
-    ogTitle: '',
-    ogDescription: '',
-    twitterTitle: '',
-    twitterDescription: '',
-    canonicalUrl: '',
-    schema: {
-      headline: '',
-      description: '',
-      keywords: ''
-    }
-  });
-
   const [keywordInput, setKeywordInput] = useState('');
+  const [additionalKeywordInput, setAdditionalKeywordInput] = useState('');
   const [seoScore, setSeoScore] = useState(0);
   const [seoChecks, setSeoChecks] = useState<Array<{name: string, passed: boolean, message: string}>>([]);
 
   useEffect(() => {
-    // Auto-generate SEO data from article content
-    const autoSEOData = {
-      metaTitle: title ? `${title} | ${category} | GhNewsMedia` : '',
-      metaDescription: excerpt || extractFirstSentence(content),
-      ogTitle: title || '',
-      ogDescription: excerpt || extractFirstSentence(content),
-      twitterTitle: title || '',
-      twitterDescription: excerpt || extractFirstSentence(content),
-      canonicalUrl: slug ? `https://ghnewsmedia.com/news/${slug}` : '',
-      schema: {
-        headline: title || '',
-        description: excerpt || extractFirstSentence(content),
-        keywords: seoData.keywords.join(', ')
-      },
-      keywords: seoData.keywords,
-      focusKeyword: seoData.focusKeyword
+    const newSeoData = { ...seoData };
+    let hasChanged = false;
+
+    if (!newSeoData.metaTitle && title) {
+      newSeoData.metaTitle = `${title} | ${category} | GhNewsMedia`;
+      hasChanged = true;
+    }
+    if (!newSeoData.metaDescription && (excerpt || content)) {
+      newSeoData.metaDescription = excerpt || extractFirstSentence(content);
+      hasChanged = true;
+    }
+    if (!newSeoData.ogTitle && title) {
+      newSeoData.ogTitle = title;
+      hasChanged = true;
+    }
+    if (!newSeoData.ogDescription && (excerpt || content)) {
+      newSeoData.ogDescription = excerpt || extractFirstSentence(content);
+      hasChanged = true;
+    }
+    if (!newSeoData.twitterTitle && title) {
+      newSeoData.twitterTitle = title;
+      hasChanged = true;
+    }
+    if (!newSeoData.twitterDescription && (excerpt || content)) {
+      newSeoData.twitterDescription = excerpt || extractFirstSentence(content);
+      hasChanged = true;
+    }
+    if (!newSeoData.canonicalUrl && slug) {
+      newSeoData.canonicalUrl = `https://ghnewsmedia.com/news/${slug}`;
+      hasChanged = true;
+    }
+    
+    newSeoData.schema = {
+      headline: title || '',
+      description: excerpt || extractFirstSentence(content),
+      keywords: newSeoData.keywords.join(', ')
     };
 
-    setSEOData(autoSEOData);
-    onSEOChange(autoSEOData);
+    if (hasChanged) {
+      onSEOChange(newSeoData);
+    }
   }, [title, excerpt, content, slug, category]);
 
   useEffect(() => {
@@ -98,19 +106,24 @@ const SEOManager: React.FC<SEOManagerProps> = ({
 
   const addKeyword = () => {
     if (keywordInput.trim() && !seoData.keywords.includes(keywordInput.trim())) {
-      const newKeywords = [...seoData.keywords, keywordInput.trim()];
-      const updatedSEO = { ...seoData, keywords: newKeywords };
-      setSEOData(updatedSEO);
-      onSEOChange(updatedSEO);
+      onSEOChange({ ...seoData, keywords: [...seoData.keywords, keywordInput.trim()] });
       setKeywordInput('');
     }
   };
 
+  const addAdditionalKeyword = () => {
+    if (additionalKeywordInput.trim() && !seoData.additional_keywords.includes(additionalKeywordInput.trim())) {
+      onSEOChange({ ...seoData, additional_keywords: [...seoData.additional_keywords, additionalKeywordInput.trim()] });
+      setAdditionalKeywordInput('');
+    }
+  };
+
   const removeKeyword = (keyword: string) => {
-    const newKeywords = seoData.keywords.filter(k => k !== keyword);
-    const updatedSEO = { ...seoData, keywords: newKeywords };
-    setSEOData(updatedSEO);
-    onSEOChange(updatedSEO);
+    onSEOChange({ ...seoData, keywords: seoData.keywords.filter(k => k !== keyword) });
+  };
+
+  const removeAdditionalKeyword = (keyword: string) => {
+    onSEOChange({ ...seoData, additional_keywords: seoData.additional_keywords.filter(k => k !== keyword) });
   };
 
   const calculateSEOScore = () => {
@@ -163,10 +176,8 @@ const SEOManager: React.FC<SEOManagerProps> = ({
     return 'text-red-600';
   };
 
-  const updateSEOField = (field: string, value: string) => {
-    const updatedSEO = { ...seoData, [field]: value };
-    setSEOData(updatedSEO);
-    onSEOChange(updatedSEO);
+  const updateSEOField = (field: keyof SEOData, value: any) => {
+    onSEOChange({ ...seoData, [field]: value });
   };
 
   return (
@@ -267,7 +278,7 @@ const SEOManager: React.FC<SEOManagerProps> = ({
           </div>
 
           <div>
-            <Label>Additional Keywords</Label>
+            <Label>Keywords</Label>
             <div className="flex space-x-2 mb-2">
               <Input
                 value={keywordInput}
@@ -275,7 +286,7 @@ const SEOManager: React.FC<SEOManagerProps> = ({
                 placeholder="Add keyword..."
                 onKeyPress={(e) => e.key === 'Enter' && addKeyword()}
               />
-              <Button onClick={addKeyword} size="sm">
+              <Button type="button" onClick={addKeyword} size="sm">
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
@@ -286,6 +297,32 @@ const SEOManager: React.FC<SEOManagerProps> = ({
                   <X
                     className="w-3 h-3 cursor-pointer"
                     onClick={() => removeKeyword(keyword)}
+                  />
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <Label>Additional Keywords</Label>
+            <div className="flex space-x-2 mb-2">
+              <Input
+                value={additionalKeywordInput}
+                onChange={(e) => setAdditionalKeywordInput(e.target.value)}
+                placeholder="Add additional keyword..."
+                onKeyPress={(e) => e.key === 'Enter' && addAdditionalKeyword()}
+              />
+              <Button type="button" onClick={addAdditionalKeyword} size="sm">
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {seoData.additional_keywords.map((keyword, index) => (
+                <Badge key={index} variant="secondary" className="flex items-center space-x-1">
+                  <span>{keyword}</span>
+                  <X
+                    className="w-3 h-3 cursor-pointer"
+                    onClick={() => removeAdditionalKeyword(keyword)}
                   />
                 </Badge>
               ))}

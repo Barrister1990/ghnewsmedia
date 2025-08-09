@@ -1,45 +1,10 @@
 import { supabase } from '@/integrations/supabase/client';
+import { AdminArticle } from '@/types/news';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-interface Article {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt?: string;
-  content: string;
-  featured_image?: string;
-  status: 'draft' | 'published' | 'archived';
-  featured: boolean;
-  trending: boolean;
-  views: number;
-  published_at: string | null;
-  created_at: string;
-  updated_at: string;
-  author_id: string;
-  category_id: string;
-  meta_title?: string;
-  meta_description?: string;
-  keywords?: string[];
-  category: {
-    id: string;
-    name: string;
-    color: string;
-    slug: string;
-    description?: string;
-    icon?: string;
-  } | null;
-  author: {
-    id: string;
-    name: string;
-    bio?: string;
-    avatar?: string;
-    title?: string;
-  } | null;
-}
-
 export const useAllArticles = () => {
-  const [articles, setArticles] = useState<Article[]>([]);
+  const [articles, setArticles] = useState<AdminArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -93,6 +58,9 @@ export const useAllArticles = () => {
           bio: undefined,
           avatar: article.author_avatar || undefined,
           title: undefined
+        } : null,
+        profiles: article.author_id ? {
+          name: article.author_name || 'Unknown Author'
         } : null
       }));
 
@@ -164,6 +132,23 @@ export const useAllArticles = () => {
     }
   };
 
+  const toggleTrending = async (articleId: string, currentTrending: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('articles')
+        .update({ trending: !currentTrending })
+        .eq('id', articleId);
+
+      if (error) throw error;
+      
+      toast.success(`Article ${!currentTrending ? 'added to' : 'removed from'} trending successfully`);
+      fetchArticles(); // Refresh the list
+    } catch (error) {
+      console.error('Error toggling trending status:', error);
+      toast.error('Failed to update trending status');
+    }
+  };
+
   useEffect(() => {
     fetchArticles();
   }, []);
@@ -175,6 +160,7 @@ export const useAllArticles = () => {
     deleteArticle,
     updateArticleStatus,
     toggleFeatured,
+    toggleTrending,
     refetch: fetchArticles
   };
 };

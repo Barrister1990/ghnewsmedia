@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 interface ImageUploadDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onImageInsert: (imageUrl: string, altText: string) => void;
+  onImageInsert: (imageUrl: string, altText: string, credit: string) => void;
 }
 
 const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
@@ -21,6 +21,7 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [urlInput, setUrlInput] = useState('');
   const [altText, setAltText] = useState('');
+  const [credit, setCredit] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
 
@@ -84,7 +85,7 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
         .getPublicUrl(data.path);
 
       const imageUrl = urlData.publicUrl;
-      onImageInsert(imageUrl, altText || selectedFile.name);
+      onImageInsert(imageUrl, altText || selectedFile.name, credit);
       toast.success('Image uploaded successfully');
       handleClose();
       
@@ -102,7 +103,7 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
       return;
     }
 
-    onImageInsert(urlInput.trim(), altText || 'Image');
+    onImageInsert(urlInput.trim(), altText || 'Image', credit);
     toast.success('Image URL inserted');
     handleClose();
   };
@@ -112,6 +113,7 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
     setPreviewUrl('');
     setUrlInput('');
     setAltText('');
+    setCredit('');
     onClose();
   };
 
@@ -130,6 +132,15 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
               placeholder="Describe the image..."
               value={altText}
               onChange={(e) => setAltText(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Credit</label>
+            <Input
+              placeholder="Enter image credit..."
+              value={credit}
+              onChange={(e) => setCredit(e.target.value)}
             />
           </div>
 

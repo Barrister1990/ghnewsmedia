@@ -6,6 +6,7 @@ export interface NewsArticle {
   excerpt: string;
   content: string;
   featuredImage: string;
+  featured_image_credit?: string;
   author: Author;
   category: Category;
   tags: string[];
@@ -85,3 +86,41 @@ export type RawArticle = {
   status?: string;
 };
 
+export interface AdminArticle {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  content: string;
+  featured_image?: string;
+  status: 'draft' | 'published' | 'archived';
+  featured: boolean;
+  trending: boolean;
+  views: number;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+  author_id: string;
+  category_id: string;
+  meta_title?: string;
+  meta_description?: string;
+  keywords?: string[];
+  category: {
+    id: string;
+    name: string;
+    color: string;
+    slug: string;
+    description?: string;
+    icon?: string;
+  } | null;
+  author: {
+    id: string;
+    name: string;
+    bio?: string;
+    avatar?: string;
+    title?: string;
+  } | null;
+  profiles: {
+    name: string;
+  } | null;
+}

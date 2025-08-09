@@ -40,7 +40,6 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({ article }) => {
   {article.title}
 </h1>
 
-      
 
       
       {/* Author Info */}

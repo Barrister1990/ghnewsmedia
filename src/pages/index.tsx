@@ -25,7 +25,7 @@ interface IndexProps {
 
 const Index: React.FC<IndexProps> = ({ articles, error }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const articlesPerPage = 6;
+  const articlesPerPage = 12; // Number of articles per page
   
   const featuredArticles = articles.filter(article => article.featured);
   const latestArticles = articles.filter(article => !article.featured);

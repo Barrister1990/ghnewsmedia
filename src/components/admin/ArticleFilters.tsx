@@ -1,14 +1,16 @@
 
-import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search } from 'lucide-react';
+import React from 'react';
 
 interface ArticleFiltersProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
   statusFilter: string;
   setStatusFilter: (status: string) => void;
+  trendingFilter: boolean | null;
+  setTrendingFilter: (trending: boolean | null) => void;
   totalArticles?: number;
 }
 
@@ -17,6 +19,8 @@ const ArticleFilters: React.FC<ArticleFiltersProps> = ({
   setSearchTerm,
   statusFilter,
   setStatusFilter,
+  trendingFilter,
+  setTrendingFilter,
   totalArticles
 }) => {
   return (
@@ -52,6 +56,31 @@ const ArticleFilters: React.FC<ArticleFiltersProps> = ({
               <SelectItem value="published">Published</SelectItem>
               <SelectItem value="draft">Draft</SelectItem>
               <SelectItem value="archived">Archived</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="lg:w-48">
+          <label htmlFor="trending" className="block text-sm font-medium text-gray-700 mb-2">
+            Trending Filter
+          </label>
+          <Select
+            value={trendingFilter === null ? 'all' : String(trendingFilter)}
+            onValueChange={(value) => {
+              if (value === 'all') {
+                setTrendingFilter(null);
+              } else {
+                setTrendingFilter(value === 'true');
+              }
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select trending status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="true">Trending</SelectItem>
+              <SelectItem value="false">Not Trending</SelectItem>
             </SelectContent>
           </Select>
         </div>

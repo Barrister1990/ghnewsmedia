@@ -111,14 +111,20 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({
     }, 0);
   };
 
-  const handleImageInsert = (imageUrl: string, altText: string) => {
+  const handleImageInsert = (imageUrl: string, altText: string, credit: string) => {
     if (!textareaRef.current) return;
 
     const textarea = textareaRef.current;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     
-    const imageMarkdown = `![${altText}](${imageUrl})`;
+    const imageMarkdown = `
+<figure>
+  <img src="${imageUrl}" alt="${altText}">
+  <figcaption>${credit}</figcaption>
+</figure>
+`;
+    
     const newContent = content.substring(0, start) + imageMarkdown + content.substring(end);
     onChange(newContent);
 

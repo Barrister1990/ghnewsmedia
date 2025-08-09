@@ -15,6 +15,7 @@ export const transformToNewsArticle = (article: any): NewsArticle => {
     excerpt: article.excerpt || '',
     content: article.content,
     featuredImage: article.featured_image || 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&h=400&fit=crop',
+    featured_image_credit: article.featured_image_credit || null,
     author: {
       id: article.author_id || '',
       name: article.author_name || 'Unknown Author',

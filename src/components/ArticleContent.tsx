@@ -36,7 +36,9 @@ const ArticleContent: React.FC<ArticleContentProps> = ({ article, relatedArticle
 
     processedContent = processedContent.replace(/^> (.*$)/gim, '<blockquote class="border-l-4 border-gray-300 pl-4 italic my-4">$1</blockquote>');
 
-    processedContent = processedContent.replace(/^\- (.*$)/gim, '<li class="ml-4">• $1</li>');
+    processedContent = processedContent.replace(/^\- (.*$)/gim, '<li>$1</li>');
+    processedContent = processedContent.replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>');
+    processedContent = processedContent.replace(/<\/ul>\s*<ul>/g, '');
 
     processedContent = processedContent.replace(/\n\n/g, '</p><p class="mb-4">');
     processedContent = processedContent.replace(/\n/g, '<br />');
@@ -49,22 +51,28 @@ const ArticleContent: React.FC<ArticleContentProps> = ({ article, relatedArticle
   };
 
   const injectRelatedLinks = (content: string) => {
-    if (relatedArticles.length === 0) {
+    if (relatedArticles.length < 2) {
       return content;
     }
 
-    const paragraphs = content.split('</p><p class="mb-4">');
-    const injectionPoint = Math.floor(paragraphs.length / 2);
+    // Shuffle the related articles to get a random selection
+    const shuffledArticles = [...relatedArticles].sort(() => 0.5 - Math.random());
+    const articlesToInject = shuffledArticles.slice(0, 2);
 
-    if (paragraphs.length > 2) {
-      const relatedArticle = relatedArticles[0];
-      const relatedLink = `
+    const paragraphs = content.split('</p><p class="mb-4">');
+    const firstInjectionPoint = Math.floor(paragraphs.length / 3);
+    const secondInjectionPoint = Math.floor((paragraphs.length / 3) * 2);
+
+    const createRelatedLink = (article: NewsArticle) => `
 <div class="my-8 p-4 border-l-4 border-blue-500 bg-blue-50 rounded-r-lg">
   <p class="font-bold text-blue-800">READ ALSO</p>
-  <a href="/news/${relatedArticle.slug}" class="text-lg font-semibold text-blue-600 hover:underline">${relatedArticle.title}</a>
+  <a href="/news/${article.slug}" class="text-lg font-semibold text-blue-600 hover:underline">${article.title}</a>
 </div>
 `;
-      paragraphs.splice(injectionPoint, 0, relatedLink);
+
+    if (paragraphs.length > 4) {
+      paragraphs.splice(secondInjectionPoint, 0, createRelatedLink(articlesToInject[1]));
+      paragraphs.splice(firstInjectionPoint, 0, createRelatedLink(articlesToInject[0]));
     }
 
     return paragraphs.join('</p><p class="mb-4">');
@@ -77,6 +85,8 @@ const ArticleContent: React.FC<ArticleContentProps> = ({ article, relatedArticle
     <>
       {/* Featured Image */}
       {article.featuredImage && (
+
+        
         <div className="mb-6 sm:mb-8">
           <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[500px] overflow-hidden rounded-lg shadow-lg">
             <img
@@ -88,6 +98,11 @@ const ArticleContent: React.FC<ArticleContentProps> = ({ article, relatedArticle
               }}
             />
           </div>
+          {article.featured_image_credit && (
+            <p className="text-xs text-gray-500 mt-2">Image credit: {article.featured_image_credit}</p>
+          )}
+
+
         </div>
       )}
       
