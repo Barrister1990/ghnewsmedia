@@ -59,7 +59,7 @@ const NewsletterSignup = () => {
   }
 
   return (
-    <div className="bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 rounded-2xl overflow-hidden shadow-2xl">
+    <div className="bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 rounded-2xl overflow-hidden shadow-2xl relative">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
       

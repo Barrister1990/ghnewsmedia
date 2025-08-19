@@ -29,7 +29,7 @@ const ContentPreviewRenderer: React.FC<ContentPreviewRendererProps> = ({ content
   };
 
   // Function to render YouTube embeds
-  const renderYouTubeEmbed = (url: string): JSX.Element => {
+  const renderYouTubeEmbed = (url: string): React.ReactElement => {
     const videoId = extractYouTubeId(url);
     if (!videoId) {
       return (
@@ -54,7 +54,7 @@ const ContentPreviewRenderer: React.FC<ContentPreviewRendererProps> = ({ content
   };
 
   // Function to render Vimeo embeds
-  const renderVimeoEmbed = (url: string): JSX.Element => {
+  const renderVimeoEmbed = (url: string): React.ReactElement => {
     const vimeoId = url.match(/vimeo\.com\/(\d+)/)?.[1];
     if (!vimeoId) {
       return (
@@ -79,7 +79,7 @@ const ContentPreviewRenderer: React.FC<ContentPreviewRendererProps> = ({ content
   };
 
   // Function to render generic iframe embeds
-  const renderIframeEmbed = (html: string): JSX.Element => {
+  const renderIframeEmbed = (html: string): React.ReactElement => {
     // Extract src from iframe
     const srcMatch = html.match(/src=["']([^"']+)["']/);
     const src = srcMatch ? srcMatch[1] : '';
@@ -132,7 +132,7 @@ const ContentPreviewRenderer: React.FC<ContentPreviewRendererProps> = ({ content
   };
 
   // Function to render links with preview
-  const renderLink = (href: string, text: string): JSX.Element => {
+  const renderLink = (href: string, text: string): React.ReactElement => {
     return (
       <div className="inline-block">
         <a
@@ -152,7 +152,7 @@ const ContentPreviewRenderer: React.FC<ContentPreviewRendererProps> = ({ content
   };
 
   // Function to render images with preview and credits
-  const renderImage = (src: string, alt: string, credit?: string): JSX.Element => {
+  const renderImage = (src: string, alt: string, credit?: string): React.ReactElement => {
     return (
       <div className="my-4">
         <img
@@ -183,7 +183,7 @@ const ContentPreviewRenderer: React.FC<ContentPreviewRendererProps> = ({ content
   };
 
   // Function to render code blocks with syntax highlighting
-  const renderCodeBlock = (code: string, language?: string): JSX.Element => {
+  const renderCodeBlock = (code: string, language?: string): React.ReactElement => {
     return (
       <div className="my-4">
         <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
@@ -199,7 +199,7 @@ const ContentPreviewRenderer: React.FC<ContentPreviewRendererProps> = ({ content
   };
 
   // Function to render tables with styling
-  const renderTable = (tableHtml: string): JSX.Element => {
+  const renderTable = (tableHtml: string): React.ReactElement => {
     return (
       <div className="my-4 overflow-x-auto">
         <div 
@@ -211,7 +211,7 @@ const ContentPreviewRenderer: React.FC<ContentPreviewRendererProps> = ({ content
   };
 
   // Function to render blockquotes with styling
-  const renderBlockquote = (content: string): JSX.Element => {
+  const renderBlockquote = (content: string): React.ReactElement => {
     return (
       <blockquote className="my-4 pl-4 border-l-4 border-gray-300 bg-gray-50 py-2 italic text-gray-700">
         {content}
@@ -220,7 +220,7 @@ const ContentPreviewRenderer: React.FC<ContentPreviewRendererProps> = ({ content
   };
 
   // Function to render lists with proper styling
-  const renderList = (content: string, isOrdered: boolean): JSX.Element => {
+  const renderList = (content: string, isOrdered: boolean): React.ReactElement => {
     const ListTag = isOrdered ? 'ol' : 'ul';
     const items = content.match(/<li[^>]*>.*?<\/li>/gs) || [];
     
@@ -239,8 +239,7 @@ const ContentPreviewRenderer: React.FC<ContentPreviewRendererProps> = ({ content
   };
 
   // Function to render headings with proper styling
-  const renderHeading = (content: string, level: number): JSX.Element => {
-    const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements;
+  const renderHeading = (content: string, level: number): React.ReactElement => {
     const baseClasses = 'font-bold my-4';
     const levelClasses = {
       1: 'text-3xl text-gray-900',
@@ -251,15 +250,29 @@ const ContentPreviewRenderer: React.FC<ContentPreviewRendererProps> = ({ content
       6: 'text-sm text-gray-600'
     };
 
-    return (
-      <HeadingTag className={`${baseClasses} ${levelClasses[level as keyof typeof levelClasses]}`}>
-        {content}
-      </HeadingTag>
-    );
+    const contentText = content.replace(/<[^>]*>/g, '');
+    const className = `${baseClasses} ${levelClasses[level as keyof typeof levelClasses] || levelClasses[6]}`;
+
+    switch (level) {
+      case 1:
+        return <h1 className={className}>{contentText}</h1>;
+      case 2:
+        return <h2 className={className}>{contentText}</h2>;
+      case 3:
+        return <h3 className={className}>{contentText}</h3>;
+      case 4:
+        return <h4 className={className}>{contentText}</h4>;
+      case 5:
+        return <h5 className={className}>{contentText}</h5>;
+      case 6:
+        return <h6 className={className}>{contentText}</h6>;
+      default:
+        return <h6 className={className}>{contentText}</h6>;
+    }
   };
 
   // Function to render the content with preview
-  const renderContent = (): JSX.Element => {
+  const renderContent = (): React.ReactElement => {
     if (!content) {
       return (
         <div className="text-gray-500 text-center py-8">
@@ -273,7 +286,7 @@ const ContentPreviewRenderer: React.FC<ContentPreviewRendererProps> = ({ content
     tempDiv.innerHTML = content;
 
     // Process each node
-    const processNode = (node: Node): JSX.Element | string => {
+    const processNode = (node: Node): React.ReactElement | string => {
       if (node.nodeType === Node.TEXT_NODE) {
         return node.textContent || '';
       }
