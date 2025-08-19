@@ -1,5 +1,4 @@
 import { AnimatedLoading } from '@/components/admin/AnimatedLoading';
-import ArticleEditor from '@/components/admin/ArticleEditor';
 import ArticlePreview from '@/components/admin/ArticlePreview';
 import ContentAnalytics from '@/components/admin/ContentAnalytics';
 import ImageUpload from '@/components/admin/ImageUpload';
@@ -20,11 +19,27 @@ import { useImmediateIndexing } from '@/hooks/useImmediateIndexing';
 import { supabase } from '@/integrations/supabase/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { BarChart, Eye, EyeOff, FileText, Save, Search, Send } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
+
+// Dynamically import TiptapEditor to prevent SSR issues
+const TiptapEditor = dynamic(
+  () => import('@/components/admin/TiptapEditor'),
+  {
+    ssr: false,
+    loading: () => (
+              <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <div className="min-h-[400px] bg-gray-50 flex items-center justify-center">
+            <div className="text-gray-500">Loading Tiptap Editor...</div>
+          </div>
+        </div>
+    ),
+  }
+);
 
 const articleSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must be less than 200 characters'),
@@ -399,7 +414,16 @@ const CMSEditArticle = () => {
         />
       ) : (
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form 
+            onSubmit={form.handleSubmit(onSubmit)} 
+            className="space-y-6"
+            onKeyDown={(e) => {
+              // Prevent form submission on Enter key when editor might be focused
+              if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+              }
+            }}
+          >
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Main Content */}
               <div className="lg:col-span-2">
@@ -500,7 +524,7 @@ const CMSEditArticle = () => {
                             <FormItem>
                               <FormLabel>Content</FormLabel>
                               <FormControl>
-                                <ArticleEditor
+                                <TiptapEditor
                                   content={field.value}
                                   onChange={(content) => {
                                     field.onChange(content);

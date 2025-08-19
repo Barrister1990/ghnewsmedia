@@ -2,13 +2,13 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import {
-  AlertTriangle,
-  BarChart,
-  Clock,
-  Eye,
-  FileText,
-  Target,
-  TrendingUp
+    AlertTriangle,
+    BarChart,
+    Clock,
+    Eye,
+    FileText,
+    Target,
+    TrendingUp
 } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 

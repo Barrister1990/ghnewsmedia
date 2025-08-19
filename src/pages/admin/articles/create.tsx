@@ -1,6 +1,5 @@
 
 import AdminLayout from '@/components/admin/AdminLayout';
-import ArticleEditor from '@/components/admin/ArticleEditor';
 import ArticlePreview from '@/components/admin/ArticlePreview';
 import ContentAnalytics from '@/components/admin/ContentAnalytics';
 import ImageUpload from '@/components/admin/ImageUpload';
@@ -15,14 +14,31 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import { usePreventFormSubmission } from '@/hooks/usePreventFormSubmission';
 import { supabase } from '@/integrations/supabase/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { BarChart, Eye, EyeOff, FileText, Save, Search, Send } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
+
+// Dynamically import TiptapEditor to prevent SSR issues
+const TiptapEditor = dynamic(
+  () => import('@/components/admin/TiptapEditor'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="border border-gray-200 rounded-lg overflow-hidden">
+        <div className="min-h-[400px] bg-gray-50 flex items-center justify-center">
+          <div className="text-gray-500">Loading Tiptap Editor...</div>
+        </div>
+      </div>
+    ),
+  }
+);
 
 const articleSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must be less than 200 characters'),
@@ -71,6 +87,7 @@ interface SEOData {
 
 const CreateArticle = () => {
   const router = useRouter()
+  const { formProps } = usePreventFormSubmission();
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -277,7 +294,11 @@ const CreateArticle = () => {
         />
       ) : (
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form 
+            onSubmit={form.handleSubmit(onSubmit)} 
+            className="space-y-6"
+            {...formProps}
+          >
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Main Content */}
               <div className="lg:col-span-2">
@@ -382,7 +403,7 @@ const CreateArticle = () => {
                             <FormItem>
                               <FormLabel>Content</FormLabel>
                               <FormControl>
-                                <ArticleEditor
+                                <TiptapEditor
                                   content={field.value}
                                   onChange={(content) => {
                                     field.onChange(content);
@@ -401,10 +422,10 @@ const CreateArticle = () => {
 
                   <TabsContent value="seo">
                     <SEOManager
-                      title={form.getValues('title')}
-                      excerpt={form.getValues('excerpt')}
-                      content={form.getValues('content')}
-                      slug={form.getValues('slug')}
+                      title={form.watch('title')}
+                      excerpt={form.watch('excerpt')}
+                      content={form.watch('content')}
+                      slug={form.watch('slug')}
                       category={currentCategory?.name || ''}
                       seoData={seoData}
                       onSEOChange={handleSEOChange}
@@ -413,19 +434,19 @@ const CreateArticle = () => {
 
                   <TabsContent value="analytics">
                     <ContentAnalytics
-                      content={form.getValues('content')}
-                      title={form.getValues('title')}
+                      content={form.watch('content')}
+                      title={form.watch('title')}
                       category={currentCategory?.name || ''}
                     />
                   </TabsContent>
 
                   <TabsContent value="publish">
                     <PublishingWorkflow
-                      status={form.getValues('status')}
+                      status={form.watch('status')}
                       onStatusChange={(status) => form.setValue('status', status)}
                       onSchedulePublish={handleSchedulePublish}
                       seoScore={seoData ? 85 : 0}
-                      contentScore={form.getValues('content').split(' ').length > 300 ? 85 : 45}
+                      contentScore={form.watch('content').split(' ').length > 300 ? 85 : 45}
                     />
                   </TabsContent>
                 </Tabs>

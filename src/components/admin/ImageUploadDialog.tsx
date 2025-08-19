@@ -50,6 +50,11 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
       return;
     }
 
+    if (!credit.trim()) {
+      toast.error('Image credit is required for copyright compliance');
+      return;
+    }
+
     setIsUploading(true);
     
     try {
@@ -103,6 +108,11 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
       return;
     }
 
+    if (!credit.trim()) {
+      toast.error('Image credit is required for copyright compliance');
+      return;
+    }
+
     onImageInsert(urlInput.trim(), altText || 'Image', credit);
     toast.success('Image URL inserted');
     handleClose();
@@ -136,12 +146,29 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Credit</label>
+            <label className="block text-sm font-medium mb-1">
+              Image Credit <span className="text-red-500">*</span>
+            </label>
             <Input
-              placeholder="Enter image credit..."
+              placeholder="e.g., Photo by John Doe on Unsplash, or © Company Name"
               value={credit}
               onChange={(e) => setCredit(e.target.value)}
+              required
             />
+            <p className="text-xs text-gray-500 mt-1">
+              <strong>Required for copyright compliance.</strong> Include photographer name, source, or copyright holder.
+            </p>
+            <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-xs text-blue-700">
+                <strong>Copyright Guidelines:</strong>
+              </p>
+              <ul className="text-xs text-blue-600 mt-1 space-y-1">
+                <li>• <strong>Stock Photos:</strong> "Photo by [Photographer] on [Platform]"</li>
+                <li>• <strong>Company Images:</strong> "© [Company Name]"</li>
+                <li>• <strong>Creative Commons:</strong> "CC BY [Photographer Name]"</li>
+                <li>• <strong>Public Domain:</strong> "Public Domain" or "No copyright restrictions"</li>
+              </ul>
+            </div>
           </div>
 
           {/* Preview */}

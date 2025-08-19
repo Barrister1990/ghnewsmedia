@@ -55,45 +55,60 @@ const SEOManager: React.FC<SEOManagerProps> = ({
     const newSeoData = { ...seoData };
     let hasChanged = false;
 
+    // Auto-generate meta title if empty
     if (!newSeoData.metaTitle && title) {
       newSeoData.metaTitle = `${title} | ${category} | GhNewsMedia`;
       hasChanged = true;
     }
+
+    // Auto-generate meta description if empty
     if (!newSeoData.metaDescription && (excerpt || content)) {
       newSeoData.metaDescription = excerpt || extractFirstSentence(content);
       hasChanged = true;
     }
+
+    // Auto-generate Open Graph title if empty
     if (!newSeoData.ogTitle && title) {
       newSeoData.ogTitle = title;
       hasChanged = true;
     }
+
+    // Auto-generate Open Graph description if empty
     if (!newSeoData.ogDescription && (excerpt || content)) {
       newSeoData.ogDescription = excerpt || extractFirstSentence(content);
       hasChanged = true;
     }
+
+    // Auto-generate Twitter title if empty
     if (!newSeoData.twitterTitle && title) {
       newSeoData.twitterTitle = title;
       hasChanged = true;
     }
+
+    // Auto-generate Twitter description if empty
     if (!newSeoData.twitterDescription && (excerpt || content)) {
       newSeoData.twitterDescription = excerpt || extractFirstSentence(content);
       hasChanged = true;
     }
+
+    // Auto-generate canonical URL if empty
     if (!newSeoData.canonicalUrl && slug) {
       newSeoData.canonicalUrl = `https://ghnewsmedia.com/news/${slug}`;
       hasChanged = true;
     }
-    
+
+    // Update schema data
     newSeoData.schema = {
       headline: title || '',
       description: excerpt || extractFirstSentence(content),
       keywords: newSeoData.keywords.join(', ')
     };
 
+    // Only trigger change if there are actual changes
     if (hasChanged) {
       onSEOChange(newSeoData);
     }
-  }, [title, excerpt, content, slug, category]);
+  }, [title, excerpt, content, slug, category, seoData.metaTitle, seoData.metaDescription, seoData.ogTitle, seoData.ogDescription, seoData.twitterTitle, seoData.twitterDescription, seoData.canonicalUrl]);
 
   useEffect(() => {
     calculateSEOScore();
@@ -102,6 +117,14 @@ const SEOManager: React.FC<SEOManagerProps> = ({
   const extractFirstSentence = (text: string): string => {
     const sentences = text.split(/[.!?]+/);
     return sentences[0] ? sentences[0].substring(0, 160).trim() + '...' : '';
+  };
+
+  const calculateKeywordDensity = (keyword: string, content: string): number => {
+    if (!keyword || !content) return 0;
+    const keywordRegex = new RegExp(keyword.toLowerCase(), 'gi');
+    const matches = content.toLowerCase().match(keywordRegex);
+    const wordCount = content.split(/\s+/).length;
+    return matches ? Math.round((matches.length / wordCount) * 100 * 100) / 100 : 0;
   };
 
   const addKeyword = () => {
@@ -225,10 +248,37 @@ const SEOManager: React.FC<SEOManagerProps> = ({
               onChange={(e) => updateSEOField('metaTitle', e.target.value)}
               placeholder="Enter meta title..."
               maxLength={60}
+              className={`${
+                seoData.metaTitle.length < 30 || seoData.metaTitle.length > 60
+                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                  : seoData.metaTitle.length >= 30 && seoData.metaTitle.length <= 60
+                  ? 'border-green-300 focus:border-green-500 focus:ring-green-500'
+                  : ''
+              }`}
             />
-            <p className="text-xs text-gray-500 mt-1">
-              {seoData.metaTitle.length}/60 characters
-            </p>
+            <div className="flex justify-between items-center mt-1">
+              <p className={`text-xs ${
+                seoData.metaTitle.length < 30 || seoData.metaTitle.length > 60
+                  ? 'text-red-500'
+                  : seoData.metaTitle.length >= 30 && seoData.metaTitle.length <= 60
+                  ? 'text-green-600'
+                  : 'text-gray-500'
+              }`}>
+                {seoData.metaTitle.length}/60 characters
+              </p>
+              {seoData.metaTitle.length > 0 && (
+                <span className={`text-xs px-2 py-1 rounded ${
+                  seoData.metaTitle.length < 30 || seoData.metaTitle.length > 60
+                    ? 'bg-red-100 text-red-700'
+                    : seoData.metaTitle.length >= 30 && seoData.metaTitle.length <= 60
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-yellow-100 text-yellow-700'
+                }`}>
+                  {seoData.metaTitle.length < 30 ? 'Too Short' : 
+                   seoData.metaTitle.length > 60 ? 'Too Long' : 'Perfect'}
+                </span>
+              )}
+            </div>
           </div>
 
           <div>
@@ -240,10 +290,37 @@ const SEOManager: React.FC<SEOManagerProps> = ({
               placeholder="Enter meta description..."
               maxLength={160}
               rows={3}
+              className={`${
+                seoData.metaDescription.length < 120 || seoData.metaDescription.length > 160
+                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                  : seoData.metaDescription.length >= 120 && seoData.metaDescription.length <= 160
+                  ? 'border-green-300 focus:border-green-500 focus:ring-green-500'
+                  : ''
+              }`}
             />
-            <p className="text-xs text-gray-500 mt-1">
-              {seoData.metaDescription.length}/160 characters
-            </p>
+            <div className="flex justify-between items-center mt-1">
+              <p className={`text-xs ${
+                seoData.metaDescription.length < 120 || seoData.metaDescription.length > 160
+                  ? 'text-red-500'
+                  : seoData.metaDescription.length >= 120 && seoData.metaDescription.length <= 160
+                  ? 'text-green-600'
+                  : 'text-gray-500'
+              }`}>
+                {seoData.metaDescription.length}/160 characters
+              </p>
+              {seoData.metaDescription.length > 0 && (
+                <span className={`text-xs px-2 py-1 rounded ${
+                  seoData.metaDescription.length < 120 || seoData.metaDescription.length > 160
+                    ? 'bg-red-100 text-red-700'
+                    : seoData.metaDescription.length >= 120 && seoData.metaDescription.length <= 160
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-yellow-100 text-yellow-700'
+                }`}>
+                  {seoData.metaDescription.length < 120 ? 'Too Short' : 
+                   seoData.metaDescription.length > 160 ? 'Too Long' : 'Perfect'}
+                </span>
+              )}
+            </div>
           </div>
 
           <div>
@@ -271,10 +348,46 @@ const SEOManager: React.FC<SEOManagerProps> = ({
               value={seoData.focusKeyword}
               onChange={(e) => updateSEOField('focusKeyword', e.target.value)}
               placeholder="Enter primary focus keyword..."
+              className={`${
+                seoData.focusKeyword && !title.toLowerCase().includes(seoData.focusKeyword.toLowerCase())
+                  ? 'border-yellow-300 focus:border-yellow-500 focus:ring-yellow-500'
+                  : seoData.focusKeyword && title.toLowerCase().includes(seoData.focusKeyword.toLowerCase())
+                  ? 'border-green-300 focus:border-green-500 focus:ring-green-500'
+                  : ''
+              }`}
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Main keyword this article should rank for
-            </p>
+            <div className="mt-1 space-y-1">
+              <p className="text-xs text-gray-500">
+                Main keyword this article should rank for
+              </p>
+              {seoData.focusKeyword && (
+                <div className="space-y-1">
+                  <div className="flex items-center space-x-2">
+                    <span className={`text-xs px-2 py-1 rounded ${
+                      title.toLowerCase().includes(seoData.focusKeyword.toLowerCase())
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-yellow-100 text-yellow-700'
+                    }`}>
+                      {title.toLowerCase().includes(seoData.focusKeyword.toLowerCase())
+                        ? '✓ In Title'
+                        : '⚠ Not in Title'}
+                    </span>
+                    <span className={`text-xs px-2 py-1 rounded ${
+                      content.toLowerCase().includes(seoData.focusKeyword.toLowerCase())
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-yellow-100 text-yellow-700'
+                    }`}>
+                      {content.toLowerCase().includes(seoData.focusKeyword.toLowerCase())
+                        ? '✓ In Content'
+                        : '⚠ Not in Content'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-600">
+                    Keyword density: {calculateKeywordDensity(seoData.focusKeyword, content)}%
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
 
           <div>
@@ -285,21 +398,42 @@ const SEOManager: React.FC<SEOManagerProps> = ({
                 onChange={(e) => setKeywordInput(e.target.value)}
                 placeholder="Add keyword..."
                 onKeyPress={(e) => e.key === 'Enter' && addKeyword()}
+                className="flex-1"
               />
-              <Button type="button" onClick={addKeyword} size="sm">
+              <Button type="button" onClick={addKeyword} size="sm" disabled={!keywordInput.trim()}>
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
+            <div className="flex justify-between items-center mb-2">
+              <p className="text-xs text-gray-500">
+                {seoData.keywords.length}/10 keywords
+              </p>
+              {seoData.keywords.length > 0 && (
+                <span className={`text-xs px-2 py-1 rounded ${
+                  seoData.keywords.length < 3
+                    ? 'bg-red-100 text-red-700'
+                    : seoData.keywords.length >= 3 && seoData.keywords.length <= 10
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-yellow-100 text-yellow-700'
+                }`}>
+                  {seoData.keywords.length < 3 ? 'Too Few' : 
+                   seoData.keywords.length > 10 ? 'Too Many' : 'Good Range'}
+                </span>
+              )}
+            </div>
             <div className="flex flex-wrap gap-2">
               {seoData.keywords.map((keyword, index) => (
-                <Badge key={index} variant="secondary" className="flex items-center space-x-1">
+                <Badge key={index} variant="secondary" className="flex items-center space-x-1 hover:bg-gray-200 transition-colors">
                   <span>{keyword}</span>
                   <X
-                    className="w-3 h-3 cursor-pointer"
+                    className="w-3 h-3 cursor-pointer hover:text-red-600"
                     onClick={() => removeKeyword(keyword)}
                   />
                 </Badge>
               ))}
+              {seoData.keywords.length === 0 && (
+                <p className="text-sm text-gray-400 italic">No keywords added yet</p>
+              )}
             </div>
           </div>
 
@@ -311,21 +445,35 @@ const SEOManager: React.FC<SEOManagerProps> = ({
                 onChange={(e) => setAdditionalKeywordInput(e.target.value)}
                 placeholder="Add additional keyword..."
                 onKeyPress={(e) => e.key === 'Enter' && addAdditionalKeyword()}
+                className="flex-1"
               />
-              <Button type="button" onClick={addAdditionalKeyword} size="sm">
+              <Button type="button" onClick={addAdditionalKeyword} size="sm" disabled={!additionalKeywordInput.trim()}>
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
+            <div className="flex justify-between items-center mb-2">
+              <p className="text-xs text-gray-500">
+                {seoData.additional_keywords.length} additional keywords
+              </p>
+              {seoData.additional_keywords.length > 0 && (
+                <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700">
+                  Supporting Keywords
+                </span>
+              )}
+            </div>
             <div className="flex flex-wrap gap-2">
               {seoData.additional_keywords.map((keyword, index) => (
-                <Badge key={index} variant="secondary" className="flex items-center space-x-1">
+                <Badge key={index} variant="outline" className="flex items-center space-x-1 hover:bg-blue-50 transition-colors">
                   <span>{keyword}</span>
                   <X
-                    className="w-3 h-3 cursor-pointer"
+                    className="w-3 h-3 cursor-pointer hover:text-red-600"
                     onClick={() => removeAdditionalKeyword(keyword)}
                   />
                 </Badge>
               ))}
+              {seoData.additional_keywords.length === 0 && (
+                <p className="text-sm text-gray-400 italic">No additional keywords added yet</p>
+              )}
             </div>
           </div>
         </CardContent>
@@ -340,17 +488,43 @@ const SEOManager: React.FC<SEOManagerProps> = ({
           <div>
             <Label>Open Graph (Facebook)</Label>
             <div className="space-y-2">
-              <Input
-                value={seoData.ogTitle}
-                onChange={(e) => updateSEOField('ogTitle', e.target.value)}
-                placeholder="Open Graph title..."
-              />
-              <Textarea
-                value={seoData.ogDescription}
-                onChange={(e) => updateSEOField('ogDescription', e.target.value)}
-                placeholder="Open Graph description..."
-                rows={2}
-              />
+              <div>
+                <Input
+                  value={seoData.ogTitle}
+                  onChange={(e) => updateSEOField('ogTitle', e.target.value)}
+                  placeholder="Open Graph title..."
+                  maxLength={60}
+                  className={`${
+                    seoData.ogTitle.length > 60
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                      : ''
+                  }`}
+                />
+                <p className={`text-xs mt-1 ${
+                  seoData.ogTitle.length > 60 ? 'text-red-500' : 'text-gray-500'
+                }`}>
+                  {seoData.ogTitle.length}/60 characters
+                </p>
+              </div>
+              <div>
+                <Textarea
+                  value={seoData.ogDescription}
+                  onChange={(e) => updateSEOField('ogDescription', e.target.value)}
+                  placeholder="Open Graph description..."
+                  rows={2}
+                  maxLength={160}
+                  className={`${
+                    seoData.ogDescription.length > 160
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                      : ''
+                  }`}
+                />
+                <p className={`text-xs mt-1 ${
+                  seoData.ogDescription.length > 160 ? 'text-red-500' : 'text-gray-500'
+                }`}>
+                  {seoData.ogDescription.length}/160 characters
+                </p>
+              </div>
             </div>
           </div>
 
@@ -359,17 +533,43 @@ const SEOManager: React.FC<SEOManagerProps> = ({
           <div>
             <Label>Twitter Card</Label>
             <div className="space-y-2">
-              <Input
-                value={seoData.twitterTitle}
-                onChange={(e) => updateSEOField('twitterTitle', e.target.value)}
-                placeholder="Twitter title..."
-              />
-              <Textarea
-                value={seoData.twitterDescription}
-                onChange={(e) => updateSEOField('twitterDescription', e.target.value)}
-                placeholder="Twitter description..."
-                rows={2}
-              />
+              <div>
+                <Input
+                  value={seoData.twitterTitle}
+                  onChange={(e) => updateSEOField('twitterTitle', e.target.value)}
+                  placeholder="Twitter title..."
+                  maxLength={60}
+                  className={`${
+                    seoData.twitterTitle.length > 60
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                      : ''
+                  }`}
+                />
+                <p className={`text-xs mt-1 ${
+                  seoData.twitterTitle.length > 60 ? 'text-red-500' : 'text-gray-500'
+                }`}>
+                  {seoData.twitterTitle.length}/60 characters
+                </p>
+              </div>
+              <div>
+                <Textarea
+                  value={seoData.twitterDescription}
+                  onChange={(e) => updateSEOField('twitterDescription', e.target.value)}
+                  placeholder="Twitter description..."
+                  rows={2}
+                  maxLength={160}
+                  className={`${
+                    seoData.twitterDescription.length > 160
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                      : ''
+                  }`}
+                />
+                <p className={`text-xs mt-1 ${
+                  seoData.twitterDescription.length > 160 ? 'text-red-500' : 'text-gray-500'
+                }`}>
+                  {seoData.twitterDescription.length}/160 characters
+                </p>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -386,14 +586,29 @@ const SEOManager: React.FC<SEOManagerProps> = ({
         <CardContent>
           <div className="border rounded-lg p-4 bg-gray-50">
             <h3 className="text-blue-600 text-lg font-medium hover:underline cursor-pointer">
-              {seoData.metaTitle || title}
+              {seoData.metaTitle || title || 'Your article title will appear here...'}
             </h3>
             <p className="text-green-700 text-sm">
-              {seoData.canonicalUrl || `https://ghnewsmedia.com/news/${slug}`}
+              {seoData.canonicalUrl || `https://ghnewsmedia.com/news/${slug}` || 'https://ghnewsmedia.com/news/...'}
             </p>
             <p className="text-gray-600 text-sm mt-1">
-              {seoData.metaDescription || excerpt}
+              {seoData.metaDescription || excerpt || 'Your meta description will appear here...'}
             </p>
+            {seoData.keywords.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {seoData.keywords.slice(0, 5).map((keyword, index) => (
+                  <span key={index} className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                    {keyword}
+                  </span>
+                ))}
+                {seoData.keywords.length > 5 && (
+                  <span className="text-xs text-gray-500">+{seoData.keywords.length - 5} more</span>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="mt-3 text-xs text-gray-500">
+            <p>This is how your article will appear in search results</p>
           </div>
         </CardContent>
       </Card>

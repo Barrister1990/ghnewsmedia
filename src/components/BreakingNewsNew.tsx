@@ -1,9 +1,8 @@
-
-import { AlertTriangle, ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useBreakingNews } from '../hooks/useBreakingNews';
+import { ChevronLeft, ChevronRight, AlertTriangle, Clock, MapPin } from 'lucide-react';
 
-const BreakingNews = () => {
+const BreakingNewsNew = () => {
   const { breakingNews, loading, error } = useBreakingNews();
   const [currentNews, setCurrentNews] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
@@ -172,4 +171,4 @@ const BreakingNews = () => {
   );
 };
 
-export default BreakingNews;
+export default BreakingNewsNew;

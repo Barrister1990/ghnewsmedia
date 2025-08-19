@@ -28,7 +28,13 @@ Disallow: /api/
 Disallow: /_next/
 Disallow: /private/
 
+# Sitemaps for better indexing and sitelinks
 Sitemap: ${baseUrl}/sitemap.xml
+Sitemap: ${baseUrl}/sitemap-index.xml
+Sitemap: ${baseUrl}/news-sitemap.xml
+
+# RSS Feed for news syndication
+Sitemap: ${baseUrl}/rss.xml
 
 # Crawl-delay for respectful crawling
 Crawl-delay: 1`;

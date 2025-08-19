@@ -28,6 +28,21 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     <priority>1.0</priority>
   </url>
   
+  <!-- Main sections for sitelinks -->
+  <url>
+    <loc>${baseUrl}/news</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <url>
+    <loc>${baseUrl}/search</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
   <!-- Static pages -->
   <url>
     <loc>${baseUrl}/about</loc>

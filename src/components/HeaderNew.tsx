@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useSupabaseCategories } from '../hooks/useSupabaseCategories';
 
-const Header = () => {
+const HeaderNew = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -365,4 +365,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default HeaderNew;

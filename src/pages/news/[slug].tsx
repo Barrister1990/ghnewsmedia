@@ -1,4 +1,4 @@
-// pages/news/[slug].tsx - SEO-Optimized Article Page
+// pages/news/[slug].tsx - SEO-Optimized Article Page with Mobile-First Design
 import ArticleContent from '@/components/ArticleContent';
 import ArticleHeader from '@/components/ArticleHeader';
 import ArticleNavigation from '@/components/ArticleNavigation';
@@ -14,6 +14,7 @@ import RelatedArticles from '@/components/RelatedArticles';
 import ScrollToTop from '@/components/ScrollToTop';
 import BreadcrumbSEO from '@/components/SEO/BreadcrumbSEO';
 import EnhancedArticleSEO from '@/components/SEO/EnhancedArticleSEO';
+import GoogleNewsSEO from '@/components/SEO/GoogleNewsSEO';
 import ShareButtons from '@/components/ShareButtons';
 import { useArticleReactions } from '@/hooks/useArticleReactions';
 import { useImmediateIndexing } from '@/hooks/useImmediateIndexing';
@@ -56,14 +57,16 @@ const ArticlePage = ({ article, relatedArticles, error }: ArticlePageProps) => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         <Header />
-        <main className="container mx-auto px-4 py-8" role="main" aria-labelledby="error-heading">
-          <section className="text-center">
-            <h1 id="error-heading" className="text-2xl font-bold text-red-600 mb-4">
-              Error
-            </h1>
-            <p className="text-gray-600">{error}</p>
+        <main className="container mx-auto px-4 py-8 sm:py-12" role="main" aria-labelledby="error-heading">
+          <section className="text-center max-w-md mx-auto">
+            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border border-gray-200">
+              <h1 id="error-heading" className="text-2xl sm:text-3xl font-bold text-red-600 mb-4">
+                Error
+              </h1>
+              <p className="text-gray-600 text-sm sm:text-base">{error}</p>
+            </div>
           </section>
         </main>
         <Footer />
@@ -84,49 +87,79 @@ const ArticlePage = ({ article, relatedArticles, error }: ArticlePageProps) => {
   const articleUrl = `https://ghnewsmedia.com/news/${article.slug}`;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
       <EnhancedArticleSEO article={article} />
+      <GoogleNewsSEO article={article} />
 
       <ReadingProgress />
       <Header />
 
-      <main className="container mx-auto px-4 py-8" role="main" aria-label={`Article: ${article.title}`}>
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12" role="main" aria-label={`Article: ${article.title}`}>
         <article className="max-w-4xl mx-auto">
-          <BreadcrumbSEO items={breadcrumbItems} />
+          {/* Enhanced Breadcrumb with Mobile-First Design */}
+          <div className="mb-6 sm:mb-8">
+            <BreadcrumbSEO items={breadcrumbItems} />
+          </div>
 
-          <ArticleHeader article={article} />
-          <ArticleContent article={article} relatedArticles={relatedArticles} />
+          {/* Article Header with Enhanced Mobile Design */}
+          <div className="mb-8 sm:mb-12">
+            <ArticleHeader article={article} />
+          </div>
+
+          {/* Article Content with Mobile-First Layout */}
+          <div className="mb-12 sm:mb-16">
+            <ArticleContent article={article} relatedArticles={relatedArticles} />
+          </div>
         </article>
 
-        {/* Share buttons positioned after article content */}
-        <div className="mb-8 flex justify-center">
-          <ShareButtons
-            url={articleUrl}
-            title={article.title}
-            description={article.excerpt}
-            image={article.featuredImage}
-            className="bg-white rounded-xl p-4 shadow-sm"
+        {/* Enhanced Share Buttons with Mobile-First Design */}
+        <div className="mb-8 sm:mb-12 flex justify-center">
+          <div className="w-full max-w-2xl">
+            <ShareButtons
+              url={articleUrl}
+              title={article.title}
+              description={article.excerpt}
+              image={article.featuredImage}
+              className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200"
+            />
+          </div>
+        </div>
+
+        {/* Article Tags with Enhanced Mobile Design */}
+        <div className="mb-8 sm:mb-12">
+          <ArticleTags tags={article.tags || []} />
+        </div>
+
+        {/* Article Reactions with Mobile-First Design */}
+        <div className="mb-8 sm:mb-12">
+          <ArticleReactions
+            reactions={reactions}
+            userReaction={userReaction}
+            loading={reactionsLoading}
+            onReaction={handleReaction}
           />
         </div>
 
-        <ArticleTags tags={article.tags || []} />
+        {/* Author Bio with Enhanced Mobile Design */}
+        <div className="mb-8 sm:mb-12">
+          <AuthorBio author={article.author} />
+        </div>
 
-        <ArticleReactions
-          reactions={reactions}
-          userReaction={userReaction}
-          loading={reactionsLoading}
-          onReaction={handleReaction}
-        />
+        {/* Article Navigation with Mobile-First Design */}
+        <div className="mb-8 sm:mb-12">
+          <ArticleNavigation category={article.category} author={article.author} />
+        </div>
 
-        <AuthorBio author={article.author} />
+        {/* Related Articles with Enhanced Mobile Design */}
+        <div className="mb-12 sm:mb-16">
+          <RelatedArticles articles={relatedArticles} />
+        </div>
 
-        <ArticleNavigation category={article.category} author={article.author} />
-
-        <RelatedArticles articles={relatedArticles} />
-
-        {/* Comments Section - Now positioned after Related Articles */}
-        <section className="mt-12" aria-label="Comments section">
-          <NewCommentSection articleId={article.id} />
+        {/* Comments Section with Mobile-First Design */}
+        <section className="mt-12 sm:mt-16" aria-label="Comments section">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg border border-gray-200">
+            <NewCommentSection articleId={article.id} />
+          </div>
         </section>
       </main>
 

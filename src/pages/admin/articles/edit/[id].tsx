@@ -1,6 +1,5 @@
 import AdminLayout from '@/components/admin/AdminLayout';
 import { AnimatedLoading } from '@/components/admin/AnimatedLoading';
-import ArticleEditor from '@/components/admin/ArticleEditor';
 import ArticlePreview from '@/components/admin/ArticlePreview';
 import ContentAnalytics from '@/components/admin/ContentAnalytics';
 import ImageUpload from '@/components/admin/ImageUpload';
@@ -17,11 +16,27 @@ import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Eye, EyeOff, Save } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
+
+// Dynamically import TiptapEditor to prevent SSR issues
+const TiptapEditor = dynamic(
+  () => import('@/components/admin/TiptapEditor'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="border border-gray-200 rounded-lg overflow-hidden">
+        <div className="min-h-[400px] bg-gray-50 flex items-center justify-center">
+          <div className="text-gray-500">Loading Tiptap Editor...</div>
+        </div>
+      </div>
+    ),
+  }
+);
 
 const articleSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must be less than 200 characters'),
@@ -281,7 +296,16 @@ const EditArticle = () => {
           />
         ) : (
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSave)} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <form 
+              onSubmit={form.handleSubmit(handleSave)} 
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+              onKeyDown={(e) => {
+                // Prevent form submission on Enter key when editor might be focused
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                  e.preventDefault();
+                }
+              }}
+            >
               {/* Main Content */}
               <div className="lg:col-span-2">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -331,7 +355,7 @@ const EditArticle = () => {
                             <FormItem>
                               <FormLabel>Content</FormLabel>
                               <FormControl>
-                                <ArticleEditor content={field.value} onChange={field.onChange} />
+                                <TiptapEditor content={field.value} onChange={field.onChange} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
