@@ -13,5 +13,5 @@ export const getFullImageUrl = (path: string | null | undefined): string => {
     return '/placeholder.png';
   }
 
-  return `${supabaseUrl}/storage/v1/object/public/images/${path}`;
+  return `${supabaseUrl}/storage/v1/object/public/article-images/${path}`;
 };

@@ -49,15 +49,14 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
     setUploadProgress(0);
 
     try {
-      // Generate unique filename
+      // Generate unique filename without subfolder structure
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `articles/inline/${fileName}`;
-
-      // Upload to Supabase Storage
+      
+      // Upload directly to the root of the bucket (no subfolders)
       const { data, error } = await supabase.storage
-        .from('images')
-        .upload(filePath, file, {
+        .from('article-images')
+        .upload(fileName, file, {
           cacheControl: '3600',
           upsert: false
         });
@@ -68,8 +67,8 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('images')
-        .getPublicUrl(filePath);
+        .from('article-images')
+        .getPublicUrl(fileName);
 
       setImageUrl(publicUrl);
       setUploadProgress(100);

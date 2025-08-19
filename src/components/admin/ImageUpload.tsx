@@ -3,8 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { AlertTriangle, Copyright, Image as ImageIcon, Link, X } from 'lucide-react';
-import React, { useState } from 'react';
+import { uploadArticleImage } from '@/lib/supabase-storage';
+import { AlertTriangle, Copyright, Image as ImageIcon, Link, Upload, X } from 'lucide-react';
+import React, { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 interface ImageUploadProps {
@@ -44,6 +45,66 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const [credit, setCredit] = useState(propCredit || currentCredit || '');
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlInput, setUrlInput] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (file: File) => {
+    if (!file) return;
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 100);
+
+      // Upload using utility function
+      const result = await uploadArticleImage(file, type);
+      
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+
+      if (result.success && result.url) {
+        setImageUrl(result.url);
+        toast.success('Image uploaded successfully!');
+        
+        // Update form values
+        if (onChange) {
+          onChange(result.url);
+        }
+        if (onImageUpload) {
+          onImageUpload(result.url, credit);
+        }
+      } else {
+        toast.error(result.error || 'Failed to upload image');
+      }
+
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload image. Please try again.');
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleUrlInsert = () => {
     if (!urlInput.trim()) {
@@ -59,6 +120,15 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     setImageUrl(urlInput);
     setUrlInput('');
     setShowUrlInput(false);
+    
+    // Update form values
+    if (onChange) {
+      onChange(urlInput);
+    }
+    if (onImageUpload) {
+      onImageUpload(urlInput, credit);
+    }
+    
     toast.success('Image URL added successfully!');
   };
 
@@ -115,14 +185,14 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         </CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4 max-h-96 overflow-y-auto">
+      <CardContent className="space-y-4 h-[70vh] overflow-y-auto">
         {/* Current Image Display */}
         {imageUrl && (
           <div className="relative">
             <img
               src={imageUrl}
               alt="Preview"
-              className="w-full h-48 object-cover rounded-lg border border-gray-200"
+              className="w-full h-36 object-cover rounded-lg border border-gray-200"
             />
             <Button
               type="button"
@@ -136,40 +206,91 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           </div>
         )}
 
-        {/* URL Input Option */}
+        {/* Upload Options */}
         {!imageUrl && (
-          <div className="space-y-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setShowUrlInput(!showUrlInput)}
-              className="w-full"
-            >
-              {showUrlInput ? 'Hide URL Input' : 'Insert Image by URL'}
-            </Button>
-            
-            {showUrlInput && (
-              <div className="space-y-2">
-                <Input
-                  type="url"
-                  placeholder="Enter image URL (https://example.com/image.jpg)"
-                  value={urlInput}
-                  onChange={(e) => setUrlInput(e.target.value)}
-                  className="w-full"
-                />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleUrlInsert}
-                  className="w-full"
-                >
-                  <Link className="w-4 h-4 mr-2" />
-                  Insert Image
-                </Button>
+          <div className="space-y-3">
+            {/* Local File Upload */}
+            <div className="space-y-2">
+              <Label htmlFor="file-upload" className="flex items-center gap-2 cursor-pointer">
+                <Upload className="w-4 h-4" />
+                Upload from Device
+              </Label>
+              <Input
+                id="file-upload"
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full"
+                disabled={isUploading}
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                {isUploading ? 'Uploading...' : 'Choose File'}
+              </Button>
+              {isUploading && (
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              )}
+              <p className="text-xs text-gray-500">
+                Supported formats: JPEG, PNG, GIF, WebP (max 5MB)
+              </p>
+            </div>
+
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-gray-300" />
               </div>
-            )}
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-gray-500">Or</span>
+              </div>
+            </div>
+
+            {/* URL Input Option */}
+            <div className="space-y-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowUrlInput(!showUrlInput)}
+                className="w-full"
+              >
+                {showUrlInput ? 'Hide URL Input' : 'Insert Image by URL'}
+              </Button>
+              
+              {showUrlInput && (
+                <div className="space-y-2">
+                  <Input
+                    type="url"
+                    placeholder="Enter image URL (https://example.com/image.jpg)"
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                    className="w-full"
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleUrlInsert}
+                    className="w-full"
+                  >
+                    <Link className="w-4 h-4 mr-2" />
+                    Insert Image
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         )}
 

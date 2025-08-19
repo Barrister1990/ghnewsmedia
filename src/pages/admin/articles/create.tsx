@@ -595,13 +595,18 @@ const CreateArticle = () => {
                         <FormItem>
                           <FormControl>
                             <ImageUpload
+                              value={field.value}
+                              onChange={field.onChange}
                               currentImage={field.value}
                               currentCredit={featuredImageCredit}
                               onImageUpload={(imageUrl, credit) => {
                                 field.onChange(imageUrl);
                                 form.setValue('featured_image_credit', credit);
                               }}
-                              onImageRemove={() => field.onChange('')}
+                              onImageRemove={() => {
+                                field.onChange('');
+                                form.setValue('featured_image_credit', '');
+                              }}
                               label="Featured Image"
                               description="Upload or insert a featured image for your article"
                               required={true}
