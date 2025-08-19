@@ -122,11 +122,8 @@ export const ImageWithCredit = Node.create<ImageWithCreditOptions>({
   renderHTML({ HTMLAttributes }) {
     const { src, alt, credit, title, width, height } = HTMLAttributes;
 
-    return [
-      'div',
-      {
-        class: 'my-4',
-      },
+    // Build the DOM structure
+    const children: any[] = [
       [
         'img',
         mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
@@ -137,8 +134,11 @@ export const ImageWithCredit = Node.create<ImageWithCreditOptions>({
           height: height || 'auto',
         }),
       ],
-      // Credit attribution below the image
-      credit ? [
+    ];
+
+    // Add credit attribution if it exists
+    if (credit) {
+      children.push([
         'div',
         {
           class: 'mt-2 text-xs text-gray-500 text-center italic',
@@ -151,8 +151,17 @@ export const ImageWithCredit = Node.create<ImageWithCreditOptions>({
           'Credit: ',
         ],
         credit,
-      ] : null,
-    ].filter(Boolean); // Remove null values
+      ]);
+    }
+
+    // Return the properly structured DOMOutputSpec
+    return [
+      'div',
+      {
+        class: 'my-4',
+      },
+      ...children,
+    ];
   },
 
   addCommands() {

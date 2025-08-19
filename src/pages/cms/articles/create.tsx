@@ -579,11 +579,17 @@ const CMSCreateArticle = () => {
                         <FormItem>
                           <FormControl>
                             <ImageUpload
-                              value={field.value}
-                              onChange={field.onChange}
-                              credit={featuredImageCredit}
-                              onCreditChange={(credit) => form.setValue('featured_image_credit', credit)}
-                              placeholder="Upload featured image"
+                              currentImage={field.value}
+                              currentCredit={featuredImageCredit}
+                              onImageUpload={(imageUrl, credit) => {
+                                field.onChange(imageUrl);
+                                form.setValue('featured_image_credit', credit);
+                              }}
+                              onImageRemove={() => field.onChange('')}
+                              label="Featured Image"
+                              description="Upload or insert a featured image for your article"
+                              required={true}
+                              type="featured"
                             />
                           </FormControl>
                           <FormMessage />

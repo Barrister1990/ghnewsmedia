@@ -1,0 +1,28 @@
+<svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="200" height="60" rx="8" fill="url(#gradient)" />
+  
+  <!-- Text -->
+  <text x="100" y="35" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="white">
+    GhNewsMedia
+  </text>
+  
+  <!-- News Icon -->
+  <g transform="translate(15, 15)">
+    <rect x="0" y="0" width="8" height="8" fill="white" rx="1"/>
+    <rect x="0" y="12" width="8" height="8" fill="white" rx="1"/>
+    <rect x="0" y="24" width="8" height="8" fill="white" rx="1"/>
+    <rect x="12" y="0" width="8" height="8" fill="white" rx="1"/>
+    <rect x="12" y="12" width="8" height="8" fill="white" rx="1"/>
+    <rect x="12" y="24" width="8" height="8" fill="white" rx="1"/>
+  </g>
+  
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#dc2626;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16a34a;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>

@@ -7,6 +7,7 @@ export interface NewsArticle {
   content: string;
   featuredImage: string;
   featured_image_credit?: string;
+  inline_image_credits?: Record<string, string>;
   author: Author;
   category: Category;
   tags: string[];

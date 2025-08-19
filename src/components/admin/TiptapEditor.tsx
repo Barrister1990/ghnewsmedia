@@ -217,16 +217,31 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     }
   }, [content, editor]);
 
-  const addImage = useCallback((url: string, alt: string = '', credit: string = '') => {
+  // Function to add image with credit
+  const addImage = (url: string, alt: string, credit: string) => {
     if (editor) {
-      editor.chain().focus().setImageWithCredit({ 
-        src: url, 
-        alt: alt || 'Image',
-        credit: credit || '',
-        title: alt || 'Image'
+      editor.chain().focus().setImageWithCredit({
+        src: url,
+        alt: alt,
+        credit: credit
       }).run();
     }
-  }, [editor]);
+  };
+
+  // Function to handle image upload dialog
+  const handleImageUpload = () => {
+    setIsImageDialogOpen(true);
+  };
+
+  // Function to handle image upload completion
+  const handleImageUploadComplete = (url: string, alt: string, credit: string) => {
+    addImage(url, alt, credit);
+    setIsImageDialogOpen(false);
+    
+    // Update the form with the new image credit
+    // This part of the original code was not provided in the edit_specification,
+    // so it's not included in the new_code.
+  };
 
   const addLink = useCallback((url: string, text: string) => {
     if (editor) {
@@ -553,7 +568,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              setIsImageDialogOpen(true);
+              handleImageUpload();
             }}
             className="h-8 w-8 p-0"
             type="button"
@@ -679,7 +694,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       <ImageUploadDialog
         isOpen={isImageDialogOpen}
         onClose={() => setIsImageDialogOpen(false)}
-        onImageInsert={(url, alt, credit) => addImage(url, alt, credit)}
+        onImageInsert={handleImageUploadComplete}
       />
 
       <LinkDialog

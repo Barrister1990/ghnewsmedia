@@ -142,22 +142,39 @@ const Header = () => {
       {/* Main Header - Modern Design */}
       <div className="container mx-auto px-4 py-4 lg:py-6">
         <div className="flex items-center justify-between">
-          {/* Logo - Enhanced Design */}
+          {/* Logo - Enhanced Design with Image */}
           <div className="flex items-center">
             <Link 
               href="/" 
               className="flex items-center group"
               onMouseEnter={() => handleLinkHover('/')}
             >
-              <div className="relative">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-red-600 via-blue-600 to-green-600 bg-clip-text text-transparent">
-                  GhNewsMedia
-                </h1>
-                <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-red-600 to-blue-600 group-hover:w-full transition-all duration-300"></div>
+              <div className="relative flex items-center">
+                {/* Logo Image */}
+                <div className="relative mr-3">
+                                  <img
+                  src="/images/logo.jpg"
+                  alt="GhNewsMedia Logo"
+                  className="h-12 w-auto sm:h-14 lg:h-16 object-contain rounded-4xl"
+                  onError={(e) => {
+                    // Fallback to text logo if image fails to load
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    const fallback = target.nextElementSibling as HTMLElement;
+                    if (fallback) fallback.style.display = 'block';
+                  }}
+                />
+                  {/* Fallback Text Logo */}
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-red-600 via-blue-600 to-green-600 bg-clip-text text-transparent hidden">
+                    GhNewsMedia
+                  </h1>
+                  <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-red-600 to-blue-600 group-hover:w-full transition-all duration-300"></div>
+                </div>
+                {/* Trusted News Badge */}
+                <span className="bg-gradient-to-r from-red-600 to-blue-600 text-white text-xs px-3 py-1.5 rounded-full font-bold hidden sm:inline-block shadow-lg">
+                  TRUSTED NEWS
+                </span>
               </div>
-              <span className="ml-3 bg-gradient-to-r from-red-600 to-blue-600 text-white text-xs px-3 py-1.5 rounded-full font-bold hidden sm:inline-block shadow-lg">
-                TRUSTED NEWS
-              </span>
             </Link>
           </div>
 

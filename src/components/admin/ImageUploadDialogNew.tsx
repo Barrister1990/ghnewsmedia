@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -16,7 +15,7 @@ interface ImageUploadDialogProps {
   onImageInsert: (url: string, alt: string, credit: string) => void;
 }
 
-const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
+const ImageUploadDialogNew: React.FC<ImageUploadDialogProps> = ({
   isOpen,
   onClose,
   onImageInsert
@@ -320,4 +319,4 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
   );
 };
 
-export default ImageUploadDialog;
+export default ImageUploadDialogNew;

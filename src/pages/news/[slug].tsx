@@ -9,6 +9,7 @@ import AuthorBio from '@/components/AuthorBio';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import NewCommentSection from '@/components/NewCommentSection';
+import RandomArticleSuggestions from '@/components/RandomArticleSuggestions';
 import ReadingProgress from '@/components/ReadingProgress';
 import RelatedArticles from '@/components/RelatedArticles';
 import ScrollToTop from '@/components/ScrollToTop';
@@ -28,6 +29,7 @@ import { useEffect } from 'react';
 interface ArticlePageProps {
   article: NewsArticle | null;
   relatedArticles: NewsArticle[];
+  allArticles: NewsArticle[];
   error?: string;
 }
 
@@ -35,7 +37,7 @@ interface Params extends ParsedUrlQuery {
   slug: string;
 }
 
-const ArticlePage = ({ article, relatedArticles, error }: ArticlePageProps) => {
+const ArticlePage = ({ article, relatedArticles, allArticles, error }: ArticlePageProps) => {
   const { notifySearchEngines } = useImmediateIndexing();
   
   // Use our hooks with the server-side article data
@@ -108,7 +110,12 @@ const ArticlePage = ({ article, relatedArticles, error }: ArticlePageProps) => {
 
           {/* Article Content with Mobile-First Layout */}
           <div className="mb-12 sm:mb-16">
-            <ArticleContent article={article} relatedArticles={relatedArticles} />
+            <ArticleContent 
+              content={article.content}
+              featuredImage={article.featuredImage}
+              featuredImageCredit={article.featured_image_credit}
+              inlineImageCredits={article.inline_image_credits}
+            />
           </div>
         </article>
 
@@ -163,6 +170,13 @@ const ArticlePage = ({ article, relatedArticles, error }: ArticlePageProps) => {
         </section>
       </main>
 
+      {/* Random Article Suggestions */}
+      <RandomArticleSuggestions
+        articles={allArticles}
+        currentArticleId={article.id}
+        currentCategoryId={article.category.id}
+      />
+      
       <Footer />
       <ScrollToTop />
     </div>
@@ -224,6 +238,7 @@ export const getServerSideProps: GetServerSideProps<ArticlePageProps, Params> = 
       props: {
         article,
         relatedArticles,
+        allArticles: articles,
       },
     };
   } catch (error) {
@@ -231,6 +246,7 @@ export const getServerSideProps: GetServerSideProps<ArticlePageProps, Params> = 
       props: {
         article: null,
         relatedArticles: [],
+        allArticles: [],
         error: 'Failed to load article',
       },
     };

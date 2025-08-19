@@ -1,12 +1,58 @@
 import React from 'react';
-import { NewsArticle } from '../types/news';
 
 interface ArticleContentProps {
-  article: NewsArticle;
-  relatedArticles: NewsArticle[];
+  content: string;
+  featuredImage?: string;
+  featuredImageCredit?: string;
+  inlineImageCredits?: Record<string, string>;
 }
 
-const ArticleContent: React.FC<ArticleContentProps> = ({ article, relatedArticles }) => {
+const ArticleContent: React.FC<ArticleContentProps> = ({ 
+  content, 
+  featuredImage, 
+  featuredImageCredit,
+  inlineImageCredits = {}
+}) => {
+  // Function to render featured image with credit
+  const renderFeaturedImage = () => {
+    if (!featuredImage) return null;
+
+    return (
+      <div className="relative mb-8">
+        <img
+          src={featuredImage}
+          alt="Featured"
+          className="w-full h-64 sm:h-80 lg:h-96 object-cover rounded-lg shadow-lg"
+        />
+        {featuredImageCredit && (
+          <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+            {featuredImageCredit}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Function to render inline image with credit
+  const renderInlineImage = (src: string, alt: string, credit?: string) => {
+    const imageCredit = credit || inlineImageCredits[src];
+    
+    return (
+      <div className="relative my-6">
+        <img
+          src={src}
+          alt={alt}
+          className="w-full max-w-full h-auto rounded-lg shadow-md"
+        />
+        {imageCredit && (
+          <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+            {imageCredit}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // Function to detect if content is Tiptap HTML or markdown
   const isTiptapContent = (content: string): boolean => {
     // Check for Tiptap-specific HTML patterns
@@ -179,30 +225,11 @@ const ArticleContent: React.FC<ArticleContentProps> = ({ article, relatedArticle
           case 'td':
             return <td className="px-4 py-3 text-gray-800 border-r border-gray-200">{children}</td>;
           
-          case 'img':
+                    case 'img':
             const src = element.getAttribute('src') || '';
             const alt = element.getAttribute('alt') || '';
             const credit = element.getAttribute('data-credit') || '';
-            
-            return (
-              <div className="my-6">
-                <div className="relative w-full overflow-hidden rounded-xl shadow-lg">
-                  <img
-                    src={src}
-                    alt={alt}
-                    className="w-full h-auto object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://images.unsplash.com/photo-1649972904349-6e-44c42644a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
-                    }}
-                  />
-                </div>
-                {credit && (
-                  <p className="text-xs text-gray-500 mt-2 text-center italic">
-                    Image credit: {credit}
-                  </p>
-                )}
-              </div>
-            );
+            return renderInlineImage(src, alt, credit);
           
           case 'a':
             const href = element.getAttribute('href') || '';
@@ -412,79 +439,23 @@ const ArticleContent: React.FC<ArticleContentProps> = ({ article, relatedArticle
     );
   };
 
-  // Function to inject related article links
-  const injectRelatedLinks = (content: React.ReactElement): React.ReactElement => {
-    if (relatedArticles.length < 2) {
-      return content;
-    }
-
-    // Shuffle the related articles to get a random selection
-    const shuffledArticles = [...relatedArticles].sort(() => 0.5 - Math.random());
-    const articlesToInject = shuffledArticles.slice(0, 2);
-
-    const createRelatedLink = (article: NewsArticle) => (
-      <div key={article.id} className="my-8 p-6 border-l-4 border-blue-500 bg-gradient-to-r from-blue-50 to-blue-100 rounded-r-xl shadow-sm">
-        <p className="font-bold text-blue-800 text-sm uppercase tracking-wide mb-2">📖 READ ALSO</p>
-        <a 
-          href={`/news/${article.slug}`} 
-          className="text-lg font-semibold text-blue-700 hover:text-blue-900 transition-colors duration-200 block"
-        >
-          {article.title}
-        </a>
-        {article.excerpt && (
-          <p className="text-blue-600 text-sm mt-2 line-clamp-2">{article.excerpt}</p>
-        )}
-      </div>
-    );
-
-    // For Tiptap content, we'll inject the links at strategic points
-    // This is a simplified approach - in a real implementation, you might want to
-    // parse the content and inject at paragraph boundaries
-    return (
-      <div>
-        {content}
-        {createRelatedLink(articlesToInject[0])}
-        {createRelatedLink(articlesToInject[1])}
-      </div>
-    );
-  };
-
-  // Determine content type and render accordingly
+  // Function to render content without related articles injection
   const renderContent = (): React.ReactElement => {
-    if (isTiptapContent(article.content)) {
-      const tiptapContent = renderTiptapContent(article.content);
-      return injectRelatedLinks(tiptapContent);
+    if (isTiptapContent(content)) {
+      return renderTiptapContent(content);
     } else {
-      const markdownContent = renderMarkdownContent(article.content);
-      return injectRelatedLinks(markdownContent);
+      return renderMarkdownContent(content);
     }
   };
 
   return (
-    <>
+    <div className="prose prose-lg max-w-none">
       {/* Featured Image */}
-      {article.featuredImage && (
-        <div className="mb-6 sm:mb-8">
-          <div className="relative w-full h-48 sm:h-64 md:h-80 lg:h-96 xl:h-[500px] overflow-hidden rounded-xl sm:rounded-2xl shadow-lg">
-            <img
-              src={article.featuredImage}
-              alt={article.title}
-              className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-300 hover:scale-105"
-              onError={(e) => {
-                e.currentTarget.src = 'https://images.unsplash.com/photo-1649972904349-6e-44c42644a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-          </div>
-          {article.featured_image_credit && (
-            <p className="text-xs text-gray-500 mt-2 text-center">Image credit: {article.featured_image_credit}</p>
-          )}
-        </div>
-      )}
+      {renderFeaturedImage()}
       
       {/* Article Content */}
       {renderContent()}
-    </>
+    </div>
   );
 };
 
