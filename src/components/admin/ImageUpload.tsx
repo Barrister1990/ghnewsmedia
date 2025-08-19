@@ -115,7 +115,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         </CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 max-h-96 overflow-y-auto">
         {/* Current Image Display */}
         {imageUrl && (
           <div className="relative">

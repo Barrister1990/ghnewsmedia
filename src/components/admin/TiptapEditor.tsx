@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button';
-import '@/styles/tiptap.css';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import Highlight from '@tiptap/extension-highlight';
 import Link from '@tiptap/extension-link';
