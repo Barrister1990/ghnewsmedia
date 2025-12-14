@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, Clock, Eye, TrendingUp } from 'lucide-react'
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePublishedArticles } from '../hooks/usePublishedArticles';
+import { getCategoryColor } from '../utils/categoryColors';
 
 interface TrendingCarouselProps {
   initialArticles?: NewsArticle[]; // Accept server-side articles
@@ -52,7 +53,7 @@ const TrendingCarousel = ({ initialArticles }: TrendingCarouselProps) => {
     return (
       <section className="mb-8 sm:mb-10 lg:mb-12">
         <div className="flex items-center mb-4 sm:mb-6">
-          <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-accent mr-2" />
+          <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 mr-2" style={{ color: '#1A365D' }} />
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Trending Now</h2>
         </div>
         <div className="relative bg-white rounded-xl shadow-sm overflow-hidden animate-pulse">
@@ -71,9 +72,9 @@ const TrendingCarousel = ({ initialArticles }: TrendingCarouselProps) => {
   return (
     <section className="mb-8 sm:mb-10 lg:mb-12">
       <div className="flex items-center mb-4 sm:mb-6">
-        <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-accent mr-2" />
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Trending Now</h2>
-        <span className="ml-2 sm:ml-3 bg-accent text-white text-xs px-2 py-1 rounded-full">
+        <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 mr-2" style={{ color: '#1A365D' }} />
+        <h2 className="text-xl sm:text-2xl font-bold" style={{ color: '#111111' }}>Trending Now</h2>
+        <span className="ml-2 sm:ml-3 text-white text-xs px-2 py-1 rounded-full" style={{ backgroundColor: '#1A365D' }}>
           {trendingArticles.length}
         </span>
       </div>
@@ -81,7 +82,7 @@ const TrendingCarousel = ({ initialArticles }: TrendingCarouselProps) => {
       <div className="relative bg-white rounded-xl shadow-sm overflow-hidden">
         {/* Main Slideshow */}
         <div className="relative h-64 sm:h-80 lg:h-96 overflow-hidden">
-          <Link href={`/news/${currentArticle.slug}`} className="block h-full group">
+          <Link href={`/${currentArticle.category.slug}/${currentArticle.slug}`} className="block h-full group">
             <div className="relative h-full">
               <img
                 src={currentArticle.featuredImage}
@@ -89,24 +90,24 @@ const TrendingCarousel = ({ initialArticles }: TrendingCarouselProps) => {
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
               
-              {/* Overlay Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+              {/* Overlay - No gradient */}
+              <div className="absolute bottom-0 left-0 right-0 h-40 bg-black/80"></div>
               
               {/* Content Overlay */}
               <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 lg:p-8 text-white">
                 <div className="flex flex-wrap items-center gap-2 mb-2 sm:mb-3">
-                  <span className="bg-accent text-white text-xs px-2 sm:px-3 py-1 rounded-full font-medium">
+                  <span className="text-white text-xs px-2 sm:px-3 py-1 rounded-full font-medium" style={{ backgroundColor: '#1A365D' }}>
                     #{currentSlide + 1} Trending
                   </span>
                   <span 
                     className="px-2 sm:px-3 py-1 rounded-full text-xs font-medium text-white"
-                    style={{ backgroundColor: currentArticle.category.color }}
+                    style={{ backgroundColor: getCategoryColor(currentArticle.category.name, currentArticle.category.color) }}
                   >
                     {currentArticle.category.name}
                   </span>
                 </div>
                 
-                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 line-clamp-2 group-hover:text-accent transition-colors">
+                <h3 className="text-base sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 line-clamp-2 text-white transition-colors" style={{ fontSize: '16px' }}>
                   {currentArticle.title}
                 </h3>
                 
@@ -175,7 +176,8 @@ const TrendingCarousel = ({ initialArticles }: TrendingCarouselProps) => {
             {/* Progress Bar */}
             <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
               <div 
-                className="h-full bg-accent transition-all duration-300"
+                className="h-full transition-all duration-300"
+           
                 style={{ width: `${((currentSlide + 1) / trendingArticles.length) * 100}%` }}
               />
             </div>

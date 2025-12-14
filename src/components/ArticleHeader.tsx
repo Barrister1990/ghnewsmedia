@@ -1,8 +1,7 @@
 
-import { Calendar, Clock, Eye } from 'lucide-react';
 import React from 'react';
 import { NewsArticle } from '../types/news';
-import ShareButtons from './ShareButtons';
+import { getCategoryColor } from '../utils/categoryColors';
 
 interface ArticleHeaderProps {
   article: NewsArticle;
@@ -20,63 +19,53 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({ article }) => {
     });
   };
 
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const formatDateShort = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric'
+    });
+  };
+
   return (
-    <header className="mb-8">
-      <div className="flex items-center space-x-3 mb-4">
+    <header>
+      {/* Category Badge - Pulse Style */}
+      <div className="mb-3 sm:mb-4">
         <span
-          className="px-3 py-1 rounded-full text-sm font-medium text-white"
-          style={{ backgroundColor: article.category.color }}
+          className="inline-block px-2 py-1 rounded text-xs font-medium text-white"
+          style={{ backgroundColor: getCategoryColor(article.category.name, article.category.color), fontSize: '12px' }}
         >
           {article.category.name}
         </span>
-        {article.trending && (
-          <span className="bg-accent text-white px-3 py-1 rounded-full text-sm font-medium">
-            🔥 Trending
-          </span>
-        )}
       </div>
       
-<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-6 leading-snug">
-  {article.title}
-</h1>
+      {/* Title - Pulse Style */}
+      <h1 style={{ 
+        color: '#111111', 
+        fontSize: '20px', 
+        fontWeight: 'bold',
+        lineHeight: '1.3',
+        marginBottom: '12px'
+      }}>
+        {article.title}
+      </h1>
 
-
-      
-      {/* Author Info */}
-      <div className="flex items-center space-x-4 mb-6">
-        <img
-          src={article.author.avatar}
-          alt={article.author.name}
-          className="w-12 h-12 rounded-full object-cover"
-        />
-        <div>
-          <h3 className="font-semibold text-gray-900">{article.author.name}</h3>
-          <p className="text-sm text-gray-600">{article.author.title}</p>
-        </div>
+      {/* Author and Date - Pulse Style */}
+      <div className="flex items-center gap-2 mb-4" style={{ fontSize: '13px', color: '#6B7280' }}>
+        <span style={{ fontWeight: '500', color: '#111111' }}>{article.author.name}</span>
+        <span>{formatTime(article.publishedAt)}</span>
+        <span>-</span>
+        <span>{formatDateShort(article.publishedAt)}</span>
       </div>
-      
-      {/* Article Meta */}
-      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6">
-        <div className="flex items-center">
-          <Calendar className="w-4 h-4 mr-1" />
-          {formatDate(article.publishedAt)}
-        </div>
-        <div className="flex items-center">
-          <Clock className="w-4 h-4 mr-1" />
-          {article.readTime} min read
-        </div>
-        <div className="flex items-center">
-          <Eye className="w-4 h-4 mr-1" />
-          {article.views.toLocaleString()} views
-        </div>
-      </div>
-      
-      {/* Share Buttons */}
-      <ShareButtons
-        url={`https://ghnewsmedia.com/news/${article.slug}`}
-        title={article.title}
-        className="mb-8"
-      />
     </header>
   );
 };

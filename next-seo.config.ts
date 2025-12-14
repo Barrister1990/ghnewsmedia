@@ -1,20 +1,20 @@
 // src/next-seo.config.ts
 const SEO = {
-  title: "GH News Media",
+  title: "Ghana's Digital News Platform | GH News",
   titleTemplate: "%s | GH News",
-  defaultTitle: "GH News Media",
+  defaultTitle: "Ghana's Digital News Platform | GH News",
   description: "Your trusted source for Ghanaian news, politics, sports, and more.",
   openGraph: {
     type: "website",
     locale: "en_GH",
     url: "https://ghnewsmedia.com",
-    siteName: "GH News Media",
+    siteName: "GH News",
     images: [
       {
         url: "https://ghnewsmedia.com/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "GH News Media",
+        alt: "GH News - Ghana's Digital News Platform",
       },
     ],
   },

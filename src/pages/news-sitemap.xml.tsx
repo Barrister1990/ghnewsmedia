@@ -35,10 +35,10 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
       });
       
       return `  <url>
-    <loc>${baseUrl}/news/${article.slug}</loc>
+    <loc>${baseUrl}/${article.category.slug}/${article.slug}</loc>
     <news:news>
       <news:publication>
-        <news:name>GhNewsMedia</news:name>
+        <news:name>GH News</news:name>
         <news:language>en</news:language>
       </news:publication>
       <news:publication_date>${publicationDate}</news:publication_date>

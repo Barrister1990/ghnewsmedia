@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { Node, mergeAttributes } from '@tiptap/core';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import Highlight from '@tiptap/extension-highlight';
 import Link from '@tiptap/extension-link';
@@ -14,24 +15,24 @@ import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { common, createLowlight } from 'lowlight';
 import {
-  Bold,
-  Code,
-  Eye,
-  EyeOff,
-  Heading1,
-  Heading2,
-  Heading3,
-  Image as ImageIcon,
-  Italic,
-  Link as LinkIcon,
-  List,
-  ListOrdered,
-  Quote,
-  Redo,
-  Table as TableIcon,
-  Underline as UnderlineIcon,
-  Undo,
-  Youtube
+    Bold,
+    Code,
+    Eye,
+    EyeOff,
+    Heading1,
+    Heading2,
+    Heading3,
+    Image as ImageIcon,
+    Italic,
+    Link as LinkIcon,
+    List,
+    ListOrdered,
+    Quote,
+    Redo,
+    Table as TableIcon,
+    Underline as UnderlineIcon,
+    Undo,
+    Youtube
 } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import ContentPreviewRenderer from './ContentPreviewRenderer';
@@ -46,6 +47,36 @@ interface TiptapEditorProps {
   onChange: (content: string) => void;
   placeholder?: string;
 }
+
+// Custom Blockquote extension that preserves all attributes for Twitter/Instagram embeds
+// Defined outside component to ensure it's stable
+const CustomBlockquote = Node.create({
+  name: 'blockquote',
+  priority: 1000,
+  group: 'block',
+  content: 'block+',
+  parseHTML() {
+    return [
+      {
+        tag: 'blockquote',
+        preserveWhitespace: 'full',
+        getAttrs: (node) => {
+          if (typeof node === 'string') return {};
+          const element = node as HTMLElement;
+          const attrs: Record<string, any> = {};
+          // Preserve ALL attributes, especially class and data attributes
+          Array.from(element.attributes).forEach(attr => {
+            attrs[attr.name] = attr.value;
+          });
+          return attrs;
+        },
+      },
+    ];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ['blockquote', mergeAttributes(HTMLAttributes), 0];
+  },
+});
 
 const TiptapEditor: React.FC<TiptapEditorProps> = ({
   content,
@@ -68,8 +99,10 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       StarterKit.configure({
         heading: {
           levels: [1, 2, 3, 4, 5, 6]
-        }
+        },
+        blockquote: false, // Disable default blockquote, use our custom one
       }),
+      CustomBlockquote, // Use our custom blockquote that preserves all attributes
       ImageWithCredit.configure({
         HTMLAttributes: {
           class: 'max-w-full h-auto rounded-lg shadow-sm',
@@ -257,6 +290,92 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   const addEmbed = useCallback((embedCode: string) => {
     if (editor) {
       console.log('Adding embed:', embedCode);
+      
+      // Check if it's a Twitter embed (blockquote + script)
+      if (embedCode.includes('twitter-tweet') || embedCode.includes('blockquote class="twitter-tweet"')) {
+        console.log('Processing Twitter embed...');
+        // Parse the embed code to extract blockquote with all attributes
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(embedCode, 'text/html');
+        const blockquote = doc.querySelector('blockquote.twitter-tweet');
+        
+        if (blockquote) {
+          // Get all attributes from the blockquote
+          const attrs: Record<string, string> = {};
+          Array.from(blockquote.attributes).forEach(attr => {
+            attrs[attr.name] = attr.value;
+          });
+          
+          // Ensure class attribute is preserved (it might be className)
+          if (attrs.className && !attrs.class) {
+            attrs.class = attrs.className;
+            delete attrs.className;
+          }
+          
+          // Build attribute string properly
+          const attrString = Object.entries(attrs)
+            .map(([key, value]) => {
+              // Escape quotes in attribute values
+              const escapedValue = String(value).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+              return `${key}="${escapedValue}"`;
+            })
+            .join(' ');
+          
+          // Insert blockquote with all attributes preserved
+          const blockquoteHTML = `<blockquote ${attrString}>${blockquote.innerHTML}</blockquote>`;
+          editor.chain().focus().insertContent(blockquoteHTML).run();
+          console.log('Twitter embed inserted with preserved attributes:', attrs);
+          return;
+        }
+        
+        // Fallback: insert full code
+        editor.chain().focus().insertContent(embedCode).run();
+        console.log('Twitter embed inserted with full code (fallback)');
+        return;
+      }
+      
+      // Check if it's an Instagram embed (blockquote + script)
+      if (embedCode.includes('instagram-media') || embedCode.includes('blockquote class="instagram-media"')) {
+        console.log('Processing Instagram embed...');
+        // Parse the embed code to extract blockquote with all attributes
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(embedCode, 'text/html');
+        const blockquote = doc.querySelector('blockquote.instagram-media');
+        
+        if (blockquote) {
+          // Get all attributes from the blockquote
+          const attrs: Record<string, string> = {};
+          Array.from(blockquote.attributes).forEach(attr => {
+            attrs[attr.name] = attr.value;
+          });
+          
+          // Ensure class attribute is preserved (it might be className)
+          if (attrs.className && !attrs.class) {
+            attrs.class = attrs.className;
+            delete attrs.className;
+          }
+          
+          // Build attribute string properly
+          const attrString = Object.entries(attrs)
+            .map(([key, value]) => {
+              // Escape quotes in attribute values
+              const escapedValue = String(value).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+              return `${key}="${escapedValue}"`;
+            })
+            .join(' ');
+          
+          // Insert blockquote with all attributes preserved
+          const blockquoteHTML = `<blockquote ${attrString}>${blockquote.innerHTML}</blockquote>`;
+          editor.chain().focus().insertContent(blockquoteHTML).run();
+          console.log('Instagram embed inserted with preserved attributes:', attrs);
+          return;
+        }
+        
+        // Fallback: insert full code
+        editor.chain().focus().insertContent(embedCode).run();
+        console.log('Instagram embed inserted with full code (fallback)');
+        return;
+      }
       
       // Check if it's an iframe embed
       if (embedCode.includes('<iframe')) {

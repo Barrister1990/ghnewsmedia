@@ -1,18 +1,18 @@
 import { GetServerSideProps } from 'next';
-import Link from 'next/link';
-import { useState } from 'react';
+import React from 'react';
 import BreakingNews from '../components/BreakingNews';
+import CategorySection from '../components/CategorySection';
+import EditorsPicks from '../components/EditorsPicks';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
-import MostReadSection from '../components/MostReadSection';
-import Pagination from '../components/Pagination';
+import HeroFeaturedSection from '../components/HeroFeaturedSection';
+import LatestNews from '../components/LatestNews';
 import ReadingProgress from '../components/ReadingProgress';
 import ScrollToTop from '../components/ScrollToTop';
 import EnhancedSEOHead from '../components/SEO/EnhancedSEOHead';
 import SitemapGenerator from '../components/SEO/SitemapGenerator';
-import SocialMediaFeed from '../components/SocialMediaFeed';
 import TrendingCarousel from '../components/TrendingCarousel';
-import TrendingTopics from '../components/TrendingTopics';
+import TrendingSection from '../components/TrendingSidebar';
 import { supabase } from '../integrations/supabase/client';
 import { transformToNewsArticle } from '../lib/articles';
 import { NewsArticle } from '../types/news';
@@ -24,30 +24,56 @@ interface IndexProps {
 }
 
 const Index: React.FC<IndexProps> = ({ articles, error }) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const articlesPerPage = 12; // Number of articles per page
-  
+  // Organize articles by category for Pulse.com.gh style layout
   const featuredArticles = articles.filter(article => article.featured);
   const latestArticles = articles.filter(article => !article.featured);
   
-  // Pagination logic
-  const totalPages = Math.ceil(latestArticles.length / articlesPerPage);
-  const startIndex = (currentPage - 1) * articlesPerPage;
-  const currentArticles = latestArticles.slice(startIndex, startIndex + articlesPerPage);
+  // Group articles by category
+  const articlesByCategory = articles.reduce((acc, article) => {
+    const categoryName = article.category.name;
+    if (!acc[categoryName]) {
+      acc[categoryName] = [];
+    }
+    acc[categoryName].push(article);
+    return acc;
+  }, {} as Record<string, NewsArticle[]>);
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  // Get top articles for featured section
+  const topFeatured = featuredArticles.length > 0 
+    ? featuredArticles.slice(0, 4)
+    : latestArticles.slice(0, 4);
+  
+  // Get all unique categories dynamically (sorted by article count, then alphabetically)
+  const allCategories = Object.entries(articlesByCategory)
+    .map(([name, categoryArticles]) => ({
+      name,
+      slug: categoryArticles[0]?.category.slug || name.toLowerCase().replace(/\s+/g, '-'),
+      articles: categoryArticles,
+      count: categoryArticles.length
+    }))
+    .sort((a, b) => {
+      // Sort by count first (descending), then by name
+      if (b.count !== a.count) {
+        return b.count - a.count;
+      }
+      return a.name.localeCompare(b.name);
+    })
+    .filter(cat => cat.count > 0); // Only show categories with articles
+
+  // Get categories for navigation structured data (top 8 categories with articles)
+  const navCategories = allCategories.slice(0, 8).map(cat => ({
+    name: cat.name,
+    slug: cat.slug
+  }));
 
   const combinedStructuredData = [
     generateOrganizationStructuredData(),
-    generateWebSiteStructuredData(),
+    generateWebSiteStructuredData(navCategories),
     // Add homepage-specific structured data
     {
       "@context": "https://schema.org",
       "@type": "NewsMediaOrganization",
-      "name": "GhNewsMedia",
+      "name": "GH News",
       "url": "https://ghnewsmedia.com",
       "logo": "https://ghnewsmedia.com/logo.jpg",
       "sameAs": [
@@ -62,7 +88,7 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
           "@type": "NewsArticle",
           "position": index + 1,
           "headline": article.title,
-          "url": `https://ghnewsmedia.com/news/${article.slug}`,
+          "url": `https://ghnewsmedia.com/${article.category.slug}/${article.slug}`,
           "datePublished": article.publishedAt,
           "author": {
             "@type": "Person",
@@ -73,7 +99,7 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
     }
   ];
 
-  const seoTitle = "GhNewsMedia - Ghana's Premier Digital News Platform";
+  const seoTitle = "Ghana's Digital News Platform | GH News";
   const seoDescription = "Stay informed with Ghana's leading digital news platform. Get breaking news, politics, business, sports, and entertainment updates from trusted journalists across Ghana. Real-time coverage of Accra and beyond.";
 
   if (error) {
@@ -110,8 +136,17 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
     );
   }
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: '#FFFFFF' }}>
       <EnhancedSEOHead
         title={seoTitle}
         description={seoDescription}
@@ -130,206 +165,57 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
       {/* Breaking News - displayed below the header */}
       <BreakingNews />
       
-      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        {/* Trending Carousel - positioned right after breaking news */}
-        {articles.some(article => article.trending) && <TrendingCarousel />}
-        
-        {/* BBC-Inspired News Layout */}
-        <div className="space-y-8">
-          {/* Featured Stories - BBC Hero Section */}
-          {featuredArticles.length > 0 && (
-            <section className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 border-b-4 border-red-600 pb-2">
-                  Featured Stories
-                </h2>
-                <div className="hidden sm:block w-16 h-1 bg-red-600"></div>
-              </div>
-              
-              {/* Hero Article - Large Featured */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <div className="lg:col-span-8">
-                  {featuredArticles[0] && (
-                    <Link href={`/news/${featuredArticles[0].slug}`} className="block group">
-                      <div className="relative overflow-hidden rounded-lg bg-white shadow-sm hover:shadow-lg transition-all duration-300">
-                        <div className="relative h-64 sm:h-80 lg:h-96 overflow-hidden">
-                          <img
-                            src={featuredArticles[0].featuredImage}
-                            alt={featuredArticles[0].title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                          
-                          {/* Category Badge */}
-                          <div className="absolute top-4 left-4">
-                            <span 
-                              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold text-white shadow-lg"
-                              style={{ backgroundColor: featuredArticles[0].category.color }}
-                            >
-                              {featuredArticles[0].category.name}
-                            </span>
-                          </div>
-                          
-                          {/* Content Overlay */}
-                          <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
-                            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-2 line-clamp-3">
-                              {featuredArticles[0].title}
-                            </h3>
-                            <p className="text-sm sm:text-base text-gray-200 mb-3 line-clamp-2">
-                              {featuredArticles[0].excerpt}
-                            </p>
-                            <div className="flex items-center gap-4 text-xs sm:text-sm text-gray-300">
-                              <span>{featuredArticles[0].author.name}</span>
-                              <span>•</span>
-                              <span>{featuredArticles[0].readTime}m read</span>
-                              <span>•</span>
-                              <span>{featuredArticles[0].views} views</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  )}
-                </div>
-                
-                {/* Side Featured Articles */}
-                <div className="lg:col-span-4 space-y-4">
-                  {featuredArticles.slice(1, 4).map((article, index) => (
-                    <Link key={article.id} href={`/news/${article.slug}`} className="block group">
-                      <div className="relative overflow-hidden rounded-lg bg-white shadow-sm hover:shadow-lg transition-all duration-300">
-                        <div className="flex gap-3">
-                          <div className="relative w-24 h-20 sm:w-28 sm:h-24 overflow-hidden rounded-l-lg">
-                            <img
-                              src={article.featuredImage}
-                              alt={article.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          </div>
-                          <div className="flex-1 p-3 sm:p-4">
-                            <span 
-                              className="inline-block px-2 py-1 rounded text-xs font-semibold text-white mb-2"
-                              style={{ backgroundColor: article.category.color }}
-                            >
-                              {article.category.name}
-                            </span>
-                            <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-red-600 transition-colors">
-                              {article.title}
-                            </h4>
-                            <div className="flex items-center gap-2 text-xs text-gray-500">
-                              <span>{article.readTime}m</span>
-                              <span>•</span>
-                              <span>{article.views} views</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </section>
-          )}
-          
-          {/* Latest News - BBC Grid Layout */}
-          <section className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 border-b-4 border-blue-600 pb-2">
-                Latest News
-              </h2>
-              <div className="hidden sm:block w-16 h-1 bg-blue-600"></div>
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-7xl">
+          {/* Main Content Area - Full width (Pulse style) */}
+          <div>
+            {/* Mobile Hero: Trending Carousel */}
+            <div className="md:hidden mb-8">
+              <TrendingCarousel initialArticles={articles} />
             </div>
             
-            {currentArticles.length > 0 ? (
-              <>
-                {/* BBC-Style News Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                  {currentArticles.map((article) => (
-                    <Link key={article.id} href={`/news/${article.slug}`} className="block group">
-                      <div className="relative overflow-hidden rounded-lg bg-white shadow-sm hover:shadow-lg transition-all duration-300">
-                        {/* Image */}
-                        <div className="relative h-40 sm:h-48 overflow-hidden">
-                          <img
-                            src={article.featuredImage}
-                            alt={article.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                          
-                          {/* Category Badge */}
-                          <div className="absolute top-3 left-3">
-                            <span 
-                              className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold text-white shadow-md"
-                              style={{ backgroundColor: article.category.color }}
-                            >
-                              {article.category.name}
-                            </span>
-                          </div>
-                          
-                          {/* Trending Badge */}
-                          {article.trending && (
-                            <div className="absolute top-3 right-3">
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-orange-500 text-white shadow-md">
-                                🔥 Trending
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Content */}
-                        <div className="p-3 sm:p-4">
-                          <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                            {article.title}
-                          </h3>
-                          <p className="text-xs sm:text-sm text-gray-600 mb-3 line-clamp-2">
-                            {article.excerpt}
-                          </p>
-                          
-                          {/* Meta Info */}
-                          <div className="flex items-center justify-between text-xs text-gray-500">
-                            <div className="flex items-center gap-2">
-                              <span>{article.readTime}m</span>
-                              <span>•</span>
-                              <span>{article.views} views</span>
-                            </div>
-                            <span className="text-xs font-medium">{article.author.name}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-                
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <div className="mt-8">
-                    <Pagination
-                      currentPage={currentPage}
-                      totalPages={totalPages}
-                      onPageChange={handlePageChange}
+            {/* Desktop Hero: Featured Section - Pulse.com.gh Style */}
+            <div className="hidden md:block">
+              <HeroFeaturedSection articles={topFeatured} />
+            </div>
+
+            {/* Editor's Picks */}
+            <EditorsPicks articles={featuredArticles.length > 0 ? featuredArticles : latestArticles.slice(0, 5)} />
+
+            {/* Latest News - Newest articles sorted by date */}
+            <LatestNews articles={articles} />
+
+            {/* Category Sections - Dynamically display all categories */}
+            {allCategories.map((category, index) => {
+              // Show Trending section after first category (Entertainment typically)
+              if (index === 1) {
+                return (
+                  <React.Fragment key={`category-${category.slug}`}>
+                    <CategorySection 
+                      title={category.name}
+                      articles={category.articles}
+                      categorySlug={category.slug}
                     />
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-lg text-gray-600 mb-4">No articles published yet.</p>
-                <p className="text-gray-500">Check back soon for the latest news and updates!</p>
-              </div>
+                    {/* Trending Section - Full width (Pulse style) */}
+                    <TrendingSection articles={articles} />
+                  </React.Fragment>
+                );
+              }
+              
+              return (
+                <CategorySection 
+                  key={category.slug}
+                  title={category.name}
+                  articles={category.articles}
+                  categorySlug={category.slug}
+                />
+              );
+            })}
+
+            {/* Trending Section - If no categories, show it at the end */}
+            {allCategories.length <= 1 && (
+              <TrendingSection articles={articles} />
             )}
-          </section>
-        </div>
-        
-        {/* Sidebar - Mobile Optimized */}
-        <aside className="mt-8 lg:mt-12 space-y-6">
-          <TrendingTopics />
-          <MostReadSection />
-          <section className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 border-b-2 border-green-600 pb-2">
-              Follow Us
-            </h2>
-            <SocialMediaFeed />
-          </section>
-        </aside>
+          </div>
       </main>
       
       <Footer />

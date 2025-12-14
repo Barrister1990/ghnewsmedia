@@ -12,7 +12,7 @@ interface SimplifiedCardProps {
 
 const SimplifiedCard: React.FC<SimplifiedCardProps> = ({ article, className = '' }) => {
   return (
-    <Link href={`/news/${article.slug}`} className="block group">
+    <Link href={`/${article.category.slug}/${article.slug}`} className="block group">
       <article className={`overflow-hidden rounded-lg ${className}`}>
         <div className="relative overflow-hidden bg-gray-100">
           <Image

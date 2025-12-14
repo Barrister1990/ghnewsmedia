@@ -1,5 +1,5 @@
-
 import { AlertTriangle, ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useBreakingNews } from '../hooks/useBreakingNews';
 
@@ -35,24 +35,22 @@ const BreakingNews = () => {
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-r from-red-600 via-red-700 to-red-600 text-white py-3 sm:py-4 mb-4 relative overflow-hidden">
+      <div className="text-white py-3 sm:py-4 mb-4 relative overflow-hidden" style={{ backgroundColor: '#C53030' }}>
         <div className="container mx-auto px-4 flex items-center">
           <div className="flex items-center space-x-3 mr-4">
-            <div className="bg-white text-red-600 px-3 py-1.5 rounded-full font-bold text-xs sm:text-sm flex items-center space-x-2 animate-pulse">
+            <div className="bg-white px-3 py-1.5 rounded-full font-bold text-xs sm:text-sm flex items-center space-x-2" style={{ color: '#C53030', fontSize: '12px' }}>
               <AlertTriangle className="w-4 h-4" />
               <span>BREAKING</span>
             </div>
-            <div className="hidden sm:flex items-center space-x-2 text-xs text-red-100">
+            <div className="hidden sm:flex items-center space-x-2 text-xs text-white/90" style={{ fontSize: '11px' }}>
               <Clock className="w-3 h-3" />
               <span>Loading latest news...</span>
             </div>
           </div>
           <div className="flex-1">
-            <div className="h-4 bg-red-500 rounded animate-pulse"></div>
+            <div className="h-4 rounded animate-pulse" style={{ backgroundColor: 'rgba(255, 255, 255, 0.3)' }}></div>
           </div>
         </div>
-        {/* Animated background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
       </div>
     );
   }
@@ -70,22 +68,53 @@ const BreakingNews = () => {
   const currentArticle = breakingNews[currentNews];
 
   return (
-    <div className="bg-gradient-to-r from-red-600 via-red-700 to-red-600 text-white py-3 sm:py-4 mb-4 relative overflow-hidden shadow-lg">
-      {/* Animated background pattern */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-pulse"></div>
-      
+    <div className="text-white py-3 sm:py-4 mb-4 relative overflow-hidden shadow-lg" style={{ backgroundColor: '#C53030' }}>
+      {/* Mobile: Scrolling Ticker */}
+      <div className="md:hidden">
+        <div className="flex items-center">
+          {/* Breaking Badge - Fixed */}
+          <div className="flex-shrink-0 bg-white px-3 py-1.5 rounded-r-full font-bold text-xs flex items-center space-x-2 shadow-lg z-10" style={{ color: '#C53030', fontSize: '12px' }}>
+            <AlertTriangle className="w-4 h-4" />
+            <span>BREAKING</span>
+          </div>
+          
+          {/* Scrolling News Ticker */}
+          <div className="flex-1 overflow-hidden relative">
+            <div className="breaking-news-ticker">
+              <div className="breaking-news-content">
+                {/* Duplicate content for seamless loop */}
+                {[...breakingNews, ...breakingNews].map((article, index) => (
+                  <Link
+                    key={`${article.id}-${index}`}
+                    href={`/${article.category.slug}/${article.slug}`}
+                    className="inline-block mr-8 whitespace-nowrap hover:text-red-100 transition-colors"
+                  >
+                    <span className="text-sm font-semibold" style={{ fontSize: '13px' }}>
+                      {article.title}
+                    </span>
+                    <span className="mx-4 text-red-200">•</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop: Original Layout */}
+      <div className="hidden md:block">
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex items-center justify-between">
           {/* Breaking News Badge and Content */}
           <div className="flex items-center space-x-4 flex-1 min-w-0">
             <div className="flex items-center space-x-3 flex-shrink-0">
-              <div className="bg-white text-red-600 px-3 py-1.5 rounded-full font-bold text-xs sm:text-sm flex items-center space-x-2 shadow-lg animate-pulse">
+                <div className="bg-white px-3 py-1.5 rounded-full font-bold text-xs sm:text-sm flex items-center space-x-2 shadow-lg" style={{ color: '#C53030', fontSize: '12px' }}>
                 <AlertTriangle className="w-4 h-4" />
                 <span>BREAKING</span>
               </div>
               
-              {/* Location and Time - Mobile Optimized */}
-              <div className="hidden sm:flex items-center space-x-3 text-xs text-red-100">
+                {/* Location and Time */}
+                <div className="flex items-center space-x-3 text-xs text-white/90" style={{ fontSize: '11px' }}>
                 <div className="flex items-center space-x-1">
                   <MapPin className="w-3 h-3" />
                   <span>Accra, Ghana</span>
@@ -103,20 +132,20 @@ const BreakingNews = () => {
             {/* News Content */}
             <div className="flex-1 overflow-hidden mr-4">
               <div className="relative">
-                <a 
-                  href={`/news/${currentArticle.slug}`}
+                  <Link 
+                    href={`/${currentArticle.category.slug}/${currentArticle.slug}`}
                   className="block hover:text-red-100 transition-colors duration-200 group"
                 >
                   <div className="flex items-center space-x-2">
                     <span className="text-xs sm:text-sm font-medium text-red-100 bg-red-800 px-2 py-1 rounded-full">
                       #{currentNews + 1}
                     </span>
-                    <p className="text-sm sm:text-base font-semibold truncate group-hover:underline">
+                      <p className="text-sm font-semibold truncate group-hover:underline" style={{ fontSize: '13px' }}>
                       {currentArticle.title}
                     </p>
                   </div>
-                </a>
-              </div>
+                  </Link>
+                </div>
             </div>
           </div>
 
@@ -124,7 +153,7 @@ const BreakingNews = () => {
           {breakingNews.length > 1 && (
             <div className="flex items-center space-x-2 flex-shrink-0">
               {/* Progress Indicators */}
-              <div className="hidden sm:flex items-center space-x-1 mr-3">
+                <div className="flex items-center space-x-1 mr-3">
                 {breakingNews.map((_, index) => (
                   <button
                     key={index}
@@ -163,11 +192,39 @@ const BreakingNews = () => {
               </div>
             </div>
           )}
+          </div>
         </div>
       </div>
       
       {/* Bottom accent line */}
-      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white/30"></div>
+
+      {/* CSS for scrolling ticker */}
+      <style jsx>{`
+        .breaking-news-ticker {
+          overflow: hidden;
+          width: 100%;
+        }
+        
+        .breaking-news-content {
+          display: inline-flex;
+          animation: scroll 60s linear infinite;
+          white-space: nowrap;
+        }
+        
+        @keyframes scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+        
+        .breaking-news-content:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
     </div>
   );
 };

@@ -9,7 +9,7 @@ const NotFound = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <SEOHead
-        title="Page Not Found - GhNewsMedia"
+        title="Page Not Found"
         description="The page you're looking for could not be found. Browse our latest news and updates from Ghana or search for specific topics."
         canonical="https://ghnewsmedia.com/404"
       />
@@ -56,16 +56,16 @@ const NotFound = () => {
           <div className="mt-12 p-6 bg-white rounded-xl shadow-sm">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Popular Sections</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Link href="/category/politics" className="text-primary hover:text-primary-700 font-medium">
+              <Link href="/politics" className="text-primary hover:text-primary-700 font-medium">
                 Politics
               </Link>
-              <Link href="/cLinktegory/business" className="text-primary hover:text-primary-700 font-medium">
+              <Link href="/business" className="text-primary hover:text-primary-700 font-medium">
                 Business
               </Link>
-              <Link href="/category/sports" className="text-primary hover:text-primary-700 font-medium">
+              <Link href="/sports" className="text-primary hover:text-primary-700 font-medium">
                 Sports
               </Link>
-              <Link href="/category/technology" className="text-primary hover:text-primary-700 font-medium">
+              <Link href="/tech" className="text-primary hover:text-primary-700 font-medium">
                 Technology
               </Link>
             </div>

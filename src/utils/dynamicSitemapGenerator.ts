@@ -1,6 +1,5 @@
 
-import { NewsArticle } from '../types/news';
-import { Category } from '../types/news';
+import { Category, NewsArticle } from '../types/news';
 
 export class DynamicSitemapGenerator {
   private static instance: DynamicSitemapGenerator;
@@ -39,7 +38,7 @@ export class DynamicSitemapGenerator {
     // Category pages - high priority
     categories.forEach(category => {
       sitemap += this.generateUrlEntry(
-        `/category/${category.slug}`, 
+        `/${category.slug}`, 
         '0.9', 
         'daily', 
         currentDate
@@ -71,7 +70,7 @@ export class DynamicSitemapGenerator {
   }
 
   private generateArticleEntry(article: NewsArticle): string {
-    const articleUrl = `${this.baseUrl}/news/${article.slug}`;
+    const articleUrl = `${this.baseUrl}/${article.category.slug}/${article.slug}`;
     const imageUrl = this.getOptimizedImageUrl(article.featuredImage);
     
     // Determine if article is recent (within 48 hours)
@@ -147,7 +146,7 @@ export class DynamicSitemapGenerator {
 
     // Add latest 50 articles to RSS feed
     articles.slice(0, 50).forEach(article => {
-      const articleUrl = `${this.baseUrl}/news/${article.slug}`;
+      const articleUrl = `${this.baseUrl}/${article.category.slug}/${article.slug}`;
       const imageUrl = this.getOptimizedImageUrl(article.featuredImage);
       
       rss += `    <item>

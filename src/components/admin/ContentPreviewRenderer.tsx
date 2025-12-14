@@ -1,5 +1,21 @@
 import React from 'react';
 
+// Declare Twitter and Instagram widgets global
+declare global {
+  interface Window {
+    twttr?: {
+      widgets: {
+        load: () => void;
+      };
+    };
+    instgrm?: {
+      Embeds: {
+        process: () => void;
+      };
+    };
+  }
+}
+
 interface ContentPreviewRendererProps {
   content: string;
 }
@@ -211,10 +227,74 @@ const ContentPreviewRenderer: React.FC<ContentPreviewRendererProps> = ({ content
   };
 
   // Function to render blockquotes with styling
-  const renderBlockquote = (content: string): React.ReactElement => {
+  const renderBlockquote = (element: Element): React.ReactElement => {
+    const blockquoteClass = element.getAttribute('class') || '';
+    const blockquoteHTML = element.innerHTML;
+    
+    // Twitter embed
+    if (blockquoteClass.includes('twitter-tweet')) {
+      const blockquoteProps: Record<string, string> = {};
+      Array.from(element.attributes).forEach(attr => {
+        blockquoteProps[attr.name] = attr.value;
+      });
+      
+      return (
+        <div className="my-4" style={{ margin: '24px 0', width: '100%' }}>
+          <div 
+            className="twitter-embed-wrapper"
+            style={{ 
+              maxWidth: '100%',
+              width: '100%',
+              overflow: 'hidden',
+              margin: '0 auto',
+              padding: '0'
+            }}
+          >
+            <blockquote 
+              {...blockquoteProps}
+              style={{ margin: 0, width: '100%', maxWidth: '100%' }}
+              dangerouslySetInnerHTML={{ __html: blockquoteHTML }}
+            />
+          </div>
+        </div>
+      );
+    }
+    
+    // Instagram embed
+    if (blockquoteClass.includes('instagram-media')) {
+      const blockquoteProps: Record<string, string> = {};
+      Array.from(element.attributes).forEach(attr => {
+        blockquoteProps[attr.name] = attr.value;
+      });
+      
+      return (
+        <div className="my-4" style={{ margin: '24px 0', width: '100%' }}>
+          <div 
+            className="instagram-embed-wrapper"
+            style={{ 
+              maxWidth: '100%',
+              width: '100%',
+              overflow: 'hidden',
+              margin: '0 auto',
+              display: 'flex',
+              justifyContent: 'center',
+              padding: '0'
+            }}
+          >
+            <blockquote 
+              {...blockquoteProps}
+              style={{ margin: 0, maxWidth: '540px', width: '100%', minWidth: '326px' }}
+              dangerouslySetInnerHTML={{ __html: blockquoteHTML }}
+            />
+          </div>
+        </div>
+      );
+    }
+    
+    // Regular blockquote
     return (
       <blockquote className="my-4 pl-4 border-l-4 border-gray-300 bg-gray-50 py-2 italic text-gray-700">
-        {content}
+        {element.textContent || blockquoteHTML}
       </blockquote>
     );
   };
@@ -324,7 +404,7 @@ const ContentPreviewRenderer: React.FC<ContentPreviewRendererProps> = ({ content
           case 'pre':
             return renderCodeBlock(textContent);
           case 'blockquote':
-            return renderBlockquote(textContent);
+            return renderBlockquote(element);
           case 'ul':
             return renderList(element.outerHTML, false);
           case 'ol':
@@ -403,10 +483,121 @@ const ContentPreviewRenderer: React.FC<ContentPreviewRendererProps> = ({ content
     return <div className="prose prose-lg max-w-none">{processedContent}</div>;
   };
 
+  // Load Twitter and Instagram widgets scripts for preview
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    // Check if content contains Twitter or Instagram embeds
+    const hasTwitterEmbed = content.includes('twitter-tweet') || content.includes('blockquote class="twitter-tweet"');
+    const hasInstagramEmbed = content.includes('instagram-media') || content.includes('blockquote class="instagram-media"');
+    
+    if (!hasTwitterEmbed && !hasInstagramEmbed) return;
+    
+    // Load Twitter widgets script
+    if (hasTwitterEmbed) {
+      const existingScript = document.querySelector('script[src*="platform.twitter.com/widgets.js"]');
+      if (!existingScript) {
+        const script = document.createElement('script');
+        script.src = 'https://platform.twitter.com/widgets.js';
+        script.async = true;
+        script.charset = 'utf-8';
+        script.id = 'twitter-widgets';
+        document.body.appendChild(script);
+        
+        script.onload = () => {
+          setTimeout(() => {
+            if (window.twttr && window.twttr.widgets) {
+              window.twttr.widgets.load();
+            }
+          }, 100);
+        };
+      } else {
+        setTimeout(() => {
+          if (window.twttr && window.twttr.widgets) {
+            window.twttr.widgets.load();
+          }
+        }, 100);
+      }
+    }
+    
+    // Load Instagram embed script
+    if (hasInstagramEmbed) {
+      const existingScript = document.querySelector('script[src*="instagram.com/embed.js"]');
+      if (!existingScript) {
+        const script = document.createElement('script');
+        script.src = 'https://www.instagram.com/embed.js';
+        script.async = true;
+        script.id = 'instagram-embed';
+        document.body.appendChild(script);
+      } else {
+        setTimeout(() => {
+          if (window.instgrm && window.instgrm.Embeds) {
+            window.instgrm.Embeds.process();
+          }
+        }, 100);
+      }
+    }
+  }, [content]);
+
   return (
+    <>
+      <style jsx global>{`
+        .twitter-embed-wrapper {
+          max-width: 100%;
+          width: 100%;
+          overflow: hidden;
+          margin: 0 auto;
+        }
+        
+        .twitter-embed-wrapper blockquote.twitter-tweet {
+          margin: 0 !important;
+          max-width: 100% !important;
+          width: 100% !important;
+        }
+        
+        .instagram-embed-wrapper {
+          max-width: 100%;
+          width: 100%;
+          overflow: hidden;
+          margin: 0 auto;
+          display: flex;
+          justify-content: center;
+        }
+        
+        .instagram-embed-wrapper blockquote.instagram-media {
+          margin: 0 !important;
+          max-width: 540px !important;
+          width: 100% !important;
+          min-width: 326px !important;
+        }
+        
+        @media (max-width: 640px) {
+          .twitter-embed-wrapper {
+            width: 100% !important;
+            padding: 0 8px;
+          }
+          
+          .twitter-embed-wrapper blockquote.twitter-tweet {
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+          
+          .instagram-embed-wrapper {
+            width: 100% !important;
+            padding: 0 8px;
+          }
+          
+          .instagram-embed-wrapper blockquote.instagram-media {
+            min-width: 100% !important;
+            max-width: 100% !important;
+            width: 100% !important;
+          }
+        }
+      `}</style>
     <div className="bg-white p-6 rounded-lg border border-gray-200 min-h-[400px]">
       {renderContent()}
     </div>
+    </>
   );
 };
 

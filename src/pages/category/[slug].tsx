@@ -56,7 +56,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <SEOHead
-          title="Category Not Found - GhNewsMedia"
+          title="Category Not Found"
           description="The category you're looking for could not be found. Browse our news categories and latest updates from Ghana."
           canonical="https://ghnewsmedia.com/404"
         />
@@ -86,7 +86,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
   const categoryStructuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": `${category.name} News - GhNewsMedia`,
+    "name": `${category.name} News`,
     "description": category.description,
     "url": `https://ghnewsmedia.com/category/${category.slug}`,
     "mainEntity": {
@@ -96,7 +96,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
         "@type": "NewsArticle",
         "position": index + 1,
         "headline": article.title,
-        "url": `https://ghnewsmedia.com/news/${article.slug}`,
+        "url": `https://ghnewsmedia.com/${article.category.slug}/${article.slug}`,
         "datePublished": article.publishedAt,
         "author": {
           "@type": "Person",
@@ -179,83 +179,14 @@ export const getServerSideProps: GetServerSideProps<CategoryPageProps> = async (
     };
   }
 
-  try {
-    // Fetch category data
-    const { data: categoryData, error: categoryError } = await supabase
-      .from('categories')
-      .select('*')
-      .eq('slug', slug)
-      .single();
-
-    if (categoryError || !categoryData) {
-      return {
-        notFound: true,
-      };
-    }
-
-    // Transform category data
-    const category: Category = {
-      id: categoryData.id,
-      name: categoryData.name,
-      slug: categoryData.slug,
-      description: categoryData.description || '',
-      color: categoryData.color,
-      icon: categoryData.icon || '📰',
-      updated_at: categoryData.updated_at
-    };
-
-    // Fetch articles for this category
-    const { data: articlesData, error: articlesError } = await supabase
-      .from('articles_with_details')
-      .select('*')
-      .eq('status', 'published')
-      .eq('category_id', categoryData.id) // Assuming your view has category_slug
-      .order('published_at', { ascending: false, nullsFirst: false })
-      .order('created_at', { ascending: false });
-
-    if (articlesError) {
-      console.error('Error fetching articles:', articlesError);
-      return {
-        props: {
-          category,
-          articles: [],
-          totalArticles: 0,
-          error: 'Failed to load articles'
-        }
-      };
-    }
-
-    // Transform articles
-    const transformedArticles = (articlesData || [])
-      .filter(article => article.id && article.title && article.content)
-      .map(transformToNewsArticle);
-
-    // Set cache headers for better performance
-    context.res.setHeader(
-      'Cache-Control',
-      'public, s-maxage=300, stale-while-revalidate=600'
-    );
-
-    return {
-      props: {
-        category,
-        articles: transformedArticles,
-        totalArticles: transformedArticles.length,
-      },
-    };
-
-  } catch (error) {
-    console.error('Error in getServerSideProps:', error);
-    
-    return {
-      props: {
-        category: null,
-        articles: [],
-        totalArticles: 0,
-        error: 'An unexpected error occurred'
-      }
-    };
-  }
+  // Redirect from old /category/[slug] to new /[slug] route
+  // The actual category pages are handled in _category/[slug].tsx
+  return {
+    redirect: {
+      destination: `/${slug}`,
+      permanent: true, // 301 redirect for SEO
+    },
+  };
 };
 
 export default CategoryPage;

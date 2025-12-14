@@ -4,6 +4,7 @@ import Link from 'next/link';
 import React from 'react';
 import { NewsArticle } from '../../types/news';
 import { getCategoryIcon } from '../../utils/categoryIcons';
+import { getCategoryColor } from '../../utils/categoryColors';
 import { getFullImageUrl } from '../../utils/helpers';
 
 interface HorizontalCardProps {
@@ -13,7 +14,7 @@ interface HorizontalCardProps {
 
 const HorizontalCard: React.FC<HorizontalCardProps> = ({ article, className = '' }) => {
   return (
-    <Link href={`/news/${article.slug}`} className="block group">
+    <Link href={`/${article.category.slug}/${article.slug}`} className="block group">
       <article className={`
         news-card overflow-hidden rounded-lg border border-gray-100 bg-white
         transition-all duration-300 ease-out
@@ -81,7 +82,7 @@ const HorizontalCard: React.FC<HorizontalCardProps> = ({ article, className = ''
                   sm:gap-1.5 sm:px-2.5 sm:text-xs
                   md:px-3
                 "
-                style={{ backgroundColor: article.category.color }}
+                style={{ backgroundColor: getCategoryColor(article.category.name, article.category.color) }}
               >
                 {getCategoryIcon(article.category.name, "w-2.5 h-2.5 flex-shrink-0 sm:w-3 sm:h-3")}
                 <span className="max-w-[70px] truncate sm:max-w-none">{article.category.name}</span>
@@ -151,7 +152,7 @@ const HorizontalCard: React.FC<HorizontalCardProps> = ({ article, className = ''
             group-hover:w-full
             sm:h-1
           "
-          style={{ color: article.category.color }}
+          style={{ color: getCategoryColor(article.category.name, article.category.color) }}
         />
       </article>
     </Link>

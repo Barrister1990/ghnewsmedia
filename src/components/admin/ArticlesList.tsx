@@ -4,19 +4,19 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow
 } from '@/components/ui/table';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAllArticles } from '@/hooks/useAllArticles';
@@ -122,7 +122,7 @@ const ArticlesList = () => {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href={`/news/${article.slug}`} target="_blank" className="w-full">
+                      <Link href={article.category ? `/${article.category.slug}/${article.slug}` : '#'} target="_blank" className="w-full">
                         <Eye className="w-4 h-4 mr-2" />
                         View
                       </Link>

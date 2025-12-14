@@ -28,14 +28,20 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     <priority>1.0</priority>
   </url>
   
-  <!-- Main sections for sitelinks -->
-  <url>
-    <loc>${baseUrl}/news</loc>
-    <lastmod>${currentDate}</lastmod>
+  <!-- Main sections for sitelinks - All main category pages -->
+  ${categories
+    .filter(cat => ['news', 'entertainment', 'sports', 'business', 'lifestyle', 'tech', 'features', 'opinions'].includes(cat.slug))
+    .map((category) => {
+      return `  <url>
+    <loc>${baseUrl}/${category.slug}</loc>
+    <lastmod>${category.updated_at || currentDate}</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
-  </url>
+  </url>`;
+    })
+    .join('\n')}
   
+  <!-- Search page -->
   <url>
     <loc>${baseUrl}/search</loc>
     <lastmod>${currentDate}</lastmod>
@@ -62,18 +68,11 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  <url>
-    <loc>${baseUrl}/search</loc>
-    <lastmod>${currentDate}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <!-- Category pages -->
+  <!-- Category pages (all categories) -->
   ${categories
     .map((category) => {
       return `  <url>
-    <loc>${baseUrl}/category/${category.slug}</loc>
+    <loc>${baseUrl}/${category.slug}</loc>
     <lastmod>${category.updated_at || currentDate}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
@@ -101,13 +100,13 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
         new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
       
       return `  <url>
-    <loc>${baseUrl}/news/${article.slug}</loc>
+    <loc>${baseUrl}/${article.category.slug}/${article.slug}</loc>
     <lastmod>${article.updatedAt || article.publishedAt}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     ${isRecentNews ? `<news:news>
       <news:publication>
-        <news:name>GhNewsMedia</news:name>
+        <news:name>GH News</news:name>
         <news:language>en</news:language>
       </news:publication>
       <news:publication_date>${article.updatedAt || article.publishedAt}</news:publication_date>

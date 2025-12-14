@@ -1,19 +1,19 @@
 
 import {
-  Briefcase,
-  Car,
-  Gamepad2,
-  Globe,
-  GraduationCap,
-  Heart,
-  Laptop,
-  Music,
-  Newspaper,
-  ShoppingBag,
-  TrendingUp,
-  Trophy,
-  Users,
-  Zap
+    Briefcase,
+    Car,
+    Gamepad2,
+    Globe,
+    GraduationCap,
+    Heart,
+    Laptop,
+    Music,
+    Newspaper,
+    ShoppingBag,
+    TrendingUp,
+    Trophy,
+    Users,
+    Zap
 } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
@@ -114,7 +114,7 @@ const CategoriesGrid = () => {
         {Object.entries(groupedCategories).map(([genericName, cats]) => (
           <Link
             key={genericName}
-            href={`/category/${cats[0].slug}`}
+            href={`/${cats[0].slug}`}
             className="group p-4 sm:p-5 lg:p-6 rounded-xl text-center transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
             style={{
               backgroundColor: `${cats[0].color}15`,

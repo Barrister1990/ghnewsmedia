@@ -3,6 +3,7 @@ import Link from 'next/link';
 import React from 'react';
 import { NewsArticle } from '../../types/news';
 import { getCategoryIcon } from '../../utils/categoryIcons';
+import { getCategoryColor } from '../../utils/categoryColors';
 import { getFullImageUrl } from '../../utils/helpers';
 import { formatDate } from './utils';
 
@@ -13,7 +14,7 @@ interface CompactCardProps {
 
 const CompactCard: React.FC<CompactCardProps> = ({ article, className = '' }) => {
   return (
-    <Link href={`/news/${article.slug}`} className="block group">
+    <Link href={`/${article.category.slug}/${article.slug}`} className="block group">
       <article className={`
         relative overflow-hidden rounded-lg border border-gray-100 bg-white
         transition-all duration-300 ease-out
@@ -63,7 +64,7 @@ const CompactCard: React.FC<CompactCardProps> = ({ article, className = '' }) =>
                   group-hover:scale-105
                   sm:text-xs sm:gap-1.5 sm:px-2.5 sm:py-1
                 "
-                style={{ backgroundColor: article.category.color }}
+                style={{ backgroundColor: getCategoryColor(article.category.name, article.category.color), fontSize: '12px' }}
               >
                 {getCategoryIcon(article.category.name, "w-2.5 h-2.5 flex-shrink-0 sm:w-3 sm:h-3")}
                 <span className="truncate max-w-[80px] sm:max-w-none">{article.category.name}</span>
@@ -72,18 +73,16 @@ const CompactCard: React.FC<CompactCardProps> = ({ article, className = '' }) =>
 
             {/* Title - Mobile optimized */}
             <h4 className="
-              text-sm font-semibold leading-[1.3] mb-1.5
-              text-gray-900 line-clamp-2
+              font-semibold leading-tight mb-1.5
+              line-clamp-2
               transition-colors duration-200
-              group-hover:text-blue-600
-              sm:text-base sm:leading-tight sm:mb-2
-              md:text-lg
-            ">
+              sm:mb-2 md:text-lg
+            " style={{ color: '#111111', fontSize: '16px', lineHeight: '1.3' }}>
               {article.title}
             </h4>
 
             {/* Meta Information - Simplified for mobile */}
-            <div className="flex items-center gap-1.5 text-[10px] text-gray-500 mt-auto sm:gap-2 sm:text-xs">
+            <div className="flex items-center gap-1.5 mt-auto sm:gap-2" style={{ color: '#6B7280', fontSize: '11px' }}>
               <time dateTime={article.publishedAt} className="font-medium">
                 {formatDate(article.publishedAt)}
               </time>
@@ -117,12 +116,12 @@ const CompactCard: React.FC<CompactCardProps> = ({ article, className = '' }) =>
         {/* Bottom border accent - Thinner on mobile */}
         <div
           className="
-            h-0.5 w-0 bg-gradient-to-r from-transparent via-current to-transparent
+            h-0.5 w-0
             transition-all duration-300 ease-out
             group-hover:w-full
             sm:h-1
           "
-          style={{ color: article.category.color }}
+          style={{ backgroundColor: getCategoryColor(article.category.name, article.category.color) }}
         />
       </article>
     </Link>

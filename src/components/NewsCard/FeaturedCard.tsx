@@ -4,6 +4,7 @@ import Link from 'next/link';
 import React from 'react';
 import { NewsArticle } from '../../types/news';
 import { getCategoryIcon } from '../../utils/categoryIcons';
+import { getCategoryColor } from '../../utils/categoryColors';
 import { getFullImageUrl } from '../../utils/helpers';
 import { formatDate } from './utils';
 
@@ -14,7 +15,7 @@ interface FeaturedCardProps {
 
 const FeaturedCard: React.FC<FeaturedCardProps> = ({ article, className = '' }) => {
   return (
-    <Link href={`/news/${article.slug}`} className="block">
+    <Link href={`/${article.category.slug}/${article.slug}`} className="block">
       <article className={`
         news-card relative overflow-hidden cursor-pointer rounded-lg
         transition-all duration-300 ease-out
@@ -38,12 +39,8 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({ article, className = '' }) 
             blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
           />
           
-          {/* Mobile-optimized gradient overlay */}
-          <div className="
-            absolute inset-0 
-            bg-gradient-to-t from-black/90 via-black/50 to-black/20
-            sm:from-black/80 sm:via-black/40 sm:to-transparent
-          " />
+          {/* Mobile-optimized overlay */}
+          <div className="absolute inset-0 bg-black/60" />
           
           {/* Content overlay - Mobile first */}
           <div className="absolute bottom-0 left-0 right-0 p-4 text-white sm:p-5 md:p-6">
@@ -56,7 +53,7 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({ article, className = '' }) 
                   sm:px-2.5 sm:py-1 sm:text-xs sm:gap-1.5
                   md:px-3
                 "
-                style={{ backgroundColor: article.category.color }}
+                style={{ backgroundColor: getCategoryColor(article.category.name, article.category.color), fontSize: '12px' }}
               >
                 {getCategoryIcon(article.category.name, "w-2.5 h-2.5 sm:w-3 sm:h-3")}
                 <span className="max-w-[60px] truncate sm:max-w-none">{article.category.name}</span>
@@ -64,12 +61,10 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({ article, className = '' }) 
               
               {article.trending && (
                 <span className="
-                  bg-gradient-to-r from-orange-500 to-red-500 
-                  px-2 py-1 rounded-full text-[10px] font-medium
-                  backdrop-blur-sm bg-opacity-95
-                  sm:px-2.5 sm:py-1 sm:text-xs
+                  px-2 py-1 rounded-full text-xs font-medium
+                  sm:px-2.5 sm:py-1
                   md:px-3
-                ">
+                " style={{ backgroundColor: '#C53030', fontSize: '12px' }}>
                   <span className="sm:hidden">🔥</span>
                   <span className="hidden sm:inline">🔥 Trending</span>
                 </span>
@@ -78,23 +73,22 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({ article, className = '' }) 
             
             {/* Title - Mobile first typography */}
             <h2 className="
-              text-lg font-bold mb-2 line-clamp-2 leading-tight
-              sm:text-xl sm:mb-3 sm:line-clamp-3
-              md:text-2xl lg:text-3xl
-            ">
+              font-bold mb-2 line-clamp-2 leading-tight
+              sm:mb-3 sm:line-clamp-3 md:text-lg
+            " style={{ color: '#FFFFFF', fontSize: '16px', lineHeight: '1.3' }}>
               {article.title}
             </h2>
             
             {/* Excerpt - Hidden on very small screens */}
             <p className="
-              text-gray-200 mb-3 line-clamp-1 text-sm leading-relaxed
-              sm:line-clamp-2 sm:mb-4 sm:text-base
-            ">
+              mb-3 line-clamp-1 leading-relaxed
+              sm:line-clamp-2 sm:mb-4
+            " style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '13px', lineHeight: '1.6' }}>
               {article.excerpt}
             </p>
             
             {/* Meta information - Mobile simplified */}
-            <div className="flex items-center gap-3 text-xs text-gray-300 sm:gap-4 sm:text-sm">
+            <div className="flex items-center gap-3 text-xs sm:gap-4" style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '11px' }}>
               {/* Author - Always visible */}
               <div className="flex items-center gap-1 min-w-0">
                 <User className="w-3 h-3 flex-shrink-0 sm:w-4 sm:h-4" />
@@ -117,12 +111,8 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({ article, className = '' }) 
             </div>
           </div>
           
-          {/* Subtle top gradient for better text readability on mobile */}
-          <div className="
-            absolute top-0 left-0 right-0 h-16 
-            bg-gradient-to-b from-black/30 to-transparent
-            sm:from-black/20 sm:h-20
-          " />
+          {/* Subtle top overlay for better text readability on mobile */}
+          <div className="absolute top-0 left-0 right-0 h-16 bg-black/30 sm:h-20" />
         </div>
       </article>
     </Link>

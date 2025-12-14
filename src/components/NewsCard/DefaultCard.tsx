@@ -4,6 +4,7 @@ import Link from 'next/link';
 import React from 'react';
 import { NewsArticle } from '../../types/news';
 import { getCategoryIcon } from '../../utils/categoryIcons';
+import { getCategoryColor } from '../../utils/categoryColors';
 import { getFullImageUrl } from '../../utils/helpers';
 
 interface DefaultCardProps {
@@ -13,7 +14,7 @@ interface DefaultCardProps {
 
 const DefaultCard: React.FC<DefaultCardProps> = ({ article, className = '' }) => {
   return (
-    <Link href={`/news/${article.slug}`} className="block group">
+    <Link href={`/${article.category.slug}/${article.slug}`} className="block group">
       <article className={`
         relative overflow-hidden rounded-lg bg-white border border-gray-100
         transition-all duration-300 ease-out
@@ -54,13 +55,11 @@ const DefaultCard: React.FC<DefaultCardProps> = ({ article, className = '' }) =>
             <div className="absolute top-2 right-2 sm:top-3 sm:right-3 md:top-4 md:right-4">
               <div className="
                 flex items-center gap-1 px-2 py-1 rounded-full
-                bg-gradient-to-r from-orange-500 to-red-500
-                text-white text-[10px] font-semibold shadow-md
+                text-white text-xs font-semibold shadow-md
                 transition-transform duration-200
                 group-hover:scale-105
-                backdrop-blur-sm bg-opacity-95
                 sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:text-xs sm:shadow-lg
-              ">
+              " style={{ backgroundColor: '#C53030', fontSize: '12px' }}>
                 <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                 <span className="hidden sm:inline">Trending</span>
                 <span className="sm:hidden">Hot</span>
@@ -79,7 +78,7 @@ const DefaultCard: React.FC<DefaultCardProps> = ({ article, className = '' }) =>
                 backdrop-blur-sm bg-opacity-95
                 sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:text-xs sm:shadow-lg
               "
-              style={{ backgroundColor: article.category.color }}
+              style={{ backgroundColor: getCategoryColor(article.category.name, article.category.color), fontSize: '12px' }}
             >
               {getCategoryIcon(article.category.name, "w-2.5 h-2.5 flex-shrink-0 sm:w-3 sm:h-3")}
               <span className="max-w-[60px] truncate sm:max-w-none">{article.category.name}</span>
@@ -91,31 +90,28 @@ const DefaultCard: React.FC<DefaultCardProps> = ({ article, className = '' }) =>
         <div className="p-3 sm:p-4 md:p-5 lg:p-6">
           {/* Title - Mobile optimized */}
           <h3 className="
-            text-base font-bold mb-2 leading-tight
-            text-gray-900 line-clamp-2
+            font-bold mb-2 leading-tight
+            line-clamp-2
             transition-colors duration-200
-            group-hover:text-blue-600
-            sm:text-lg sm:mb-3
-            md:text-xl
-          ">
+            sm:mb-3 md:text-lg
+          " style={{ color: '#111111', fontSize: '16px', lineHeight: '1.3' }}>
             {article.title}
           </h3>
 
           {/* Excerpt - Responsive line clamping */}
           <p className="
-            text-sm text-gray-600 mb-3 leading-relaxed
+            mb-3 leading-relaxed
             line-clamp-2
             transition-colors duration-200
-            group-hover:text-gray-700
-            sm:text-base sm:mb-4 sm:line-clamp-3
-          ">
+            sm:mb-4 sm:line-clamp-3
+          " style={{ color: '#111111', fontSize: '13px', lineHeight: '1.6' }}>
             {article.excerpt}
           </p>
 
           {/* Meta Information - Mobile simplified */}
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             {/* Author and Read Time - Compact on mobile */}
-            <div className="flex items-center gap-2 text-xs text-gray-500 min-w-0 sm:gap-3 sm:text-sm">
+            <div className="flex items-center gap-2 text-xs min-w-0 sm:gap-3" style={{ color: '#6B7280', fontSize: '11px' }}>
               <div className="flex items-center gap-1 min-w-0 sm:gap-1.5">
                 <User className="w-3 h-3 flex-shrink-0 text-gray-400 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" />
                 <span className="font-medium truncate max-w-[80px] sm:max-w-none">{article.author.name}</span>
@@ -130,7 +126,7 @@ const DefaultCard: React.FC<DefaultCardProps> = ({ article, className = '' }) =>
             </div>
 
             {/* Views - Simplified on mobile */}
-            <div className="flex items-center gap-1 text-xs text-gray-500 flex-shrink-0 sm:gap-1.5 sm:text-sm">
+            <div className="flex items-center gap-1 text-xs flex-shrink-0 sm:gap-1.5" style={{ color: '#6B7280', fontSize: '11px' }}>
               <Eye className="w-3 h-3 text-gray-400 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" />
               <span className="font-medium">
                 {article.views > 999 
@@ -145,21 +141,13 @@ const DefaultCard: React.FC<DefaultCardProps> = ({ article, className = '' }) =>
         {/* Bottom Accent Line - Thinner on mobile */}
         <div
           className="
-            h-0.5 w-0 bg-gradient-to-r from-transparent via-current to-transparent
+            h-0.5 w-0
             transition-all duration-500 ease-out
             group-hover:w-full
             sm:h-1
           "
-          style={{ color: article.category.color }}
+          style={{ backgroundColor: getCategoryColor(article.category.name, article.category.color) }}
         />
-
-        {/* Subtle Corner Highlight - Hidden on mobile */}
-        <div className="
-          absolute top-0 right-0 w-0 h-0 transition-all duration-300
-          group-hover:w-6 group-hover:h-6
-          bg-gradient-to-bl from-white/20 to-transparent
-          sm:group-hover:w-8 sm:group-hover:h-8
-        " />
       </article>
     </Link>
   );

@@ -8,7 +8,7 @@ interface GoogleNewsSEOProps {
 }
 
 const GoogleNewsSEO: React.FC<GoogleNewsSEOProps> = ({ article }) => {
-  const articleUrl = `https://ghnewsmedia.com/news/${article.slug}`;
+  const articleUrl = `https://ghnewsmedia.com/${article.category.slug}/${article.slug}`;
   const publicationDate = new Date(article.publishedAt).toISOString();
   
   // Google News specific meta tags

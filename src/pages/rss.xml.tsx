@@ -28,14 +28,14 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
      xmlns:media="http://search.yahoo.com/mrss/">
   
   <channel>
-    <title>GhNewsMedia - Ghana's Premier Digital News Platform</title>
+    <title>GH News - Ghana's Digital News Platform</title>
     <link>${baseUrl}</link>
     <description>Stay informed with Ghana's leading digital news platform. Get breaking news, politics, business, sports, and entertainment updates from trusted journalists across Ghana.</description>
     <language>en-GB</language>
     <lastBuildDate>${currentDate}</lastBuildDate>
     <sy:updatePeriod>hourly</sy:updatePeriod>
     <sy:updateFrequency>1</sy:updateFrequency>
-    <generator>GhNewsMedia RSS Generator</generator>
+    <generator>GH News RSS Generator</generator>
     <webMaster>editor@ghnewsmedia.com</webMaster>
     <managingEditor>editor@ghnewsmedia.com</managingEditor>
     <category>News</category>
@@ -54,7 +54,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
       .slice(0, 50) // Limit to 50 most recent articles
       .map((article) => {
         const publicationDate = new Date(article.publishedAt).toISOString();
-        const articleUrl = `${baseUrl}/news/${article.slug}`;
+        const articleUrl = `${baseUrl}/${article.category.slug}/${article.slug}`;
         const imageUrl = article.featuredImage.startsWith('http') 
           ? article.featuredImage 
           : `${baseUrl}${article.featuredImage}`;

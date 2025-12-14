@@ -28,9 +28,11 @@ const SEOHead: React.FC<SEOHeadProps> = ({
   tags,
   structuredData
 }) => {
-  const siteName = 'GhNewsMedia';
+  const siteName = 'GH News';
   const siteUrl = 'https://ghnewsmedia.com';
-  const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
+  // Remove any existing site name from title to avoid duplication
+  const cleanTitle = title.replace(/\s*\|\s*GhNewsMedia\s*$/i, '').replace(/\s*\|\s*GH News\s*$/i, '').trim();
+  const fullTitle = cleanTitle.includes('|') ? cleanTitle : `${cleanTitle} | ${siteName}`;
   const canonicalUrl = canonical || siteUrl;
   const imageUrl = image || `${siteUrl}/placeholder.svg`;
 

@@ -9,7 +9,7 @@ interface WebsiteSEOProps {
 }
 
 const WebsiteSEO: React.FC<WebsiteSEOProps> = ({ 
-  title = "GhNewsMedia - Ghana's Premier Digital News Platform",
+  title = "Ghana's Digital News Platform | GH News",
   description = "Stay informed with Ghana's leading digital news platform. Get breaking news, politics, business, sports, and entertainment updates from trusted sources.",
   path = ""
 }) => {
@@ -18,11 +18,23 @@ const WebsiteSEO: React.FC<WebsiteSEOProps> = ({
   const logoUrl = `${siteUrl}/logo.png`;
   const ogImageUrl = `${siteUrl}/og-image.jpg`;
 
+  // Main navigation items for sitelinks (matching Header.tsx)
+  const mainNavigationItems = [
+    { name: 'News', slug: 'news' },
+    { name: 'Entertainment', slug: 'entertainment' },
+    { name: 'Sports', slug: 'sports' },
+    { name: 'Business', slug: 'business' },
+    { name: 'Lifestyle', slug: 'lifestyle' },
+    { name: 'Tech', slug: 'tech' },
+    { name: 'Features', slug: 'features' },
+    { name: 'Opinions', slug: 'opinions' },
+  ];
+
   const websiteStructuredData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "GhNewsMedia",
-    "alternateName": "Ghana News Media",
+    "name": "GH News",
+    "alternateName": "Ghana's Digital News Platform",
     "url": siteUrl,
     "description": description,
     "inLanguage": "en-GB",
@@ -32,14 +44,23 @@ const WebsiteSEO: React.FC<WebsiteSEOProps> = ({
         "target": `${siteUrl}/search?q={search_term_string}`,
         "query-input": "required name=search_term_string"
       }
-    ]
+    ],
+    "mainEntity": {
+      "@type": "ItemList",
+      "itemListElement": mainNavigationItems.map((item, index) => ({
+        "@type": "SiteNavigationElement",
+        "position": index + 1,
+        "name": item.name,
+        "url": `${siteUrl}/${item.slug}`
+      }))
+    }
   };
 
   const organizationStructuredData = {
     "@context": "https://schema.org",
     "@type": "NewsMediaOrganization",
-    "name": "GhNewsMedia",
-    "alternateName": "Ghana News Media",
+    "name": "GH News",
+    "alternateName": "Ghana's Digital News Platform",
     "url": siteUrl,
     "logo": logoUrl,
     "description": description,
@@ -89,10 +110,10 @@ const WebsiteSEO: React.FC<WebsiteSEOProps> = ({
               url: ogImageUrl,
               width: 1200,
               height: 630,
-              alt: 'GhNewsMedia - Ghana\'s Premier News Source',
+              alt: 'GH News - Ghana\'s Digital News Platform',
             },
           ],
-          siteName: 'GhNewsMedia',
+          siteName: 'GH News',
           locale: 'en_GB',
         }}
         twitter={{

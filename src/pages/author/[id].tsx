@@ -183,7 +183,7 @@ const AuthorPage = () => {
     "url": `https://ghnewsmedia.com/author/${author.id}`,
     "worksFor": {
       "@type": "Organization",
-      "name": "GhNewsMedia"
+      "name": "GH News"
     },
     "sameAs": [
       ...(author.social.twitter ? [`https://twitter.com/${author.social.twitter.replace('@', '')}`] : []),
@@ -196,7 +196,7 @@ const AuthorPage = () => {
     <div className="min-h-screen bg-gray-50">
       <SEOHead
         title={generateMetaTitle(`${author.name} - ${author.title}`, 'Author')}
-        description={truncateDescription(`Read articles by ${author.name}, ${author.title} at GhNewsMedia. ${author.bio}`)}
+        description={truncateDescription(`Read articles by ${author.name}, ${author.title} at GH News. ${author.bio}`)}
         canonical={`https://ghnewsmedia.com/author/${author.id}`}
         image={author.avatar}
         tags={[author.name, 'journalist', 'Ghana news', 'author', author.title]}

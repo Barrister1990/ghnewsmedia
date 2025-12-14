@@ -75,7 +75,7 @@ const TrendingTopics = () => {
           {trendingTopics.map((topic, index) => (
             <Link
               key={topic.id}
-              href={`/category/${topic.slug}`}
+              href={`/${topic.slug}`}
               className="group block"
             >
               <div className="flex items-center space-x-4 p-3 rounded-xl hover:bg-orange-50 transition-all duration-200 hover:shadow-md border border-transparent hover:border-orange-200">

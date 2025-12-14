@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { AlertTriangle, ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useBreakingNews } from '../hooks/useBreakingNews';
-import { ChevronLeft, ChevronRight, AlertTriangle, Clock, MapPin } from 'lucide-react';
 
 const BreakingNewsNew = () => {
   const { breakingNews, loading, error } = useBreakingNews();
@@ -103,7 +103,7 @@ const BreakingNewsNew = () => {
             <div className="flex-1 overflow-hidden mr-4">
               <div className="relative">
                 <a 
-                  href={`/news/${currentArticle.slug}`}
+                  href={`/${currentArticle.category.slug}/${currentArticle.slug}`}
                   className="block hover:text-red-100 transition-colors duration-200 group"
                 >
                   <div className="flex items-center space-x-2">

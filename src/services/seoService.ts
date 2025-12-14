@@ -51,7 +51,7 @@ class SEOService {
     // Category pages
     categories.forEach(category => {
       sitemap += `  <url>
-    <loc>${this.siteUrl}/category/${category.slug}</loc>
+    <loc>${this.siteUrl}/${category.slug}</loc>
     <lastmod>${currentDate}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
@@ -62,13 +62,13 @@ class SEOService {
     // Article pages with news sitemap and image tags
     articles.forEach(article => {
       sitemap += `  <url>
-    <loc>${this.siteUrl}/news/${article.slug}</loc>
+    <loc>${this.siteUrl}/${article.category.slug}/${article.slug}</loc>
     <lastmod>${article.updatedAt}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <news:news>
       <news:publication>
-        <news:name>GhNewsMedia</news:name>
+        <news:name>GH News</news:name>
         <news:language>en</news:language>
       </news:publication>
       <news:publication_date>${article.publishedAt}</news:publication_date>
@@ -102,15 +102,15 @@ class SEOService {
     let rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
-    <title>GhNewsMedia - Ghana's Premier News Source</title>
+    <title>GH News - Ghana's Digital News Platform</title>
     <link>${this.siteUrl}</link>
     <description>Stay informed with Ghana's leading digital news platform. Breaking news, politics, business, sports, and entertainment.</description>
     <language>en-gb</language>
     <lastBuildDate>${currentDate}</lastBuildDate>
-    <generator>GhNewsMedia RSS Generator</generator>
+    <generator>GH News RSS Generator</generator>
     <image>
       <url>${this.siteUrl}/logo.png</url>
-      <title>GhNewsMedia</title>
+      <title>GH News</title>
       <link>${this.siteUrl}</link>
     </image>
 `;
@@ -119,13 +119,13 @@ class SEOService {
       rss += `
     <item>
       <title><![CDATA[${article.title}]]></title>
-      <link>${this.siteUrl}/news/${article.slug}</link>
+      <link>${this.siteUrl}/${article.category.slug}/${article.slug}</link>
       <description><![CDATA[${article.excerpt}]]></description>
       <content:encoded><![CDATA[${article.content}]]></content:encoded>
       <pubDate>${new Date(article.publishedAt).toUTCString()}</pubDate>
       <dc:creator>${article.author.name}</dc:creator>
       <category>${article.category.name}</category>
-      <guid isPermaLink="true">${this.siteUrl}/news/${article.slug}</guid>
+      <guid isPermaLink="true">${this.siteUrl}/${article.category.slug}/${article.slug}</guid>
       ${article.featuredImage ? `<enclosure url="${article.featuredImage}" type="image/jpeg" />` : ''}
     </item>`;
     });
@@ -179,7 +179,7 @@ class SEOService {
       },
       "publisher": {
         "@type": "NewsMediaOrganization",
-        "name": "GhNewsMedia",
+        "name": "GH News",
         "logo": {
           "@type": "ImageObject",
           "url": `${this.siteUrl}/logo.png`,
@@ -190,7 +190,7 @@ class SEOService {
       },
       "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": `${this.siteUrl}/news/${article.slug}`
+        "@id": `${this.siteUrl}/${article.category.slug}/${article.slug}`
       },
       "articleSection": article.category.name,
       "keywords": article.tags,
@@ -198,7 +198,7 @@ class SEOService {
       "timeRequired": `PT${article.readTime}M`,
       "inLanguage": "en-GB",
       "isAccessibleForFree": true,
-      "url": `${this.siteUrl}/news/${article.slug}`,
+      "url": `${this.siteUrl}/${article.category.slug}/${article.slug}`,
       "speakable": {
         "@type": "SpeakableSpecification",
         "cssSelector": ["h1", ".article-content p"]
@@ -225,8 +225,8 @@ class SEOService {
     return {
       "@context": "https://schema.org",
       "@type": "NewsMediaOrganization",
-      "name": "GhNewsMedia",
-      "alternateName": "Ghana News Media",
+      "name": "GH News",
+      "alternateName": "Ghana's Digital News Platform",
       "url": this.siteUrl,
       "logo": `${this.siteUrl}/logo.png`,
       "description": "Ghana's premier digital news platform providing credible, timely news coverage across politics, business, sports, entertainment, and technology.",

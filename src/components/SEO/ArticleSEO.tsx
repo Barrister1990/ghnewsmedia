@@ -8,7 +8,7 @@ interface ArticleSEOProps {
 
 const ArticleSEO: React.FC<ArticleSEOProps> = ({ article }) => {
   const siteUrl = 'https://ghnewsmedia.com';
-  const articleUrl = `${siteUrl}/news/${article.slug}`;
+  const articleUrl = `${siteUrl}/${article.category.slug}/${article.slug}`;
   
   // Clean and optimize the title for social media
   const socialTitle = article.title.length > 60 

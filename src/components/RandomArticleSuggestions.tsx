@@ -193,7 +193,7 @@ const RandomArticleSuggestions: React.FC<RandomArticleSuggestionsProps> = ({
 
             {/* Content */}
             <div className="p-4">
-              <Link href={`/news/${article.slug}`} className="block group">
+              <Link href={`/${article.category.slug}/${article.slug}`} className="block group">
                 <h4 className="font-bold text-gray-900 text-sm leading-tight mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
                   {article.title}
                 </h4>
@@ -231,7 +231,7 @@ const RandomArticleSuggestions: React.FC<RandomArticleSuggestionsProps> = ({
             {/* Call to Action */}
             <div className="px-4 pb-4">
               <Link
-                href={`/news/${article.slug}`}
+                href={`/${article.category.slug}/${article.slug}`}
                 className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-xs font-semibold py-2 px-4 rounded-lg transition-all duration-200 hover:scale-105 text-center block"
               >
                 Read More →

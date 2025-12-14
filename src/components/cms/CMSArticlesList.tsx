@@ -85,11 +85,15 @@ const CMSArticlesList = ({ articles, loading }: CMSArticlesListProps) => {
               </TableCell>
               <TableCell>
                 <div className="flex items-center space-x-2">
-                  {article.status === 'published' && (
+                  {article.status === 'published' && article.category && (
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => window.open(`/news/${article.slug}`, '_blank')}
+                      onClick={() => {
+                        if (article.category) {
+                          window.open(`/${article.category.slug}/${article.slug}`, '_blank');
+                        }
+                      }}
                     >
                       <Eye className="h-4 w-4" />
                     </Button>

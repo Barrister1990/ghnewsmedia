@@ -14,7 +14,7 @@ const ArticleNavigation: React.FC<ArticleNavigationProps> = ({ category, author 
       <h3 className="font-semibold text-gray-900 mb-4">Explore More</h3>
       <div className="flex flex-wrap gap-4">
         <Link 
-          href={`/category/${category.slug}`}
+          href={`/${category.slug}`}
           className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
         >
           More {category.name} News

@@ -180,8 +180,8 @@ const SearchPage: React.FC = () => {
     return (
       <>
         <Head>
-          <title>Search News - Loading | GhNewsMedia</title>
-          <meta name="description" content="Search for news articles on GhNewsMedia" />
+          <title>Search News - Loading | GH News</title>
+          <meta name="description" content="Search for news articles on GH News" />
         </Head>
         <div className="min-h-screen bg-gray-50">
           <Header />
@@ -208,10 +208,10 @@ const SearchPage: React.FC = () => {
     );
   }
 
-  const pageTitle = query ? `Search Results for "${query}" | GhNewsMedia` : 'Search News | GhNewsMedia';
-  const pageDescription = query 
-    ? `Search results for "${query}" on GhNewsMedia - Ghana's premier news platform`
-    : 'Search for news articles, topics, and authors on GhNewsMedia - Ghana\'s leading digital news platform';
+  const pageTitle = query ? `Search Results for "${query}" | GH News` : 'Search News | GH News';
+  const pageDescription = query
+    ? `Search results for "${query}" on GH News - Ghana's premier news platform`
+    : 'Search for news articles, topics, and authors on GH News - Ghana\'s leading digital news platform';
 
   return (
     <>

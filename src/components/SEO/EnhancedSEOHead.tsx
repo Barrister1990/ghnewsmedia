@@ -34,9 +34,11 @@ const EnhancedSEO: React.FC<EnhancedSEOProps> = ({
   noindex = false,
   language = 'en-GB'
 }) => {
-  const siteName = 'GhNewsMedia';
+  const siteName = 'GH News';
   const siteUrl = 'https://ghnewsmedia.com';
-  const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
+  // Remove any existing site name from title to avoid duplication
+  const cleanTitle = title.replace(/\s*\|\s*GhNewsMedia\s*$/i, '').replace(/\s*\|\s*GH News\s*$/i, '').trim();
+  const fullTitle = cleanTitle.includes('|') ? cleanTitle : `${cleanTitle} | ${siteName}`;
   const canonicalUrl = canonical || siteUrl;
   const imageUrl = image || `${siteUrl}/og-image.jpg`;
 
@@ -117,8 +119,8 @@ const EnhancedSEO: React.FC<EnhancedSEOProps> = ({
           images={[imageUrl]}
           datePublished={publishedTime}
           dateModified={modifiedTime}
-          authorName={author || 'GhNewsMedia Editorial Team'}
-          publisherName={siteName}
+          authorName={author || 'GH News Editorial Team'}
+          publisherName="GH News"
           publisherLogo={`${siteUrl}/logo.png`}
           description={description}
         />

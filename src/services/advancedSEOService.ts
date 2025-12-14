@@ -13,7 +13,7 @@ class AdvancedSEOService {
 
   // Immediately notify search engines when new content is published
   async notifySearchEnginesOfNewArticle(article: NewsArticle): Promise<void> {
-    const articleUrl = `${this.baseUrl}/news/${article.slug}`;
+    const articleUrl = `${this.baseUrl}/${article.category.slug}/${article.slug}`;
     
     try {
       // Google Indexing API (requires authentication in production)
@@ -59,7 +59,7 @@ class AdvancedSEOService {
 
   // Generate enhanced structured data for better search visibility
   generateAdvancedArticleSchema(article: NewsArticle) {
-    const articleUrl = `${this.baseUrl}/news/${article.slug}`;
+    const articleUrl = `${this.baseUrl}/${article.category.slug}/${article.slug}`;
     const imageUrl = this.optimizeImageForSEO(article.featuredImage, article.title);
     
     return {
@@ -86,7 +86,7 @@ class AdvancedSEOService {
       },
       "publisher": {
         "@type": "NewsMediaOrganization",
-        "name": "GhNewsMedia",
+        "name": "GH News",
         "url": this.baseUrl,
         "logo": {
           "@type": "ImageObject",
@@ -145,7 +145,7 @@ class AdvancedSEOService {
 
   // Generate social media meta tags optimized for each platform
   generateSocialMediaTags(article: NewsArticle) {
-    const articleUrl = `${this.baseUrl}/news/${article.slug}`;
+    const articleUrl = `${this.baseUrl}/${article.category.slug}/${article.slug}`;
     const optimizedImage = this.optimizeImageForSEO(article.featuredImage, article.title);
     const description = this.cleanDescription(article.excerpt || article.content);
     const title = article.title.length > 60 ? `${article.title.substring(0, 57)}...` : article.title;
@@ -162,7 +162,7 @@ class AdvancedSEOService {
       'og:image:type': 'image/jpeg',
       'og:image:secure_url': optimizedImage,
       'og:url': articleUrl,
-      'og:site_name': 'GhNewsMedia',
+      'og:site_name': 'GH News',
       'og:locale': 'en_GB',
       
       // Article specific
@@ -202,11 +202,11 @@ class AdvancedSEOService {
 
   // Generate comprehensive meta tags for search engines
   generateSearchMetaTags(article: NewsArticle) {
-    const articleUrl = `${this.baseUrl}/news/${article.slug}`;
+    const articleUrl = `${this.baseUrl}/${article.category.slug}/${article.slug}`;
     const description = this.cleanDescription(article.excerpt || article.content);
     
     return {
-      'title': `${article.title} | ${article.category.name} | GhNewsMedia`,
+      'title': `${article.title} | ${article.category.name} | GH News`,
       'description': description,
       'keywords': [...article.tags, article.category.name, 'Ghana news', 'breaking news'].join(', '),
       'canonical': articleUrl,

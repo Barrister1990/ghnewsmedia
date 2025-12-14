@@ -25,7 +25,7 @@ class GoogleIndexingService {
   // Immediately notify Google about new articles
   async notifyGoogleOfNewArticle(article: NewsArticle): Promise<boolean> {
     try {
-      const articleUrl = `${this.baseUrl}/news/${article.slug}`;
+      const articleUrl = `${this.baseUrl}/${article.category.slug}/${article.slug}`;
       
       // Method 1: Google Indexing API (requires service account)
       const indexingSuccess = await this.submitToGoogleIndexingAPI(articleUrl);

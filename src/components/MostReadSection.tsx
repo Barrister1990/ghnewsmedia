@@ -36,7 +36,7 @@ const MostReadSection = () => {
           {mostReadArticles.map((article, index) => (
             <Link
               key={article.id}
-              href={`/news/${article.slug}`}
+              href={`/${article.category.slug}/${article.slug}`}
               className="group block"
             >
               <div className="flex items-start space-x-4 p-3 rounded-xl hover:bg-gray-50 transition-all duration-200 hover:shadow-md">
