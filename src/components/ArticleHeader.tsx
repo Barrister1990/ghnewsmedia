@@ -49,18 +49,18 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({ article }) => {
       </div>
       
       {/* Title - Pulse Style */}
-      <h1 style={{ 
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl" style={{ 
         color: '#111111', 
-        fontSize: '20px', 
+        fontSize: '24px', 
         fontWeight: 'bold',
         lineHeight: '1.3',
-        marginBottom: '12px'
+        marginBottom: '16px'
       }}>
         {article.title}
       </h1>
 
       {/* Author and Date - Pulse Style */}
-      <div className="flex items-center gap-2 mb-4" style={{ fontSize: '13px', color: '#6B7280' }}>
+      <div className="flex items-center gap-2 mb-4 text-sm sm:text-base" style={{ fontSize: '14px', color: '#6B7280' }}>
         <span style={{ fontWeight: '500', color: '#111111' }}>{article.author.name}</span>
         <span>{formatTime(article.publishedAt)}</span>
         <span>-</span>

@@ -71,7 +71,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
         const insertIndex = insertionPoints.indexOf(paragraphIndex);
         if (insertIndex !== -1 && insertIndex < articlesForReadMore.length) {
           const article = articlesForReadMore[insertIndex];
-          const readMoreHtml = `<p style="margin: 16px 0; font-size: 13px; line-height: 1.6;"><a href="/${article.category.slug}/${article.slug}" style="color: #2563eb; text-decoration: none; font-size: 13px;"><strong style="color: #111111;">READ MORE:</strong> <span style="color: #2563eb;">${article.title}</span></a></p>`;
+          const readMoreHtml = `<p style="margin: 20px 0; font-size: 16px; line-height: 1.7;"><a href="/${article.category.slug}/${article.slug}" style="color: #2563eb; text-decoration: none; font-size: 16px;"><strong style="color: #111111;">READ MORE:</strong> <span style="color: #2563eb;">${article.title}</span></a></p>`;
           result.push(readMoreHtml);
         }
       }
@@ -190,22 +190,22 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
         // Handle special cases for Tiptap content
         switch (tagName) {
           case 'h1':
-            return <h1 className="font-bold my-6 leading-tight" style={{ color: '#111111', fontSize: '18px', lineHeight: '1.3' }}>{children}</h1>;
+            return <h1 className="font-bold my-6 leading-tight text-2xl sm:text-3xl lg:text-4xl" style={{ color: '#111111', fontSize: '24px', lineHeight: '1.3' }}>{children}</h1>;
           case 'h2':
-            return <h2 className="font-bold my-6 leading-tight" style={{ color: '#111111', fontSize: '18px', lineHeight: '1.3' }}>{children}</h2>;
+            return <h2 className="font-bold my-6 leading-tight text-xl sm:text-2xl lg:text-3xl" style={{ color: '#111111', fontSize: '22px', lineHeight: '1.3' }}>{children}</h2>;
           case 'h3':
-            return <h3 className="font-bold my-6 leading-tight" style={{ color: '#111111', fontSize: '18px', lineHeight: '1.3' }}>{children}</h3>;
+            return <h3 className="font-bold my-6 leading-tight text-lg sm:text-xl lg:text-2xl" style={{ color: '#111111', fontSize: '20px', lineHeight: '1.3' }}>{children}</h3>;
           case 'h4':
-            return <h4 className="font-bold my-6 leading-tight" style={{ color: '#111111', fontSize: '18px', lineHeight: '1.3' }}>{children}</h4>;
+            return <h4 className="font-bold my-6 leading-tight text-base sm:text-lg lg:text-xl" style={{ color: '#111111', fontSize: '18px', lineHeight: '1.3' }}>{children}</h4>;
           case 'h5':
-            return <h5 className="font-bold my-6 leading-tight" style={{ color: '#111111', fontSize: '18px', lineHeight: '1.3' }}>{children}</h5>;
+            return <h5 className="font-bold my-6 leading-tight text-base sm:text-lg" style={{ color: '#111111', fontSize: '18px', lineHeight: '1.3' }}>{children}</h5>;
           case 'h6':
-            return <h6 className="font-bold my-6 leading-tight" style={{ color: '#111111', fontSize: '18px', lineHeight: '1.3' }}>{children}</h6>;
+            return <h6 className="font-bold my-6 leading-tight text-base sm:text-lg" style={{ color: '#111111', fontSize: '18px', lineHeight: '1.3' }}>{children}</h6>;
           
           case 'p':
             // Check if this paragraph is actually a list item in disguise
             if (element.parentElement?.tagName.toLowerCase() === 'li') {
-              return <span className="leading-relaxed" style={{ color: '#111111', fontSize: '13px', lineHeight: '1.6' }}>{children}</span>;
+              return <span className="leading-relaxed" style={{ color: '#111111', fontSize: '16px', lineHeight: '1.7' }}>{children}</span>;
             }
             
             // Check for "READ MORE" pattern in paragraph text
@@ -223,14 +223,14 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
                   const articleTitle = linkText.replace(/read more:?\s*/i, '').trim() || 'Continue reading';
                   
                   return (
-                    <p style={{ margin: '16px 0', fontSize: '13px', lineHeight: '1.6' }}>
+                    <p style={{ margin: '20px 0', fontSize: '16px', lineHeight: '1.7' }}>
                       <Link 
                         href={linkHref}
                         style={{
                           color: '#2563eb',
                           fontWeight: 'normal',
                           textDecoration: 'none',
-                          fontSize: '13px'
+                          fontSize: '16px'
                         }}
                       >
                         <strong style={{ color: '#111111' }}>READ MORE:</strong> <span style={{ color: '#2563eb' }}>{articleTitle}</span>
@@ -241,7 +241,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
               }
             }
             
-            return <p className="my-4 leading-relaxed" style={{ color: '#111111', fontSize: '13px', lineHeight: '1.6' }}>{children}</p>;
+            return <p className="my-5 leading-relaxed" style={{ color: '#111111', fontSize: '16px', lineHeight: '1.7' }}>{children}</p>;
           
           case 'strong':
           case 'b':
@@ -430,7 +430,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
             return (
               <li 
                 className="text-base sm:text-lg leading-relaxed"
-                style={{ display: 'list-item', marginBottom: '0.25rem' }}
+                style={{ display: 'list-item', marginBottom: '0.5rem', fontSize: '16px', lineHeight: '1.7' }}
               >
                 {children}
               </li>
@@ -480,14 +480,14 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
                 const articleTitle = linkText.replace(/read more:?\s*/i, '').trim() || 'Continue reading';
                 
                 return (
-                  <p style={{ margin: '16px 0', fontSize: '13px', lineHeight: '1.6' }}>
+                  <p style={{ margin: '20px 0', fontSize: '16px', lineHeight: '1.7' }}>
                     <Link 
                       href={href}
                       style={{
                         color: '#2563eb',
                         fontWeight: 'normal',
                         textDecoration: 'none',
-                        fontSize: '13px'
+                        fontSize: '16px'
                       }}
                     >
                       <strong style={{ color: '#111111' }}>READ MORE:</strong> <span style={{ color: '#2563eb' }}>{articleTitle}</span>
@@ -503,7 +503,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
                 style={{
                   color: '#1A365D',
                   textDecoration: 'underline',
-                  fontSize: '13px'
+                  fontSize: '16px'
                 }}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -1528,10 +1528,11 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
         {/* Article Content - Pulse Style */}
         <div 
           data-article-content
+          className="text-base sm:text-lg"
           style={{ 
             color: '#111111', 
-            fontSize: '13px', 
-            lineHeight: '1.6',
+            fontSize: '16px', 
+            lineHeight: '1.7',
             wordWrap: 'break-word'
           }}
         >
