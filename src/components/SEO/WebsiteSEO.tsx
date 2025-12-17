@@ -9,7 +9,7 @@ interface WebsiteSEOProps {
 }
 
 const WebsiteSEO: React.FC<WebsiteSEOProps> = ({ 
-  title = "Ghana's Digital News Platform | GH News",
+  title = "Ghana's Digital News Platform",
   description = "Stay informed with Ghana's leading digital news platform. Get breaking news, politics, business, sports, and entertainment updates from trusted sources.",
   path = ""
 }) => {

@@ -99,7 +99,7 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
     }
   ];
 
-  const seoTitle = "Ghana's Digital News Platform | GH News";
+  const seoTitle = "Ghana's Digital News Platform";
   const seoDescription = "Stay informed with Ghana's leading digital news platform. Get breaking news, politics, business, sports, and entertainment updates from trusted journalists across Ghana. Real-time coverage of Accra and beyond.";
 
   if (error) {
