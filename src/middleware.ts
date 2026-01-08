@@ -4,7 +4,24 @@ import { NextResponse } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
-  // Skip middleware for static files, API routes, and Next.js internals
+  // Static pages that should not be rewritten to category routes
+  const staticPages = [
+    '/privacy',
+    '/terms',
+    '/about',
+    '/contact',
+    '/advertise',
+    '/search',
+    '/404',
+    '/email-verification',
+    '/robots.txt',
+    '/sitemap.xml',
+    '/sitemap-index.xml',
+    '/news-sitemap.xml',
+    '/rss.xml'
+  ];
+  
+  // Skip middleware for static files, API routes, Next.js internals, and static pages
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
@@ -15,7 +32,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/cms') ||
     pathname.includes('.') ||
     pathname === '/' ||
-    pathname === '/search' ||
+    staticPages.includes(pathname) ||
     pathname.startsWith('/search')
   ) {
     return NextResponse.next();

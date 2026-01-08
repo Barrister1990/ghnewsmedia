@@ -28,6 +28,9 @@ export class DynamicSitemapGenerator {
     const staticPages = [
       { url: '/about', priority: '0.8', changefreq: 'monthly' },
       { url: '/contact', priority: '0.8', changefreq: 'monthly' },
+      { url: '/privacy', priority: '0.7', changefreq: 'monthly' },
+      { url: '/terms', priority: '0.7', changefreq: 'monthly' },
+      { url: '/advertise', priority: '0.8', changefreq: 'monthly' },
       { url: '/search', priority: '0.9', changefreq: 'weekly' }
     ];
 
