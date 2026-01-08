@@ -12,7 +12,6 @@ import ScrollToTop from '@/components/ScrollToTop';
 import EnhancedArticleSEO from '@/components/SEO/EnhancedArticleSEO';
 import GoogleNewsSEO from '@/components/SEO/GoogleNewsSEO';
 import ShareButtons from '@/components/ShareButtons';
-import AdSense from '@/components/AdSense';
 import { useArticleReactions } from '@/hooks/useArticleReactions';
 import { useImmediateIndexing } from '@/hooks/useImmediateIndexing';
 import { useViewTracking } from '@/hooks/useViewTracking';
@@ -140,17 +139,6 @@ const ArticlePage = ({ article, relatedArticles, allArticles, error }: ArticlePa
             />
           </div>
         </article>
-
-        {/* AdSense Ad - After Article Content */}
-        <div className="mb-6 sm:mb-8 flex justify-center">
-          <div className="w-full max-w-3xl">
-            <AdSense 
-              adFormat="auto"
-              fullWidthResponsive={true}
-              style={{ display: 'block', minHeight: '100px' }}
-            />
-          </div>
-        </div>
 
         {/* Share Buttons - Pulse Style */}
         <div className="mb-6 sm:mb-8 flex justify-center">
