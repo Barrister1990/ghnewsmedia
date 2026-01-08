@@ -1,6 +1,7 @@
 import { NextSeo } from 'next-seo';
 import Head from 'next/head';
 import React from 'react';
+import { truncateDescription, truncateTitle } from '@/utils/seo';
 
 interface WebsiteSEOProps {
   title?: string;
@@ -9,7 +10,7 @@ interface WebsiteSEOProps {
 }
 
 const WebsiteSEO: React.FC<WebsiteSEOProps> = ({ 
-  title = "Ghana's Digital News Platform",
+  title = "GH News - Ghana's Digital News Platform",
   description = "Stay informed with Ghana's leading digital news platform. Get breaking news, politics, business, sports, and entertainment updates from trusted sources.",
   path = ""
 }) => {
@@ -87,9 +88,15 @@ const WebsiteSEO: React.FC<WebsiteSEOProps> = ({
 
   };
 
+  // Ensure title and description meet SEO best practices
+  // Title: 50-60 characters (580 pixels), Description: 150-160 characters (920 pixels)
+  const optimizedTitle = truncateTitle(title, 55);
+  const optimizedDescription = truncateDescription(description, 155);
+
   // Debug logging for development
   console.log('SEO Debug - Website Page:', {
-    title: title,
+    title: optimizedTitle,
+    description: optimizedDescription,
     canonical: pageUrl,
     path: path
   });
@@ -97,14 +104,14 @@ const WebsiteSEO: React.FC<WebsiteSEOProps> = ({
   return (
     <>
       <NextSeo
-        title={title}
-        description={description}
+        title={optimizedTitle}
+        description={optimizedDescription}
         canonical={pageUrl}
         openGraph={{
           type: 'website',
           url: pageUrl,
-          title: title,
-          description: description,
+          title: optimizedTitle,
+          description: optimizedDescription,
           images: [
             {
               url: ogImageUrl,

@@ -71,7 +71,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
         const insertIndex = insertionPoints.indexOf(paragraphIndex);
         if (insertIndex !== -1 && insertIndex < articlesForReadMore.length) {
           const article = articlesForReadMore[insertIndex];
-          const readMoreHtml = `<p style="margin: 20px 0; font-size: 16px; line-height: 1.7;"><a href="/${article.category.slug}/${article.slug}" style="color: #2563eb; text-decoration: none; font-size: 16px;"><strong style="color: #111111;">READ MORE:</strong> <span style="color: #2563eb;">${article.title}</span></a></p>`;
+          const readMoreHtml = `<p style="margin: 20px 0; font-size: 18px; line-height: 1.7;"><a href="/${article.category.slug}/${article.slug}" style="color: #2563eb; text-decoration: none; font-size: 18px;"><strong style="color: #111111;">READ MORE:</strong> <span style="color: #2563eb;">${article.title}</span></a></p>`;
           result.push(readMoreHtml);
         }
       }
@@ -158,9 +158,77 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
            content.includes('</table>');
   };
 
+  // Server-side HTML processor: adds inline styles to paragraphs and other elements
+  const processHTMLForSSR = (html: string): string => {
+    let processed = html;
+    
+    // Add inline styles to paragraphs that don't already have style attributes
+    processed = processed.replace(
+      /<p([^>]*?)>/gi,
+      (match, attrs) => {
+        // Check if style attribute already exists
+        if (attrs.includes('style=')) {
+          // Add to existing style if it doesn't have our styles
+          if (!attrs.includes('font-size') && !attrs.includes('fontSize')) {
+            return match.replace(
+              /style="([^"]*)"/i,
+              (styleMatch, existingStyles) => {
+                return `style="${existingStyles}; color: #111111; font-size: 18px; line-height: 1.7;"`;
+              }
+            );
+          }
+          return match;
+        }
+        // Add style attribute if it doesn't exist
+        return `<p${attrs} style="color: #111111; font-size: 18px; line-height: 1.7; margin: 20px 0;">`;
+      }
+    );
+    
+    // Add styles to list items
+    processed = processed.replace(
+      /<li([^>]*?)>/gi,
+      (match, attrs) => {
+        if (attrs.includes('style=')) {
+          if (!attrs.includes('font-size') && !attrs.includes('fontSize')) {
+            return match.replace(
+              /style="([^"]*)"/i,
+              (styleMatch, existingStyles) => {
+                return `style="${existingStyles}; font-size: 18px; line-height: 1.7; margin-bottom: 0.5rem;"`;
+              }
+            );
+          }
+          return match;
+        }
+        return `<li${attrs} style="font-size: 18px; line-height: 1.7; margin-bottom: 0.5rem;">`;
+      }
+    );
+    
+    // Add styles to links
+    processed = processed.replace(
+      /<a([^>]*?)>/gi,
+      (match, attrs) => {
+        if (attrs.includes('style=')) {
+          if (!attrs.includes('font-size') && !attrs.includes('fontSize')) {
+            return match.replace(
+              /style="([^"]*)"/i,
+              (styleMatch, existingStyles) => {
+                return `style="${existingStyles}; font-size: 18px;"`;
+              }
+            );
+          }
+          return match;
+        }
+        // Don't add default styles to links that might have custom styling
+        return match;
+      }
+    );
+    
+    return processed;
+  };
+
   // Function to render Tiptap content using proper HTML parsing
   const renderTiptapContent = (content: string): React.ReactElement => {
-    // Create a temporary div to parse the HTML safely
+    // Create a temporary div to parse the HTML safely (client-side)
     const createTempDiv = () => {
       if (typeof document !== 'undefined') {
         const div = document.createElement('div');
@@ -172,8 +240,15 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
 
     const tempDiv = createTempDiv();
     if (!tempDiv) {
-      // Fallback for server-side rendering
-      return <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: content }} />;
+      // Server-side rendering: process HTML to add inline styles
+      const processedContent = processHTMLForSSR(content);
+      return (
+        <div 
+          className="prose prose-lg max-w-none" 
+          style={{ color: '#111111', fontSize: '18px', lineHeight: '1.7' }}
+          dangerouslySetInnerHTML={{ __html: processedContent }} 
+        />
+      );
     }
 
     // Function to process nodes recursively
@@ -205,7 +280,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
           case 'p':
             // Check if this paragraph is actually a list item in disguise
             if (element.parentElement?.tagName.toLowerCase() === 'li') {
-              return <span className="leading-relaxed" style={{ color: '#111111', fontSize: '16px', lineHeight: '1.7' }}>{children}</span>;
+              return <span className="leading-relaxed" style={{ color: '#111111', fontSize: '18px', lineHeight: '1.7' }}>{children}</span>;
             }
             
             // Check for "READ MORE" pattern in paragraph text
@@ -223,14 +298,14 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
                   const articleTitle = linkText.replace(/read more:?\s*/i, '').trim() || 'Continue reading';
                   
                   return (
-                    <p style={{ margin: '20px 0', fontSize: '16px', lineHeight: '1.7' }}>
+                    <p style={{ margin: '20px 0', fontSize: '18px', lineHeight: '1.7' }}>
                       <Link 
                         href={linkHref}
                         style={{
                           color: '#2563eb',
                           fontWeight: 'normal',
                           textDecoration: 'none',
-                          fontSize: '16px'
+                          fontSize: '18px'
                         }}
                       >
                         <strong style={{ color: '#111111' }}>READ MORE:</strong> <span style={{ color: '#2563eb' }}>{articleTitle}</span>
@@ -241,7 +316,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
               }
             }
             
-            return <p className="my-5 leading-relaxed" style={{ color: '#111111', fontSize: '16px', lineHeight: '1.7' }}>{children}</p>;
+            return <p className="my-5 leading-relaxed" style={{ color: '#111111', fontSize: '18px', lineHeight: '1.7' }}>{children}</p>;
           
           case 'strong':
           case 'b':
@@ -430,7 +505,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
             return (
               <li 
                 className="text-base sm:text-lg leading-relaxed"
-                style={{ display: 'list-item', marginBottom: '0.5rem', fontSize: '16px', lineHeight: '1.7' }}
+                style={{ display: 'list-item', marginBottom: '0.5rem', fontSize: '18px', lineHeight: '1.7' }}
               >
                 {children}
               </li>
@@ -480,14 +555,14 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
                 const articleTitle = linkText.replace(/read more:?\s*/i, '').trim() || 'Continue reading';
                 
                 return (
-                  <p style={{ margin: '20px 0', fontSize: '16px', lineHeight: '1.7' }}>
+                  <p style={{ margin: '20px 0', fontSize: '18px', lineHeight: '1.7' }}>
                     <Link 
                       href={href}
                       style={{
                         color: '#2563eb',
                         fontWeight: 'normal',
                         textDecoration: 'none',
-                        fontSize: '16px'
+                        fontSize: '18px'
                       }}
                     >
                       <strong style={{ color: '#111111' }}>READ MORE:</strong> <span style={{ color: '#2563eb' }}>{articleTitle}</span>
@@ -503,7 +578,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
                 style={{
                   color: '#1A365D',
                   textDecoration: 'underline',
-                  fontSize: '16px'
+                  fontSize: '18px'
                 }}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -1343,6 +1418,26 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
   return (
     <div ref={contentRef}>
       <style jsx global>{`
+        /* Ensure paragraphs are properly styled on SSR */
+        [data-article-content] p,
+        [data-article-content] p:not([style*="font-size"]) {
+          color: #111111 !important;
+          font-size: 18px !important;
+          line-height: 1.7 !important;
+          margin: 20px 0 !important;
+        }
+        
+        [data-article-content] li,
+        [data-article-content] li:not([style*="font-size"]) {
+          font-size: 18px !important;
+          line-height: 1.7 !important;
+          margin-bottom: 0.5rem !important;
+        }
+        
+        [data-article-content] a:not([style*="font-size"]) {
+          font-size: 18px !important;
+        }
+        
         /* Responsive iframe styles for all embeds */
         .article-embed-container {
           position: relative;
@@ -1531,7 +1626,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
           className="text-base sm:text-lg"
           style={{ 
             color: '#111111', 
-            fontSize: '16px', 
+            fontSize: '18px', 
             lineHeight: '1.7',
             wordWrap: 'break-word'
           }}

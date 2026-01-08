@@ -148,7 +148,8 @@ class AdvancedSEOService {
     const articleUrl = `${this.baseUrl}/${article.category.slug}/${article.slug}`;
     const optimizedImage = this.optimizeImageForSEO(article.featuredImage, article.title);
     const description = this.cleanDescription(article.excerpt || article.content);
-    const title = article.title.length > 60 ? `${article.title.substring(0, 57)}...` : article.title;
+    // Truncate title to 50-60 characters (580 pixels) for optimal display
+    const title = this.truncateTitle(article.title, 55);
 
     return {
       // Open Graph (Facebook, LinkedIn, WhatsApp)
@@ -192,8 +193,22 @@ class AdvancedSEOService {
 
   private cleanDescription(text: string): string {
     // Remove HTML tags and clean up the description
+    // Target: 150-160 characters (920 pixels) for optimal display
     const cleaned = text.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
-    return cleaned.length > 160 ? `${cleaned.substring(0, 157)}...` : cleaned;
+    const maxLength = 155; // Slightly under 160 to account for ellipsis and ensure no truncation
+    return cleaned.length > maxLength ? `${cleaned.substring(0, maxLength - 3).trim()}...` : cleaned;
+  }
+  
+  // Truncate title to 50-60 characters (580 pixels) for optimal Google display
+  private truncateTitle(title: string, maxLength: number = 55): string {
+    if (title.length <= maxLength) return title;
+    // Try to truncate at word boundary
+    const truncated = title.substring(0, maxLength - 3);
+    const lastSpace = truncated.lastIndexOf(' ');
+    if (lastSpace > maxLength * 0.7) { // Only use word boundary if it's not too early
+      return `${truncated.substring(0, lastSpace)}...`;
+    }
+    return `${truncated.trim()}...`;
   }
 
   private getWordCount(content: string): number {
@@ -205,8 +220,23 @@ class AdvancedSEOService {
     const articleUrl = `${this.baseUrl}/${article.category.slug}/${article.slug}`;
     const description = this.cleanDescription(article.excerpt || article.content);
     
+    // Build title with proper truncation to stay within 50-60 characters (580 pixels)
+    // Format: "Article Title | Category | GH News"
+    // Reserve space for " | Category | GH News" (approximately 20-25 chars depending on category)
+    const categorySuffix = ` | ${article.category.name} | GH News`;
+    const reservedLength = categorySuffix.length; // ~20-25 chars
+    const maxTitleLength = 55 - reservedLength; // Leave room for suffix
+    
+    const truncatedTitle = this.truncateTitle(article.title, maxTitleLength);
+    const fullTitle = `${truncatedTitle}${categorySuffix}`;
+    
+    // Final check: ensure total title doesn't exceed 60 characters
+    const finalTitle = fullTitle.length > 60 
+      ? `${this.truncateTitle(article.title, 35)} | GH News` // Fallback to shorter format
+      : fullTitle;
+    
     return {
-      'title': `${article.title} | ${article.category.name} | GH News`,
+      'title': finalTitle,
       'description': description,
       'keywords': [...article.tags, article.category.name, 'Ghana news', 'breaking news'].join(', '),
       'canonical': articleUrl,

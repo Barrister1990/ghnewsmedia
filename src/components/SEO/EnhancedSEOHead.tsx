@@ -1,5 +1,6 @@
 // components/SEO/EnhancedSEO.tsx
 import { ArticleJsonLd, BreadcrumbJsonLd, NextSeo } from 'next-seo';
+import { truncateDescription, truncateTitle } from '@/utils/seo';
 
 interface EnhancedSEOProps {
   title: string;
@@ -38,7 +39,23 @@ const EnhancedSEO: React.FC<EnhancedSEOProps> = ({
   const siteUrl = 'https://ghnewsmedia.com';
   // Remove any existing site name from title to avoid duplication
   const cleanTitle = title.replace(/\s*\|\s*GhNewsMedia\s*$/i, '').replace(/\s*\|\s*GH News\s*$/i, '').trim();
-  const fullTitle = cleanTitle.includes('|') ? cleanTitle : `${cleanTitle} | ${siteName}`;
+  
+  // Build title with proper truncation to stay within 50-60 characters (580 pixels)
+  let fullTitle: string;
+  if (cleanTitle.includes('|')) {
+    // If title already has separator, truncate the whole thing
+    fullTitle = truncateTitle(cleanTitle, 55);
+  } else {
+    // Add site name and truncate to fit within limit
+    const suffix = ` | ${siteName}`;
+    const maxTitleLength = 55 - suffix.length;
+    const truncatedTitle = truncateTitle(cleanTitle, maxTitleLength);
+    fullTitle = `${truncatedTitle}${suffix}`;
+  }
+  
+  // Ensure description is within 150-160 characters (920 pixels)
+  const optimizedDescription = truncateDescription(description, 155);
+  
   const canonicalUrl = canonical || siteUrl;
   const imageUrl = image || `${siteUrl}/og-image.jpg`;
 
@@ -46,7 +63,7 @@ const EnhancedSEO: React.FC<EnhancedSEOProps> = ({
     type,
     url: canonicalUrl,
     title: fullTitle,
-    description,
+    description: optimizedDescription,
     site_name: siteName,
     images: [
       {
@@ -77,7 +94,7 @@ const EnhancedSEO: React.FC<EnhancedSEOProps> = ({
     <>
       <NextSeo
         title={fullTitle}
-        description={description}
+        description={optimizedDescription}
         canonical={canonicalUrl}
         noindex={noindex}
         openGraph={openGraph}

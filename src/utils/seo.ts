@@ -60,27 +60,78 @@ export const generateBreadcrumbStructuredData = (items: Array<{name: string, url
   return seoService.generateBreadcrumbData(items);
 };
 
-export const truncateDescription = (text: string, maxLength: number = 160): string => {
-  if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength - 3).trim() + '...';
+// Truncate description to 150-160 characters (920 pixels) for optimal display
+export const truncateDescription = (text: string, maxLength: number = 155): string => {
+  if (!text) return '';
+  const cleaned = text.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+  if (cleaned.length <= maxLength) return cleaned;
+  // Try to truncate at word boundary
+  const truncated = cleaned.substring(0, maxLength - 3);
+  const lastSpace = truncated.lastIndexOf(' ');
+  if (lastSpace > maxLength * 0.7) { // Only use word boundary if it's not too early
+    return `${truncated.substring(0, lastSpace).trim()}...`;
+  }
+  return `${truncated.trim()}...`;
+};
+
+// Truncate title to 50-60 characters (580 pixels) for optimal Google display
+export const truncateTitle = (title: string, maxLength: number = 55): string => {
+  if (!title) return '';
+  if (title.length <= maxLength) return title;
+  // Try to truncate at word boundary
+  const truncated = title.substring(0, maxLength - 3);
+  const lastSpace = truncated.lastIndexOf(' ');
+  if (lastSpace > maxLength * 0.7) { // Only use word boundary if it's not too early
+    return `${truncated.substring(0, lastSpace)}...`;
+  }
+  return `${truncated.trim()}...`;
 };
 
 export const generateMetaTitle = (title: string, category?: string): string => {
   const siteName = 'GH News';
   // Remove any existing site name or "|" suffix to avoid duplication
   const cleanTitle = title.replace(/\s*\|\s*GhNewsMedia\s*$/i, '').replace(/\s*\|\s*GH News\s*$/i, '').trim();
+  
+  // Build title with proper truncation to stay within 50-60 characters (580 pixels)
+  let fullTitle: string;
   if (category) {
-    return `${cleanTitle} | ${siteName}`;
+    const categorySuffix = ` | ${category} | ${siteName}`;
+    const reservedLength = categorySuffix.length;
+    const maxTitleLength = 55 - reservedLength;
+    const truncatedTitle = truncateTitle(cleanTitle, maxTitleLength);
+    fullTitle = `${truncatedTitle}${categorySuffix}`;
+  } else {
+    const suffix = ` | ${siteName}`;
+    const maxTitleLength = 55 - suffix.length;
+    const truncatedTitle = truncateTitle(cleanTitle, maxTitleLength);
+    fullTitle = `${truncatedTitle}${suffix}`;
   }
-  return `${cleanTitle} | ${siteName}`;
+  
+  // Final check: ensure total title doesn't exceed 60 characters
+  if (fullTitle.length > 60) {
+    // Fallback to shorter format
+    const truncatedTitle = truncateTitle(cleanTitle, 40);
+    return `${truncatedTitle} | ${siteName}`;
+  }
+  
+  return fullTitle;
 };
 
 export const generateMetaDescription = (excerpt: string, category?: string): string => {
-  const baseDescription = truncateDescription(excerpt);
+  // Base description should be 150-160 characters max
+  const baseDescription = truncateDescription(excerpt, 155);
+  
+  // If adding category info would exceed limit, just return base description
   if (category) {
-    return `${baseDescription} | Latest ${category} news from Ghana's trusted source.`;
+    const categorySuffix = ` | Latest ${category} news from Ghana's trusted source.`;
+    const combined = `${baseDescription}${categorySuffix}`;
+    if (combined.length <= 160) {
+      return combined;
+    }
   }
-  return `${baseDescription} | GH News - Your trusted source for Ghana news.`;
+  
+  // Return base description if adding suffix would exceed limit
+  return baseDescription;
 };
 
 // Enhanced image optimization for social media sharing
