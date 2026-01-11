@@ -1,8 +1,11 @@
+import React from 'react';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import ScrollToTop from '@/components/ScrollToTop';
 import BreadcrumbSEO from '@/components/SEO/BreadcrumbSEO';
 import SEOHead from '@/components/SEO/SEOHead';
+import { MultiplexAd } from '@/components/AdSense';
+import { AD_SLOTS } from '@/config/adsense';
 import { supabase } from '@/integrations/supabase/client';
 import { transformToNewsArticle } from '@/lib/articles';
 import { Category, NewsArticle } from '@/types/news';
@@ -179,21 +182,29 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
           )}
         </div>
         
+        {/* Multiplex Ad - Top of Category Page */}
+        <MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} />
+        
         {/* Articles List - Clean Card Layout */}
         <section>
           {articles.length > 0 ? (
             <div className="space-y-4 sm:space-y-6">
-              {articles.map((article) => {
+              {articles.map((article, index) => {
                 const publishedDate = new Date(article.publishedAt);
                 const timeAgo = formatDistanceToNow(publishedDate, { addSuffix: true });
                 
+                // Show ad only after the 6th article (max 2 ads per page: 1 top + 1 in content)
+                // This ensures we stay within Google's 3 display ad limit per page
+                const showAd = index === 6 && articles.length > 7;
+                
                 return (
-                  <Link 
-                    key={article.id} 
-                    href={`/${article.category.slug}/${article.slug}`}
-                    style={{ textDecoration: 'none', display: 'block' }}
-                  >
-                    <article className="bg-white border-b border-gray-200 pb-4 sm:pb-6">
+                  <React.Fragment key={article.id}>
+                    {showAd && <MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} />}
+                    <Link 
+                      href={`/${article.category.slug}/${article.slug}`}
+                      style={{ textDecoration: 'none', display: 'block' }}
+                    >
+                      <article className="bg-white border-b border-gray-200 pb-4 sm:pb-6">
                       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                         {/* Image */}
                         <div className="relative w-full sm:w-32 md:w-40 lg:w-48 h-48 sm:h-32 md:h-40 lg:h-48 flex-shrink-0">
@@ -269,6 +280,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
                       </div>
                     </article>
                   </Link>
+                  </React.Fragment>
                 );
               })}
             </div>

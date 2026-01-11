@@ -12,7 +12,7 @@
  */
 
 // Set to true after AdSense approval
-export const ENABLE_ADSENSE = false;
+export const ENABLE_ADSENSE = true;
 
 // AdSense Publisher ID
 export const ADSENSE_CLIENT_ID = 'ca-pub-9758177091764288';
@@ -20,8 +20,12 @@ export const ADSENSE_CLIENT_ID = 'ca-pub-9758177091764288';
 // Ad Slot IDs - Update these with your actual ad slot IDs from AdSense dashboard
 export const AD_SLOTS = {
   // In-article ads (between content)
-  IN_ARTICLE_1: 'YOUR_IN_ARTICLE_AD_SLOT_ID',
+  IN_ARTICLE_1: '5357563959', // In-article ad unit
   IN_ARTICLE_2: 'YOUR_IN_ARTICLE_AD_SLOT_ID_2',
+  
+  // Multiplex/Auto ads (autorelaxed format - automatically adapts)
+  MULTIPLEX_1: '7777851341', // Multiplex ad unit
+  MULTIPLEX_2: 'YOUR_MULTIPLEX_AD_SLOT_ID_2',
   
   // Sidebar ads
   SIDEBAR_TOP: 'YOUR_SIDEBAR_TOP_AD_SLOT_ID',

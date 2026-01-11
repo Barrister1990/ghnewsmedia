@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import React from 'react';
+import { InArticleAd } from '@/components/AdSense';
+import { AD_SLOTS, ENABLE_ADSENSE } from '@/config/adsense';
 
 // Declare Twitter and Instagram widgets global
 declare global {
@@ -240,8 +242,22 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
 
     const tempDiv = createTempDiv();
     if (!tempDiv) {
-      // Server-side rendering: process HTML to add inline styles
-      const processedContent = processHTMLForSSR(content);
+      // Server-side rendering: process HTML to add inline styles and inject ads
+      let processedContent = processHTMLForSSR(content);
+      
+      // Inject ad after 2nd paragraph for SSR (if enabled)
+      // Note: Ad will be initialized via useEffect on client-side
+      if (typeof window === 'undefined' && ENABLE_ADSENSE) {
+        // Only inject in SSR - client-side will use React components
+        const paragraphMatches = processedContent.match(/<p[^>]*>[\s\S]*?<\/p>/gi);
+        if (paragraphMatches && paragraphMatches.length >= 2) {
+          // Find the end of the 2nd paragraph
+          const secondParagraphEnd = processedContent.indexOf(paragraphMatches[1]) + paragraphMatches[1].length;
+          const adHtml = '<div class="adsense-in-article-wrapper" style="margin: 32px 0; text-align: center;"><ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="ca-pub-9758177091764288" data-ad-slot="5357563959"></ins></div>';
+          processedContent = processedContent.slice(0, secondParagraphEnd) + adHtml + processedContent.slice(secondParagraphEnd);
+        }
+      }
+      
       return (
         <div 
           className="prose prose-lg max-w-none" 
@@ -250,6 +266,23 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
         />
       );
     }
+
+    // Track paragraph count for ad injection
+    let paragraphCount = 0;
+    let totalParagraphs = 0;
+
+    // First pass: count total paragraphs to ensure we have enough content
+    const countParagraphs = (node: Node): void => {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const element = node as Element;
+        const tagName = element.tagName.toLowerCase();
+        if (tagName === 'p' && element.parentElement?.tagName.toLowerCase() !== 'li') {
+          totalParagraphs++;
+        }
+        Array.from(element.childNodes).forEach(child => countParagraphs(child));
+      }
+    };
+    Array.from(tempDiv.childNodes).forEach(child => countParagraphs(child));
 
     // Function to process nodes recursively
     const processNode = (node: Node): React.ReactElement | string | (React.ReactElement | string)[] => {
@@ -316,7 +349,22 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
               }
             }
             
-            return <p className="my-5 leading-relaxed" style={{ color: '#111111', fontSize: '18px', lineHeight: '1.7' }}>{children}</p>;
+            // Increment paragraph count (only for actual paragraphs, not list items)
+            paragraphCount++;
+            const paragraphElement = <p key={`p-${paragraphCount}`} className="my-5 leading-relaxed" style={{ color: '#111111', fontSize: '18px', lineHeight: '1.7' }}>{children}</p>;
+            
+            // Inject ad after 2nd paragraph (as recommended by Google)
+            // Only inject if we have at least 3 paragraphs total to ensure enough content
+            if (paragraphCount === 2 && totalParagraphs >= 3 && ENABLE_ADSENSE) {
+              return (
+                <React.Fragment key={`para-group-${paragraphCount}`}>
+                  {paragraphElement}
+                  <InArticleAd adSlot={AD_SLOTS.IN_ARTICLE_1} />
+                </React.Fragment>
+              );
+            }
+            
+            return paragraphElement;
           
           case 'strong':
           case 'b':
@@ -845,10 +893,23 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
       return '';
     };
 
-    // Process all child nodes
-    const processedContent = Array.from(tempDiv.childNodes).map((node, index) => 
-      <React.Fragment key={index}>{processNode(node)}</React.Fragment>
-    );
+    // Reset paragraph count before processing
+    paragraphCount = 0;
+    
+    // Process all child nodes and inject ads
+    const processedContent: (React.ReactElement | string)[] = [];
+    Array.from(tempDiv.childNodes).forEach((node, index) => {
+      const result = processNode(node);
+      if (Array.isArray(result)) {
+        processedContent.push(...result.map((item, i) => 
+          React.isValidElement(item) ? <React.Fragment key={`${index}-${i}`}>{item}</React.Fragment> : item
+        ));
+      } else {
+        processedContent.push(
+          React.isValidElement(result) ? <React.Fragment key={index}>{result}</React.Fragment> : result
+        );
+      }
+    });
 
     // If the processed content seems empty or malformed, fall back to direct HTML rendering
     if (processedContent.length === 0 || processedContent.every(item => 
@@ -951,6 +1012,34 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
       return renderMarkdownContent(processedContent);
     }
   };
+
+  // Initialize AdSense ads after render
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || !contentRef.current || !ENABLE_ADSENSE) return;
+    
+    // Initialize AdSense ads (for both SSR injected ads and client-side rendered ads)
+    const initializeAdSense = () => {
+      try {
+        const adContainers = contentRef.current?.querySelectorAll('.adsbygoogle:not([data-adsbygoogle-status])');
+        if (adContainers && adContainers.length > 0) {
+          if ((window as any).adsbygoogle) {
+            adContainers.forEach(() => {
+              ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+            });
+          } else {
+            // Retry if AdSense script hasn't loaded yet
+            setTimeout(initializeAdSense, 1000);
+          }
+        }
+      } catch (err) {
+        console.error('Error initializing AdSense:', err);
+      }
+    };
+    
+    // Initialize after a short delay to ensure AdSense script is loaded
+    const timer = setTimeout(initializeAdSense, 500);
+    return () => clearTimeout(timer);
+  }, [content]);
 
   // Add classes to blockquotes after render (runs first)
   React.useEffect(() => {

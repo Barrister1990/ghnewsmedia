@@ -1,17 +1,28 @@
 import { useEffect } from 'react';
 import { ENABLE_ADSENSE, ADSENSE_CLIENT_ID } from '@/config/adsense';
 
-interface InArticleAdProps {
+interface MultiplexAdProps {
   adSlot: string;
   enabled?: boolean;
+  style?: React.CSSProperties;
+  className?: string;
 }
 
 /**
- * In-Article Ad Component
- * Place this between paragraphs in article content
- * Uses Google's in-article ad format with fluid layout
+ * Multiplex Ad Component (Auto/Relaxed Format)
+ * 
+ * Google's multiplex ads (autorelaxed format) automatically adapt to different placements
+ * and screen sizes. These ads can be placed in various locations on your site.
+ * 
+ * Note: You can also enable Google's automatic ad placement which will place ads
+ * automatically across your site without manual placement.
  */
-const InArticleAd: React.FC<InArticleAdProps> = ({ adSlot, enabled }) => {
+const MultiplexAd: React.FC<MultiplexAdProps> = ({ 
+  adSlot, 
+  enabled,
+  style,
+  className = '' 
+}) => {
   const isEnabled = enabled !== undefined ? enabled : ENABLE_ADSENSE;
 
   useEffect(() => {
@@ -28,9 +39,8 @@ const InArticleAd: React.FC<InArticleAdProps> = ({ adSlot, enabled }) => {
     // Return placeholder during development/pre-approval
     return (
       <div
-        className="adsbygoogle-placeholder"
+        className={`adsbygoogle-placeholder ${className}`}
         style={{
-          margin: '32px 0',
           minHeight: '100px',
           backgroundColor: '#f3f4f6',
           border: '1px dashed #d1d5db',
@@ -39,24 +49,22 @@ const InArticleAd: React.FC<InArticleAdProps> = ({ adSlot, enabled }) => {
           justifyContent: 'center',
           color: '#6b7280',
           fontSize: '14px',
-          textAlign: 'center',
+          ...style,
         }}
       >
-        <span>In-Article Ad Space (Enable after AdSense approval)</span>
+        <span>Multiplex Ad Space (Enable after AdSense approval)</span>
       </div>
     );
   }
 
   return (
-    <div style={{ margin: '32px 0', textAlign: 'center' }}>
+    <div style={{ margin: '24px 0', ...style }} className={className}>
       <ins
         className="adsbygoogle"
         style={{
           display: 'block',
-          textAlign: 'center',
         }}
-        data-ad-layout="in-article"
-        data-ad-format="fluid"
+        data-ad-format="autorelaxed"
         data-ad-client={ADSENSE_CLIENT_ID}
         data-ad-slot={adSlot}
       />
@@ -64,4 +72,4 @@ const InArticleAd: React.FC<InArticleAdProps> = ({ adSlot, enabled }) => {
   );
 };
 
-export default InArticleAd;
+export default MultiplexAd;

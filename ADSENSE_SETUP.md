@@ -22,8 +22,9 @@ After approval:
 2. Navigate to **Ads** → **By ad unit**
 3. Click **Create ad unit**
 4. Choose ad types:
-   - **Display ads** (for in-article, sidebar)
-   - **In-article ads** (for between content)
+   - **In-article ads** (for between content) - ✅ Created: `5357563959`
+   - **Multiplex ads** (autorelaxed format - versatile placement) - ✅ Created: `7777851341`
+   - **Display ads** (for sidebar, banners)
    - **Anchor ads** (optional)
 5. Copy the **Ad unit ID** (format: `1234567890`)
 
@@ -35,16 +36,43 @@ After approval:
 
 ```typescript
 export const AD_SLOTS = {
-  IN_ARTICLE_1: '1234567890', // Your actual ad slot ID
-  IN_ARTICLE_2: '0987654321',
-  SIDEBAR_TOP: '1122334455',
+  // In-article ads (automatically placed in articles)
+  IN_ARTICLE_1: '5357563959', // ✅ Already configured
+  
+  // Multiplex/auto ads (versatile placement)
+  MULTIPLEX_1: '7777851341', // ✅ Already configured
+  
+  // Additional ad units (update as needed)
+  IN_ARTICLE_2: 'YOUR_IN_ARTICLE_AD_SLOT_ID_2',
+  MULTIPLEX_2: 'YOUR_MULTIPLEX_AD_SLOT_ID_2',
   // ... etc
 };
 ```
 
+**Current Ad Units Configured:**
+- ✅ **IN_ARTICLE_1**: `5357563959` - In-article ad (auto-placed after 2nd paragraph)
+- ✅ **MULTIPLEX_1**: `7777851341` - Multiplex/auto ad (for flexible placement)
+
 ## 📦 Available Components
 
-### 1. AdSenseAd (Base Component)
+### 1. MultiplexAd (Auto/Relaxed Format)
+
+For automatic, adaptive ad placement that works across different screen sizes:
+
+```tsx
+import { MultiplexAd } from '@/components/AdSense';
+import { AD_SLOTS } from '@/config/adsense';
+
+<MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} />
+```
+
+**Features:**
+- Automatically adapts to placement and screen size
+- Uses `data-ad-format="autorelaxed"`
+- Can be placed in multiple locations
+- Google optimizes ad display automatically
+
+### 2. AdSenseAd (Base Component)
 
 Flexible component for custom ad placements:
 
@@ -59,7 +87,7 @@ import { AD_SLOTS } from '@/config/adsense';
 />
 ```
 
-### 2. InArticleAd
+### 3. InArticleAd
 
 For placing ads between article paragraphs:
 
@@ -70,7 +98,7 @@ import { AD_SLOTS } from '@/config/adsense';
 <InArticleAd adSlot={AD_SLOTS.IN_ARTICLE_1} />
 ```
 
-### 3. SidebarAd
+### 4. SidebarAd
 
 For sidebar placements (300x250, 300x600):
 
@@ -81,7 +109,7 @@ import { AD_SLOTS } from '@/config/adsense';
 <SidebarAd adSlot={AD_SLOTS.SIDEBAR_TOP} />
 ```
 
-### 4. BannerAd
+### 5. BannerAd
 
 For horizontal banner ads (728x90, 970x90):
 
@@ -96,37 +124,57 @@ import { AD_SLOTS } from '@/config/adsense';
 
 ### Article Pages (`[category]/[slug].tsx`)
 
+**Automatic (already configured):**
+- **After 2nd paragraph**: In-article ad automatically injected (configured in ArticleContent component)
+
+**Manual Placement Options:**
+
 1. **Top of article** (after header, before content):
 ```tsx
-<BannerAd adSlot={AD_SLOTS.BANNER_TOP} />
+<MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} />
 ```
 
-2. **Between paragraphs** (in ArticleContent component):
+2. **Bottom of article** (before related articles):
 ```tsx
-<InArticleAd adSlot={AD_SLOTS.IN_ARTICLE_1} />
+<MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} />
 ```
 
-3. **Bottom of article** (before related articles):
+3. **Between sections** (if you have multiple content sections):
 ```tsx
-<BannerAd adSlot={AD_SLOTS.BANNER_BOTTOM} />
+<MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} />
 ```
 
 ### Homepage (`index.tsx`)
 
 1. **Top banner** (after hero section):
 ```tsx
-<BannerAd adSlot={AD_SLOTS.HOMEPAGE_TOP} />
+import { MultiplexAd } from '@/components/AdSense';
+import { AD_SLOTS } from '@/config/adsense';
+
+<MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} />
 ```
 
 2. **Between sections**:
 ```tsx
-<BannerAd adSlot={AD_SLOTS.HOMEPAGE_MIDDLE} />
+<MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} />
 ```
 
 ### Category Pages
 
-1. **Sidebar** (if you have a sidebar):
+1. **Top of page** (after category header):
 ```tsx
+<MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} />
+```
+
+2. **Between article lists** (if you have multiple sections):
+```tsx
+<MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} />
+```
+
+3. **Sidebar** (if you have a sidebar):
+```tsx
+import { SidebarAd } from '@/components/AdSense';
+
 <SidebarAd adSlot={AD_SLOTS.SIDEBAR_TOP} />
 ```
 
