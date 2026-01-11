@@ -55,7 +55,6 @@ handlePaste: (view, event, slice) => {
   if (pastedText.includes('<iframe') || 
       pastedText.includes('youtube.com') || 
       pastedText.includes('vimeo.com')) {
-    // Allow the paste to proceed normally
     return false;
   }
   
