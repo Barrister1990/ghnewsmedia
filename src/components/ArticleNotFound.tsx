@@ -13,7 +13,7 @@ const ArticleNotFound = () => {
     featuredImage: "https://ghnewsmedia.com/placeholder.svg",
     author: { 
       id: "404", 
-      name: "GhNewsMedia", 
+      name: "GH News", 
       bio: "Ghana's leading news source",
       avatar: "https://ghnewsmedia.com/placeholder.svg",
       title: "Editorial Team",

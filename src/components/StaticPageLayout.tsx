@@ -17,14 +17,14 @@ const StaticPageLayout: React.FC<StaticPageLayoutProps> = ({
   return (
     <>
       <NextSeo
-        title={`${title} | GhNewsMedia`}
+        title={`${title} | GH News`}
         description={description}
         canonical={canonical}
         openGraph={{
           title: `${title} | GhNewsMedia`,
           description: description,
           url: canonical,
-          siteName: 'GhNewsMedia',
+          siteName: 'GH News',
           type: 'website',
         }}
         twitter={{

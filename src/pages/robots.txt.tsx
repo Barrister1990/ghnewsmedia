@@ -28,16 +28,10 @@ Disallow: /api/
 Disallow: /_next/
 Disallow: /private/
 
-# Sitemaps for better indexing and sitelinks
+# Sitemaps for better indexing (Phase 3: only real sitemaps; RSS is linked in HTML)
 Sitemap: ${baseUrl}/sitemap.xml
 Sitemap: ${baseUrl}/sitemap-index.xml
-Sitemap: ${baseUrl}/news-sitemap.xml
-
-# RSS Feed for news syndication
-Sitemap: ${baseUrl}/rss.xml
-
-# Crawl-delay for respectful crawling
-Crawl-delay: 1`;
+Sitemap: ${baseUrl}/news-sitemap.xml`;
 
   res.setHeader('Content-Type', 'text/plain');
   res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate');

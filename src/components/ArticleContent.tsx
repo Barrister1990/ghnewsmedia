@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import React from 'react';
 import { InArticleAd } from '@/components/AdSense';
-import { AD_SLOTS, ENABLE_ADSENSE } from '@/config/adsense';
+import { AD_SLOTS, ENABLE_ADSENSE, ADSENSE_CLIENT_ID } from '@/config/adsense';
 
 // Declare Twitter and Instagram widgets global
 declare global {
@@ -253,7 +253,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
         if (paragraphMatches && paragraphMatches.length >= 2) {
           // Find the end of the 2nd paragraph
           const secondParagraphEnd = processedContent.indexOf(paragraphMatches[1]) + paragraphMatches[1].length;
-          const adHtml = '<div class="adsense-in-article-wrapper" style="margin: 32px 0; text-align: center;"><ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="ca-pub-9758177091764288" data-ad-slot="5357563959"></ins></div>';
+          const adHtml = `<div class="adsense-in-article-wrapper" style="margin: 32px 0; text-align: center;"><ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="${ADSENSE_CLIENT_ID}" data-ad-slot="${AD_SLOTS.IN_ARTICLE_1}"></ins></div>`;
           processedContent = processedContent.slice(0, secondParagraphEnd) + adHtml + processedContent.slice(secondParagraphEnd);
         }
       }
@@ -354,8 +354,8 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
             const paragraphElement = <p key={`p-${paragraphCount}`} className="my-5 leading-relaxed" style={{ color: '#111111', fontSize: '18px', lineHeight: '1.7' }}>{children}</p>;
             
             // Inject ad after 2nd paragraph (as recommended by Google)
-            // Only inject if we have at least 3 paragraphs total to ensure enough content
-            if (paragraphCount === 2 && totalParagraphs >= 3 && ENABLE_ADSENSE) {
+            // Show ad if we have at least 2 paragraphs (allows ad to show in shorter articles)
+            if (paragraphCount === 2 && totalParagraphs >= 2 && ENABLE_ADSENSE) {
               return (
                 <React.Fragment key={`para-group-${paragraphCount}`}>
                   {paragraphElement}

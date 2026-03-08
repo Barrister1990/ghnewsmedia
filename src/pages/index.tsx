@@ -91,7 +91,7 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
           "position": index + 1,
           "headline": article.title,
           "url": `https://ghnewsmedia.com/${article.category.slug}/${article.slug}`,
-          "datePublished": article.publishedAt,
+          "datePublished": new Date(article.publishedAt).toISOString(),
           "author": {
             "@type": "Person",
             "name": article.author.name

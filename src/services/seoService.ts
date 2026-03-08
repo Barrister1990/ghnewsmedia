@@ -62,11 +62,13 @@ class SEOService {
 `;
     });
 
-    // Article pages with news sitemap and image tags
+    // Article pages with news sitemap and image tags (ISO 8601 for Google News)
     articles.forEach(article => {
+      const lastmod = new Date(article.updatedAt || article.publishedAt).toISOString();
+      const pubDate = new Date(article.publishedAt).toISOString();
       sitemap += `  <url>
     <loc>${this.siteUrl}/${article.category.slug}/${article.slug}</loc>
-    <lastmod>${article.updatedAt}</lastmod>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <news:news>
@@ -74,7 +76,7 @@ class SEOService {
         <news:name>GH News</news:name>
         <news:language>en</news:language>
       </news:publication>
-      <news:publication_date>${article.publishedAt}</news:publication_date>
+      <news:publication_date>${pubDate}</news:publication_date>
       <news:title><![CDATA[${article.title}]]></news:title>
       <news:keywords>${article.tags.join(', ')}</news:keywords>
     </news:news>`;
@@ -172,8 +174,8 @@ class SEOService {
         "width": 1200,
         "height": 630
       },
-      "datePublished": article.publishedAt,
-      "dateModified": article.updatedAt,
+      "datePublished": new Date(article.publishedAt).toISOString(),
+      "dateModified": new Date(article.updatedAt || article.publishedAt).toISOString(),
       "author": {
         "@type": "Person",
         "name": article.author.name,

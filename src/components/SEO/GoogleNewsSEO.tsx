@@ -15,7 +15,7 @@ const GoogleNewsSEO: React.FC<GoogleNewsSEOProps> = ({ article }) => {
   const googleNewsMetaTags = [
     // Article publication time (critical for Google News)
     { property: 'article:published_time', content: publicationDate },
-    { property: 'article:modified_time', content: article.updatedAt },
+    { property: 'article:modified_time', content: new Date(article.updatedAt || article.publishedAt).toISOString() },
     
     // News specific tags
     { name: 'news_keywords', content: article.tags.join(', ') },
@@ -30,7 +30,7 @@ const GoogleNewsSEO: React.FC<GoogleNewsSEOProps> = ({ article }) => {
     
     // News organization tags
     { property: 'article:publisher', content: 'https://ghnewsmedia.com' },
-    { name: 'publisher', content: 'GhNewsMedia' },
+    { name: 'publisher', content: 'GH News' },
     
     // Google News specific
     { name: 'googlebot-news', content: 'noarchive' },
@@ -38,7 +38,7 @@ const GoogleNewsSEO: React.FC<GoogleNewsSEOProps> = ({ article }) => {
     
     // Social media for news sharing
     { property: 'og:type', content: 'article' },
-    { property: 'og:site_name', content: 'GhNewsMedia' },
+    { property: 'og:site_name', content: 'GH News' },
     { property: 'og:locale', content: 'en_GB' },
     
     // Twitter Cards for news
@@ -62,7 +62,7 @@ const GoogleNewsSEO: React.FC<GoogleNewsSEOProps> = ({ article }) => {
       "caption": article.title
     },
     "datePublished": publicationDate,
-    "dateModified": article.updatedAt,
+    "dateModified": new Date(article.updatedAt || article.publishedAt).toISOString(),
     "author": {
       "@type": "Person",
       "name": article.author.name,
@@ -71,7 +71,7 @@ const GoogleNewsSEO: React.FC<GoogleNewsSEOProps> = ({ article }) => {
     },
     "publisher": {
       "@type": "NewsMediaOrganization",
-      "name": "GhNewsMedia",
+      "name": "GH News",
       "url": "https://ghnewsmedia.com",
       "logo": {
         "@type": "ImageObject",
@@ -133,7 +133,7 @@ const GoogleNewsSEO: React.FC<GoogleNewsSEOProps> = ({ article }) => {
       
       {/* Google News specific link tags */}
       <link rel="canonical" href={articleUrl} />
-      <link rel="alternate" type="application/rss+xml" title="GhNewsMedia RSS Feed" href="https://ghnewsmedia.com/rss.xml" />
+      <link rel="alternate" type="application/rss+xml" title="GH News RSS Feed" href="https://ghnewsmedia.com/rss.xml" />
       
       {/* Preload critical resources for faster loading */}
       <link rel="preload" href={article.featuredImage.startsWith('http') ? article.featuredImage : `https://ghnewsmedia.com${article.featuredImage}`} as="image" />

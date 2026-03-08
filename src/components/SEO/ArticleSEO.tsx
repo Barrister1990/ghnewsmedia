@@ -53,15 +53,6 @@ const ArticleSEO: React.FC<ArticleSEOProps> = ({ article }) => {
     article.author.name
   ].join(', ');
 
-  // Debug logging for development
-  console.log('SEO Debug - Article:', {
-    title: socialTitle,
-    description: description.substring(0, 50) + '...',
-    image: featuredImage,
-    url: articleUrl,
-    canonical: articleUrl
-  });
-
   return (
     <>
       <NextSeo
@@ -86,8 +77,8 @@ const ArticleSEO: React.FC<ArticleSEOProps> = ({ article }) => {
             },
           ],
           article: {
-            publishedTime: article.publishedAt,
-            modifiedTime: article.updatedAt,
+            publishedTime: new Date(article.publishedAt).toISOString(),
+            modifiedTime: new Date(article.updatedAt || article.publishedAt).toISOString(),
             authors: [article.author.name],
             section: article.category.name,
             tags: article.tags || [],
@@ -180,8 +171,8 @@ const ArticleSEO: React.FC<ArticleSEOProps> = ({ article }) => {
         title={article.title}
         description={description}
         images={[featuredImage]}
-        datePublished={article.publishedAt}
-        dateModified={article.updatedAt}
+        datePublished={new Date(article.publishedAt).toISOString()}
+        dateModified={new Date(article.updatedAt || article.publishedAt).toISOString()}
         authorName={article.author.name}
         publisherName="GhNewsMedia"
         publisherLogo={`${siteUrl}/logo.png`}
@@ -204,8 +195,8 @@ const ArticleSEO: React.FC<ArticleSEOProps> = ({ article }) => {
               "height": 630,
               "alt": article.title
             },
-            "datePublished": article.publishedAt,
-            "dateModified": article.updatedAt,
+            "datePublished": new Date(article.publishedAt).toISOString(),
+            "dateModified": new Date(article.updatedAt || article.publishedAt).toISOString(),
             "author": {
               "@type": "Person",
               "name": article.author.name,

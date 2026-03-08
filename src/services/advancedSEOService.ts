@@ -57,11 +57,14 @@ class AdvancedSEOService {
     console.log('Sitemap update triggered');
   }
 
-  // Generate enhanced structured data for better search visibility
+  // Generate enhanced structured data for better search visibility (single NewsArticle per page).
+  // Dates in ISO 8601 for Google News. Speakable matches ArticleContent wrapper: [data-article-content].
   generateAdvancedArticleSchema(article: NewsArticle) {
     const articleUrl = `${this.baseUrl}/${article.category.slug}/${article.slug}`;
     const imageUrl = this.optimizeImageForSEO(article.featuredImage, article.title);
-    
+    const datePublished = new Date(article.publishedAt).toISOString();
+    const dateModified = new Date(article.updatedAt || article.publishedAt).toISOString();
+
     return {
       "@context": "https://schema.org",
       "@type": "NewsArticle",
@@ -76,8 +79,8 @@ class AdvancedSEOService {
         "height": 630,
         "caption": article.title
       },
-      "datePublished": article.publishedAt,
-      "dateModified": article.updatedAt,
+      "datePublished": datePublished,
+      "dateModified": dateModified,
       "author": {
         "@type": "Person",
         "name": article.author.name,
@@ -90,13 +93,14 @@ class AdvancedSEOService {
         "url": this.baseUrl,
         "logo": {
           "@type": "ImageObject",
-          "url": `${this.baseUrl}/logo-structured-data.png`,
+          "url": `${this.baseUrl}/logo.png`,
           "width": 600,
           "height": 60
         },
         "sameAs": [
-          "https://twitter.com/GhNewsMedia",
-          "https://facebook.com/GhNewsMedia",
+          "https://twitter.com/ghnewsmedia",
+          "https://facebook.com/ghnewsmedia",
+          "https://instagram.com/ghnewsmedia",
           "https://linkedin.com/company/ghnewsmedia"
         ]
       },
@@ -105,16 +109,21 @@ class AdvancedSEOService {
         "@id": articleUrl
       },
       "articleSection": article.category.name,
-      "keywords": article.tags.join(', '),
+      "keywords": (article.tags || []).join(', '),
       "wordCount": this.getWordCount(article.content),
-      "timeRequired": `PT${article.readTime}M`,
+      "timeRequired": `PT${Math.max(1, article.readTime || 1)}M`,
       "inLanguage": "en-GB",
       "isAccessibleForFree": true,
       "url": articleUrl,
       "thumbnailUrl": imageUrl,
       "speakable": {
         "@type": "SpeakableSpecification",
-        "cssSelector": ["h1", ".article-content p"]
+        "cssSelector": ["h1", "[data-article-content] p"]
+      },
+      "contentLocation": {
+        "@type": "Place",
+        "name": "Ghana",
+        "addressCountry": "GH"
       }
     };
   }
@@ -166,9 +175,9 @@ class AdvancedSEOService {
       'og:site_name': 'GH News',
       'og:locale': 'en_GB',
       
-      // Article specific
-      'article:published_time': article.publishedAt,
-      'article:modified_time': article.updatedAt,
+      // Article specific (ISO 8601 for Google News)
+      'article:published_time': new Date(article.publishedAt).toISOString(),
+      'article:modified_time': new Date(article.updatedAt || article.publishedAt).toISOString(),
       'article:author': article.author.name,
       'article:section': article.category.name,
       'article:publisher': this.baseUrl,

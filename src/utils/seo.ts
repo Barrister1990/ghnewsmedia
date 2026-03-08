@@ -213,8 +213,8 @@ export const generateSocialPreviewTags = (article: NewsArticle) => {
     'og:image:type': 'image/jpeg',
     'og:image:secure_url': optimizedImage,
     
-    // Article specific
-    'article:published_time': article.publishedAt,
+    // Article specific (ISO 8601 for Google News)
+    'article:published_time': new Date(article.publishedAt).toISOString(),
     'article:author': article.author.name,
     'article:section': article.category.name,
     'article:tag': article.tags.join(', ')

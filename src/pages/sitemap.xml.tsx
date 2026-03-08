@@ -111,9 +111,11 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
       const isRecentNews = new Date(article.updatedAt || article.publishedAt) > 
         new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
       
+      const lastmod = new Date(article.updatedAt || article.publishedAt).toISOString();
+      const pubDate = new Date(article.publishedAt).toISOString();
       return `  <url>
     <loc>${baseUrl}/${article.category.slug}/${article.slug}</loc>
-    <lastmod>${article.updatedAt || article.publishedAt}</lastmod>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     ${isRecentNews ? `<news:news>
@@ -121,7 +123,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
         <news:name>GH News</news:name>
         <news:language>en</news:language>
       </news:publication>
-      <news:publication_date>${article.updatedAt || article.publishedAt}</news:publication_date>
+      <news:publication_date>${pubDate}</news:publication_date>
       <news:title>${escapeXml(article.title)}</news:title>
     </news:news>` : ''}
   </url>`;

@@ -19,23 +19,6 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({ article }) => {
     });
   };
 
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-GB', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const formatDateShort = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'numeric',
-      year: 'numeric'
-    });
-  };
-
   return (
     <header>
       {/* Category Badge - Pulse Style */}
@@ -59,12 +42,25 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({ article }) => {
         {article.title}
       </h1>
 
-      {/* Author and Date - Pulse Style */}
-      <div className="flex items-center gap-2 mb-4 text-sm sm:text-base" style={{ fontSize: '14px', color: '#6B7280' }}>
+      {/* Author and Date - Pulse Style (visible date for Google News; use <time> with ISO for accessibility) */}
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-4 text-sm sm:text-base" style={{ fontSize: '14px', color: '#6B7280' }}>
         <span style={{ fontWeight: '500', color: '#111111' }}>{article.author.name}</span>
-        <span>{formatTime(article.publishedAt)}</span>
-        <span>-</span>
-        <span>{formatDateShort(article.publishedAt)}</span>
+        <span aria-hidden="true">·</span>
+        <span>
+          <time dateTime={new Date(article.publishedAt).toISOString()} itemProp="datePublished">
+            Published: {formatDate(article.publishedAt)}
+          </time>
+        </span>
+        {article.updatedAt && new Date(article.updatedAt).getTime() > new Date(article.publishedAt).getTime() && (
+          <>
+            <span aria-hidden="true">·</span>
+            <span>
+              <time dateTime={new Date(article.updatedAt).toISOString()} itemProp="dateModified">
+                Updated: {formatDate(article.updatedAt)}
+              </time>
+            </span>
+          </>
+        )}
       </div>
     </header>
   );

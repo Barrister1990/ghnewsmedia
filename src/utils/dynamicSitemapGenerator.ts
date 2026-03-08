@@ -80,17 +80,19 @@ export class DynamicSitemapGenerator {
     const isRecent = Date.now() - new Date(article.publishedAt).getTime() < 48 * 60 * 60 * 1000;
     const priority = isRecent ? '0.9' : '0.8';
     
+    const lastmod = new Date(article.updatedAt || article.publishedAt).toISOString();
+    const pubDate = new Date(article.publishedAt).toISOString();
     return `  <url>
     <loc>${articleUrl}</loc>
-    <lastmod>${article.updatedAt}</lastmod>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>${priority}</priority>
     <news:news>
       <news:publication>
-        <news:name>GhNewsMedia</news:name>
+        <news:name>GH News</news:name>
         <news:language>en</news:language>
       </news:publication>
-      <news:publication_date>${article.publishedAt}</news:publication_date>
+      <news:publication_date>${pubDate}</news:publication_date>
       <news:title>${this.escapeXml(article.title)}</news:title>
       <news:keywords>${article.tags.join(', ')}</news:keywords>
     </news:news>
@@ -134,7 +136,7 @@ export class DynamicSitemapGenerator {
     let rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
-    <title>GhNewsMedia - Ghana's Premier News Source</title>
+    <title>GH News - Ghana's Premier News Source</title>
     <link>${this.baseUrl}</link>
     <description>Breaking news, politics, business, sports and entertainment from Ghana</description>
     <language>en-gb</language>
@@ -142,7 +144,7 @@ export class DynamicSitemapGenerator {
     <ttl>30</ttl>
     <image>
       <url>${this.baseUrl}/logo.png</url>
-      <title>GhNewsMedia</title>
+      <title>GH News</title>
       <link>${this.baseUrl}</link>
     </image>
 `;

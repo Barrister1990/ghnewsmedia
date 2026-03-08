@@ -4,8 +4,6 @@ import NewsCard from '@/components/NewsCard';
 import ScrollToTop from '@/components/ScrollToTop';
 import BreadcrumbSEO from '@/components/SEO/BreadcrumbSEO';
 import SEOHead from '@/components/SEO/SEOHead';
-import { supabase } from '@/integrations/supabase/client';
-import { transformToNewsArticle } from '@/lib/articles';
 import { Category, NewsArticle } from '@/types/news';
 import { getCategoryIcon } from '@/utils/categoryIcons';
 import { generateMetaTitle, truncateDescription } from '@/utils/seo';
@@ -29,7 +27,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <SEOHead
-          title="Error - GhNewsMedia"
+          title="Error - GH News"
           description="An error occurred while loading the category page."
           canonical="https://ghnewsmedia.com"
         />
@@ -97,7 +95,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
         "position": index + 1,
         "headline": article.title,
         "url": `https://ghnewsmedia.com/${article.category.slug}/${article.slug}`,
-        "datePublished": article.publishedAt,
+        "datePublished": new Date(article.publishedAt).toISOString(),
         "author": {
           "@type": "Person",
           "name": article.author.name

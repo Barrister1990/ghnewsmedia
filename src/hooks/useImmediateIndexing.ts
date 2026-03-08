@@ -1,8 +1,10 @@
-
+// Phase 5: Notify indexing is done via API route (server-side) so Google Indexing API credentials stay secure.
 import { useCallback } from 'react';
 import AdvancedSEOService from '../services/advancedSEOService';
 import GoogleIndexingService from '../services/googleIndexingService';
 import { NewsArticle } from '../types/news';
+
+const NOTIFY_INDEXING_API = '/api/notify-indexing';
 
 export const useImmediateIndexing = () => {
   const seoService = AdvancedSEOService.getInstance();
@@ -10,57 +12,55 @@ export const useImmediateIndexing = () => {
 
   const notifySearchEngines = useCallback(async (article: NewsArticle) => {
     try {
-      console.log(`🚀 Starting immediate indexing for: ${article.slug}`);
-      
-      // 1. Immediately notify Google via Indexing API
-      const googleSuccess = await googleIndexingService.notifyGoogleOfNewArticle(article);
-      
-      // 2. Notify other search engines via SEO service
-      await seoService.notifySearchEnginesOfNewArticle(article);
-      
-      // 3. Log results for monitoring
-      if (googleSuccess) {
-        console.log(`✅ Google immediate indexing initiated for: ${article.slug}`);
-      } else {
-        console.log(`⚠️ Google immediate indexing failed, using fallback methods for: ${article.slug}`);
+      const res = await fetch(NOTIFY_INDEXING_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category: article.category.slug,
+          slug: article.slug,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        return {
+          success: false,
+          googleIndexing: false,
+          error: data?.error || res.statusText,
+          timestamp: new Date().toISOString(),
+        };
       }
-      
-      return { 
-        success: true, 
-        googleIndexing: googleSuccess,
-        timestamp: new Date().toISOString()
+      return {
+        success: true,
+        googleIndexing: data.googleIndexing === true,
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
-      console.error('❌ Failed to notify search engines:', error);
-      return { 
-        success: false, 
+      console.error('Failed to notify search engines:', error);
+      return {
+        success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
-  }, [seoService, googleIndexingService]);
+  }, []);
 
   const batchIndexArticles = useCallback(async (articles: NewsArticle[]) => {
-    try {
-      console.log(`🚀 Starting batch indexing for ${articles.length} articles`);
-      
-      const results = await googleIndexingService.batchSubmitArticles(articles);
-      
-      console.log(`✅ Batch indexing completed: ${results.success} success, ${results.failed} failed`);
-      
-      return results;
-    } catch (error) {
-      console.error('❌ Batch indexing failed:', error);
-      return { success: 0, failed: articles.length };
+    let success = 0;
+    let failed = 0;
+    for (const article of articles) {
+      const result = await notifySearchEngines(article);
+      if (result.success) success++;
+      else failed++;
+      await new Promise((r) => setTimeout(r, 1000));
     }
-  }, [googleIndexingService]);
+    return { success, failed };
+  }, [notifySearchEngines]);
 
   const checkIndexingStatus = useCallback(async (url: string) => {
     try {
-      const status = await googleIndexingService.getIndexingStatus(url);
-      return status;
+      return await googleIndexingService.getIndexingStatus(url);
     } catch (error) {
-      console.error('❌ Failed to check indexing status:', error);
+      console.error('Failed to check indexing status:', error);
       return 'UNKNOWN';
     }
   }, [googleIndexingService]);

@@ -43,8 +43,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
       </news:publication>
       <news:publication_date>${publicationDate}</news:publication_date>
       <news:title>${title}</news:title>
-      <news:keywords>${article.tags.join(', ')}</news:keywords>
-      <news:stock_tickers>${article.category.name}</news:stock_tickers>
+      <news:keywords>${(article.tags || []).join(', ')}</news:keywords>
     </news:news>
   </url>`;
     })

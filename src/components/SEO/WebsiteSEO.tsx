@@ -93,14 +93,6 @@ const WebsiteSEO: React.FC<WebsiteSEOProps> = ({
   const optimizedTitle = truncateTitle(title, 55);
   const optimizedDescription = truncateDescription(description, 155);
 
-  // Debug logging for development
-  console.log('SEO Debug - Website Page:', {
-    title: optimizedTitle,
-    description: optimizedDescription,
-    canonical: pageUrl,
-    path: path
-  });
-
   return (
     <>
       <NextSeo

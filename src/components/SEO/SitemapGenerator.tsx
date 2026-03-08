@@ -13,16 +13,12 @@ const SitemapGenerator: React.FC = () => {
       const sitemap = dynamicSitemapGenerator.generateComprehensiveSitemap(articles, categories);
       dynamicSitemapGenerator.generateRSSFeed(articles);
 
-      // In production, these would be saved to your server/CDN
-      console.log('SEO: Enhanced sitemap generated with', articles.length, 'articles');
-      console.log('SEO: RSS feed generated with latest articles');
-      
       // Notify search engines about updates
       const sitemapUrl = 'https://ghnewsmedia.com/sitemap.xml';
       dynamicSitemapGenerator.notifySearchEngines(sitemapUrl);
-      
-      // Log sitemap sample for debugging
-      console.log('Sitemap sample:', sitemap.substring(0, 500) + '...');
+      if (process.env.NODE_ENV === 'development' && process.env.DEBUG_SEO === 'true') {
+        console.log('SEO: Sitemap generated with', articles.length, 'articles');
+      }
     }
   }, [articles, categories, articlesLoading, categoriesLoading]);
 

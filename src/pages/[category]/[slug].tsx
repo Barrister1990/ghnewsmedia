@@ -9,8 +9,7 @@ import ReadAloud from '@/components/ReadAloud';
 import ReadingProgress from '@/components/ReadingProgress';
 import RelatedArticles from '@/components/RelatedArticles';
 import ScrollToTop from '@/components/ScrollToTop';
-import EnhancedArticleSEO from '@/components/SEO/EnhancedArticleSEO';
-import GoogleNewsSEO from '@/components/SEO/GoogleNewsSEO';
+import UnifiedArticleSEO from '@/components/SEO/UnifiedArticleSEO';
 import ShareButtons from '@/components/ShareButtons';
 import { useArticleReactions } from '@/hooks/useArticleReactions';
 import { useImmediateIndexing } from '@/hooks/useImmediateIndexing';
@@ -92,8 +91,7 @@ const ArticlePage = ({ article, relatedArticles, allArticles, error }: ArticlePa
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', 'Source Sans 3', system-ui, sans-serif" }}>
-      <EnhancedArticleSEO article={article} />
-      <GoogleNewsSEO article={article} />
+      <UnifiedArticleSEO article={article} />
 
       <ReadingProgress />
       <Header />

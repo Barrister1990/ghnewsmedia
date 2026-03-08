@@ -57,7 +57,7 @@ const SEOManager: React.FC<SEOManagerProps> = ({
 
     // Auto-generate meta title if empty
     if (!newSeoData.metaTitle && title) {
-      newSeoData.metaTitle = `${title} | ${category} | GhNewsMedia`;
+      newSeoData.metaTitle = `${title} | ${category} | GH News`;
       hasChanged = true;
     }
 
