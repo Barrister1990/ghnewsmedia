@@ -1,14 +1,13 @@
 // Phase 5: Notify indexing is done via API route (server-side) so Google Indexing API credentials stay secure.
+// Do not import GoogleIndexingService here — it uses google-auth-library (Node-only) and would break the browser bundle.
 import { useCallback } from 'react';
 import AdvancedSEOService from '../services/advancedSEOService';
-import GoogleIndexingService from '../services/googleIndexingService';
 import { NewsArticle } from '../types/news';
 
 const NOTIFY_INDEXING_API = '/api/notify-indexing';
 
 export const useImmediateIndexing = () => {
   const seoService = AdvancedSEOService.getInstance();
-  const googleIndexingService = GoogleIndexingService.getInstance();
 
   const notifySearchEngines = useCallback(async (article: NewsArticle) => {
     try {
@@ -56,14 +55,10 @@ export const useImmediateIndexing = () => {
     return { success, failed };
   }, [notifySearchEngines]);
 
-  const checkIndexingStatus = useCallback(async (url: string) => {
-    try {
-      return await googleIndexingService.getIndexingStatus(url);
-    } catch (error) {
-      console.error('Failed to check indexing status:', error);
-      return 'UNKNOWN';
-    }
-  }, [googleIndexingService]);
+  const checkIndexingStatus = useCallback(async (_url: string) => {
+    // Status is only available server-side via Indexing API; client returns placeholder.
+    return 'PENDING';
+  }, []);
 
   const generateOptimizedMetaTags = useCallback((article: NewsArticle) => {
     return {
