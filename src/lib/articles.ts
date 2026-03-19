@@ -8,6 +8,11 @@ export const transformToNewsArticle = (article: any): NewsArticle => {
     throw new Error('Article missing essential fields');
   }
 
+  const social: { twitter?: string; facebook?: string; linkedin?: string } = {};
+  if (article.author_twitter) social.twitter = article.author_twitter;
+  if (article.author_facebook) social.facebook = article.author_facebook;
+  if (article.author_linkedin) social.linkedin = article.author_linkedin;
+
   return {
     id: article.id,
     title: article.title,
@@ -19,10 +24,10 @@ export const transformToNewsArticle = (article: any): NewsArticle => {
     author: {
       id: article.author_id || '',
       name: article.author_name || 'Unknown Author',
-      bio: '',
+      bio: article.author_bio || '',
       avatar: article.author_avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-      title: '',
-      social: {}
+      title: article.author_title || '',
+      social
     },
     category: {
       id: article.category_id || '',
@@ -118,6 +123,35 @@ export const fetchArticleBySlug = async (slug: string): Promise<{
     }
 
     const transformedArticle = transformToNewsArticle(articleData);
+
+    // Enrich article author fields with profile data for E-E-A-T author cards.
+    if (transformedArticle.author.id) {
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('name, bio, avatar, title, twitter, facebook, linkedin')
+        .eq('id', transformedArticle.author.id)
+        .single();
+
+      if (profileData) {
+        const mergedSocial: { twitter?: string; facebook?: string; linkedin?: string } = {};
+        const twitterValue = profileData.twitter || transformedArticle.author.social.twitter;
+        const facebookValue = profileData.facebook || transformedArticle.author.social.facebook;
+        const linkedinValue = profileData.linkedin || transformedArticle.author.social.linkedin;
+
+        if (twitterValue) mergedSocial.twitter = twitterValue;
+        if (facebookValue) mergedSocial.facebook = facebookValue;
+        if (linkedinValue) mergedSocial.linkedin = linkedinValue;
+
+        transformedArticle.author = {
+          ...transformedArticle.author,
+          name: profileData.name || transformedArticle.author.name,
+          bio: profileData.bio || transformedArticle.author.bio,
+          avatar: profileData.avatar || transformedArticle.author.avatar,
+          title: profileData.title || transformedArticle.author.title,
+          social: mergedSocial,
+        };
+      }
+    }
     console.log('Successfully transformed article:', transformedArticle.title);
 
     return {

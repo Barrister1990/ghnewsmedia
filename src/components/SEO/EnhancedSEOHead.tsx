@@ -35,10 +35,14 @@ const EnhancedSEO: React.FC<EnhancedSEOProps> = ({
   noindex = false,
   language = 'en-GB'
 }) => {
-  const siteName = 'GH News';
+  const siteName = 'GH News Media';
   const siteUrl = 'https://ghnewsmedia.com';
   // Remove any existing site name from title to avoid duplication
-  const cleanTitle = title.replace(/\s*\|\s*GhNewsMedia\s*$/i, '').replace(/\s*\|\s*GH News\s*$/i, '').trim();
+  const cleanTitle = title
+    .replace(/\s*\|\s*GhNewsMedia\s*$/i, '')
+    .replace(/\s*\|\s*GH News Media\s*$/i, '')
+    .replace(/\s*\|\s*GH News\s*$/i, '')
+    .trim();
   
   // Build title with proper truncation to stay within 50-60 characters (580 pixels)
   let fullTitle: string;
@@ -136,8 +140,8 @@ const EnhancedSEO: React.FC<EnhancedSEOProps> = ({
           images={[imageUrl]}
           datePublished={publishedTime}
           dateModified={modifiedTime}
-          authorName={author || 'GH News Editorial Team'}
-          publisherName="GH News"
+          authorName={author || 'GH News Media Editorial Team'}
+          publisherName={siteName}
           publisherLogo={`${siteUrl}/logo.png`}
           description={description}
         />

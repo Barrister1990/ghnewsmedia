@@ -2,6 +2,7 @@
 import React from 'react';
 import { NewsArticle } from '../types/news';
 import { getCategoryColor } from '../utils/categoryColors';
+import Link from 'next/link';
 
 interface ArticleHeaderProps {
   article: NewsArticle;
@@ -44,23 +45,23 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({ article }) => {
 
       {/* Author and Date - Pulse Style (visible date for Google News; use <time> with ISO for accessibility) */}
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-4 text-sm sm:text-base" style={{ fontSize: '14px', color: '#6B7280' }}>
-        <span style={{ fontWeight: '500', color: '#111111' }}>{article.author.name}</span>
+        {article.author.id ? (
+          <Link
+            href={`/author/${article.author.id}`}
+            style={{ fontWeight: '500', color: '#111111', textDecoration: 'none' }}
+            aria-label={`View profile for ${article.author.name}`}
+          >
+            {article.author.name}
+          </Link>
+        ) : (
+          <span style={{ fontWeight: '500', color: '#111111' }}>{article.author.name}</span>
+        )}
         <span aria-hidden="true">·</span>
         <span>
           <time dateTime={new Date(article.publishedAt).toISOString()} itemProp="datePublished">
             Published: {formatDate(article.publishedAt)}
           </time>
         </span>
-        {article.updatedAt && new Date(article.updatedAt).getTime() > new Date(article.publishedAt).getTime() && (
-          <>
-            <span aria-hidden="true">·</span>
-            <span>
-              <time dateTime={new Date(article.updatedAt).toISOString()} itemProp="dateModified">
-                Updated: {formatDate(article.updatedAt)}
-              </time>
-            </span>
-          </>
-        )}
       </div>
     </header>
   );

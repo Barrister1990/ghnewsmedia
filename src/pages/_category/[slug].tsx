@@ -23,6 +23,15 @@ interface CategoryPageProps {
   error?: string;
 }
 
+const CATEGORY_SEO_TITLE_BY_SLUG: Record<string, string> = {
+  news: 'Ghana News Today - Latest Headlines | GH News Media',
+  sports: 'Ghana Sports News - Black Stars, Football Updates | GH News Media',
+  business: 'Ghana Business & Economy News | GH News Media',
+  entertainment: 'Ghana Entertainment News, Celebrities | GH News Media',
+  tech: 'Ghana Tech News, Innovation & Digital | GH News Media',
+  politics: 'Ghana Politics News - Parliament, Government | GH News Media',
+};
+
 const CategoryPage: React.FC<CategoryPageProps> = ({ 
   category, 
   articles, 
@@ -133,10 +142,14 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
     return `https://zodidixpxznfsopxdhyr.supabase.co/storage/v1/object/public/article-images/${imagePath}`;
   };
 
+  const categorySeoTitle =
+    CATEGORY_SEO_TITLE_BY_SLUG[category.slug] ||
+    generateMetaTitle(`${category.name} News`, 'Category');
+
   return (
     <div className="min-h-screen bg-white">
       <SEOHead
-        title={generateMetaTitle(`${category.name} News`, 'Category')}
+        title={categorySeoTitle}
         description={truncateDescription(`${category.description} Stay updated with the latest ${category.name.toLowerCase()} news from Ghana.`)}
         canonical={`https://ghnewsmedia.com/${category.slug}`}
         tags={[`${category.name} news`, 'Ghana news', category.name.toLowerCase(), 'breaking news']}

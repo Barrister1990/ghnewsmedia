@@ -4,6 +4,7 @@ import { Category, NewsArticle } from '../types/news';
 class SEOService {
   private static instance: SEOService;
   private siteUrl = 'https://ghnewsmedia.com';
+  private siteName = 'GH News Media';
 
   static getInstance(): SEOService {
     if (!SEOService.instance) {
@@ -73,7 +74,7 @@ class SEOService {
     <priority>0.9</priority>
     <news:news>
       <news:publication>
-        <news:name>GH News</news:name>
+        <news:name>${this.siteName}</news:name>
         <news:language>en</news:language>
       </news:publication>
       <news:publication_date>${pubDate}</news:publication_date>
@@ -107,15 +108,15 @@ class SEOService {
     let rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
-    <title>GH News - Ghana's Digital News Platform</title>
+    <title>${this.siteName} - Ghana's Digital News Platform</title>
     <link>${this.siteUrl}</link>
     <description>Stay informed with Ghana's leading digital news platform. Breaking news, politics, business, sports, and entertainment.</description>
     <language>en-gb</language>
     <lastBuildDate>${currentDate}</lastBuildDate>
-    <generator>GH News RSS Generator</generator>
+    <generator>${this.siteName} RSS Generator</generator>
     <image>
       <url>${this.siteUrl}/logo.png</url>
-      <title>GH News</title>
+      <title>${this.siteName}</title>
       <link>${this.siteUrl}</link>
     </image>
 `;
@@ -184,7 +185,7 @@ class SEOService {
       },
       "publisher": {
         "@type": "NewsMediaOrganization",
-        "name": "GH News",
+        "name": this.siteName,
         "logo": {
           "@type": "ImageObject",
           "url": `${this.siteUrl}/logo.png`,
@@ -230,7 +231,7 @@ class SEOService {
     return {
       "@context": "https://schema.org",
       "@type": "NewsMediaOrganization",
-      "name": "GH News",
+      "name": this.siteName,
       "alternateName": "Ghana's Digital News Platform",
       "url": this.siteUrl,
       "logo": `${this.siteUrl}/logo.png`,

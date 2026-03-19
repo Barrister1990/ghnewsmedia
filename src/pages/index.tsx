@@ -75,7 +75,7 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
     {
       "@context": "https://schema.org",
       "@type": "NewsMediaOrganization",
-      "name": "GH News",
+      "name": "GH News Media",
       "url": "https://ghnewsmedia.com",
       "logo": "https://ghnewsmedia.com/logo.jpg",
       "sameAs": [
@@ -101,8 +101,8 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
     }
   ];
 
-  const seoTitle = "Ghana's Digital News Platform";
-  const seoDescription = "Stay informed with Ghana's leading digital news platform. Get breaking news, politics, business, sports, and entertainment updates from trusted journalists across Ghana. Real-time coverage of Accra and beyond.";
+  const seoTitle = "Ghana Breaking News Today | Politics, Sports, Business | GH News Media";
+  const seoDescription = "Get the latest Ghana breaking news, politics, business, sports, and entertainment updates. GH News Media delivers trusted news 24/7 from Accra and across Ghana.";
 
   if (error) {
     return (

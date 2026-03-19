@@ -3,6 +3,7 @@ import { NewsArticle } from '../types/news';
 class AdvancedSEOService {
   private static instance: AdvancedSEOService;
   private readonly baseUrl = 'https://ghnewsmedia.com';
+  private readonly siteName = 'GH News Media';
 
   static getInstance(): AdvancedSEOService {
     if (!AdvancedSEOService.instance) {
@@ -65,6 +66,16 @@ class AdvancedSEOService {
     const datePublished = new Date(article.publishedAt).toISOString();
     const dateModified = new Date(article.updatedAt || article.publishedAt).toISOString();
 
+    const authorSchema: Record<string, string> = {
+      "@type": "Person",
+      "name": article.author.name,
+      "image": article.author.avatar
+    };
+
+    if (article.author.id) {
+      authorSchema.url = `${this.baseUrl}/author/${article.author.id}`;
+    }
+
     return {
       "@context": "https://schema.org",
       "@type": "NewsArticle",
@@ -81,15 +92,10 @@ class AdvancedSEOService {
       },
       "datePublished": datePublished,
       "dateModified": dateModified,
-      "author": {
-        "@type": "Person",
-        "name": article.author.name,
-        "url": `${this.baseUrl}/author/${article.author.id}`,
-        "image": article.author.avatar
-      },
+      "author": authorSchema,
       "publisher": {
         "@type": "NewsMediaOrganization",
-        "name": "GH News",
+        "name": this.siteName,
         "url": this.baseUrl,
         "logo": {
           "@type": "ImageObject",
@@ -172,7 +178,7 @@ class AdvancedSEOService {
       'og:image:type': 'image/jpeg',
       'og:image:secure_url': optimizedImage,
       'og:url': articleUrl,
-      'og:site_name': 'GH News',
+      'og:site_name': this.siteName,
       'og:locale': 'en_GB',
       
       // Article specific (ISO 8601 for Google News)
@@ -229,20 +235,11 @@ class AdvancedSEOService {
     const articleUrl = `${this.baseUrl}/${article.category.slug}/${article.slug}`;
     const description = this.cleanDescription(article.excerpt || article.content);
     
-    // Build title with proper truncation to stay within 50-60 characters (580 pixels)
-    // Format: "Article Title | Category | GH News"
-    // Reserve space for " | Category | GH News" (approximately 20-25 chars depending on category)
-    const categorySuffix = ` | ${article.category.name} | GH News`;
-    const reservedLength = categorySuffix.length; // ~20-25 chars
-    const maxTitleLength = 55 - reservedLength; // Leave room for suffix
-    
+    // Article template from SEO roadmap: [Article Headline] | GH News Media
+    const siteSuffix = ` | ${this.siteName}`;
+    const maxTitleLength = Math.max(20, 60 - siteSuffix.length);
     const truncatedTitle = this.truncateTitle(article.title, maxTitleLength);
-    const fullTitle = `${truncatedTitle}${categorySuffix}`;
-    
-    // Final check: ensure total title doesn't exceed 60 characters
-    const finalTitle = fullTitle.length > 60 
-      ? `${this.truncateTitle(article.title, 35)} | GH News` // Fallback to shorter format
-      : fullTitle;
+    const finalTitle = `${truncatedTitle}${siteSuffix}`;
     
     return {
       'title': finalTitle,

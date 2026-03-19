@@ -28,10 +28,14 @@ const SEOHead: React.FC<SEOHeadProps> = ({
   tags,
   structuredData
 }) => {
-  const siteName = 'GH News';
+  const siteName = 'GH News Media';
   const siteUrl = 'https://ghnewsmedia.com';
   // Remove any existing site name from title to avoid duplication
-  const cleanTitle = title.replace(/\s*\|\s*GhNewsMedia\s*$/i, '').replace(/\s*\|\s*GH News\s*$/i, '').trim();
+  const cleanTitle = title
+    .replace(/\s*\|\s*GhNewsMedia\s*$/i, '')
+    .replace(/\s*\|\s*GH News Media\s*$/i, '')
+    .replace(/\s*\|\s*GH News\s*$/i, '')
+    .trim();
   const fullTitle = cleanTitle.includes('|') ? cleanTitle : `${cleanTitle} | ${siteName}`;
   const canonicalUrl = canonical || siteUrl;
   const imageUrl = image || `${siteUrl}/placeholder.svg`;
@@ -105,7 +109,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({
           images={[imageUrl]}
           datePublished={publishedTime}
           dateModified={modifiedTime || publishedTime}
-          authorName={author || 'GhNewsMedia'}
+          authorName={author || 'GH News Media Editorial Team'}
           publisherName={siteName}
           publisherLogo={`${siteUrl}/logo.png`}
         />

@@ -25,7 +25,6 @@ Allow: /
 Disallow: /admin/
 Disallow: /cms/
 Disallow: /api/
-Disallow: /_next/
 Disallow: /private/
 
 # Sitemaps for better indexing (Phase 3: only real sitemaps; RSS is linked in HTML)

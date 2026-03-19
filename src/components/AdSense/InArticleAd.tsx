@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
 import { ENABLE_ADSENSE, ADSENSE_CLIENT_ID } from '@/config/adsense';
+import { useAdSenseSlot } from './useAdSenseSlot';
 
 interface InArticleAdProps {
   adSlot: string;
@@ -14,15 +14,7 @@ interface InArticleAdProps {
 const InArticleAd: React.FC<InArticleAdProps> = ({ adSlot, enabled }) => {
   const isEnabled = enabled !== undefined ? enabled : ENABLE_ADSENSE;
 
-  useEffect(() => {
-    if (isEnabled && typeof window !== 'undefined') {
-      try {
-        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
-      } catch (err) {
-        console.error('AdSense error:', err);
-      }
-    }
-  }, [isEnabled]);
+  const adSlotRef = useAdSenseSlot(isEnabled);
 
   if (!isEnabled) {
     // Return placeholder during development/pre-approval
@@ -50,6 +42,7 @@ const InArticleAd: React.FC<InArticleAdProps> = ({ adSlot, enabled }) => {
   return (
     <div style={{ margin: '32px 0', textAlign: 'center' }}>
       <ins
+        ref={adSlotRef}
         className="adsbygoogle"
         style={{
           display: 'block',

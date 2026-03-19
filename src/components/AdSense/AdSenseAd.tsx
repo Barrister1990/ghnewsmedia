@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
 import { ENABLE_ADSENSE, ADSENSE_CLIENT_ID } from '@/config/adsense';
+import { useAdSenseSlot } from './useAdSenseSlot';
 
 interface AdSenseAdProps {
   adSlot: string;
@@ -22,15 +22,7 @@ const AdSenseAd: React.FC<AdSenseAdProps> = ({
   // Use local enabled prop if provided, otherwise use global setting
   const isEnabled = enabled !== undefined ? enabled : ENABLE_ADSENSE;
 
-  useEffect(() => {
-    if (isEnabled && typeof window !== 'undefined') {
-      try {
-        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
-      } catch (err) {
-        console.error('AdSense error:', err);
-      }
-    }
-  }, [isEnabled]);
+  const adSlotRef = useAdSenseSlot(isEnabled);
 
   if (!isEnabled) {
     // Return placeholder during development/pre-approval
@@ -56,6 +48,7 @@ const AdSenseAd: React.FC<AdSenseAdProps> = ({
 
   return (
     <ins
+      ref={adSlotRef}
       className={`adsbygoogle ${className}`}
       style={{
         display: 'block',

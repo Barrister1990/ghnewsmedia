@@ -153,6 +153,11 @@ const Footer = () => {
                   Contact
                 </Link>
               </li>
+              <li style={{ marginBottom: '12px' }}>
+                <Link href="/authors" style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '13px', textDecoration: 'none', display: 'block' }}>
+                  Our Journalists
+                </Link>
+              </li>
             </ul>
           </div>
 

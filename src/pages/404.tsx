@@ -1,18 +1,24 @@
 
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
-import SEOHead from '@/components/SEO/SEOHead';
+import EnhancedSEOHead from '@/components/SEO/EnhancedSEOHead';
 import { ArrowLeft, Home, Search } from 'lucide-react';
 import Link from 'next/link';
+import Head from 'next/head';
 
 const NotFound = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <SEOHead
+      <EnhancedSEOHead
         title="Page Not Found"
         description="The page you're looking for could not be found. Browse our latest news and updates from Ghana or search for specific topics."
         canonical="https://ghnewsmedia.com/404"
+        noindex={true}
       />
+      <Head>
+        <meta name="robots" content="noindex, nofollow" />
+        <meta name="googlebot" content="noindex, nofollow" />
+      </Head>
       
       <Header />
       

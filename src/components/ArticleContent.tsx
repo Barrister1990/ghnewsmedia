@@ -1020,16 +1020,19 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
     // Initialize AdSense ads (for both SSR injected ads and client-side rendered ads)
     const initializeAdSense = () => {
       try {
-        const adContainers = contentRef.current?.querySelectorAll('.adsbygoogle:not([data-adsbygoogle-status])');
+        const adContainers = contentRef.current?.querySelectorAll('.adsbygoogle');
         if (adContainers && adContainers.length > 0) {
-          if ((window as any).adsbygoogle) {
-            adContainers.forEach(() => {
-              ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
-            });
-          } else {
-            // Retry if AdSense script hasn't loaded yet
-            setTimeout(initializeAdSense, 1000);
-          }
+          adContainers.forEach((slot) => {
+            const adSlot = slot as HTMLElement;
+            const alreadyInitialized = adSlot.getAttribute('data-ad-init') === 'true';
+            const adStatus = adSlot.getAttribute('data-adsbygoogle-status');
+
+            // Skip slots already initialized by this component or by AdSense itself.
+            if (alreadyInitialized || adStatus) return;
+
+            adSlot.setAttribute('data-ad-init', 'true');
+            ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+          });
         }
       } catch (err) {
         console.error('Error initializing AdSense:', err);

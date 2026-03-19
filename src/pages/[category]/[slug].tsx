@@ -88,6 +88,8 @@ const ArticlePage = ({ article, relatedArticles, allArticles, error }: ArticlePa
   ];
 
   const articleUrl = `https://ghnewsmedia.com/${article.category.slug}/${article.slug}`;
+  const authorProfileUrl = article.author.id ? `/author/${article.author.id}` : '';
+  const authorHasDetails = Boolean(article.author.bio || article.author.title || article.author.id);
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', 'Source Sans 3', system-ui, sans-serif" }}>
@@ -136,6 +138,46 @@ const ArticlePage = ({ article, relatedArticles, allArticles, error }: ArticlePa
               relatedArticles={relatedArticles}
             />
           </div>
+
+          {/* Author trust card for E-E-A-T */}
+          {authorHasDetails && (
+            <section className="mb-8 sm:mb-12 p-4 sm:p-6 border border-gray-200 rounded-lg bg-gray-50">
+              <div className="flex items-start gap-4">
+                <img
+                  src={article.author.avatar}
+                  alt={article.author.name}
+                  className="w-16 h-16 rounded-full object-cover flex-shrink-0"
+                  onError={(e) => {
+                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(article.author.name)}&background=random`;
+                  }}
+                />
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+                    {authorProfileUrl ? (
+                      <Link href={authorProfileUrl} className="hover:text-primary transition-colors">
+                        {article.author.name}
+                      </Link>
+                    ) : (
+                      article.author.name
+                    )}
+                  </h2>
+                  {article.author.title && (
+                    <p className="text-sm sm:text-base text-primary font-medium mt-1">{article.author.title}</p>
+                  )}
+                  <p className="text-sm sm:text-base text-gray-700 mt-2 leading-relaxed">
+                    {article.author.bio || `${article.author.name} is a journalist at GH News Media covering ${article.category.name.toLowerCase()} and national developments in Ghana.`}
+                  </p>
+                  {authorProfileUrl && (
+                    <div className="mt-3">
+                      <Link href={authorProfileUrl} className="text-sm font-medium text-primary hover:underline">
+                        View all articles by {article.author.name}
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+          )}
         </article>
 
         {/* Share Buttons - Pulse Style */}

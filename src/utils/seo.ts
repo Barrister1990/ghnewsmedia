@@ -32,7 +32,7 @@ export const generateWebSiteStructuredData = (categories?: Array<{name: string, 
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "GH News",
+    "name": "GH News Media",
     "alternateName": "Ghana's Digital News Platform",
     "url": "https://ghnewsmedia.com",
     "description": "Ghana's trusted source for breaking news, politics, business, sports, and entertainment.",
@@ -88,9 +88,13 @@ export const truncateTitle = (title: string, maxLength: number = 55): string => 
 };
 
 export const generateMetaTitle = (title: string, category?: string): string => {
-  const siteName = 'GH News';
+  const siteName = 'GH News Media';
   // Remove any existing site name or "|" suffix to avoid duplication
-  const cleanTitle = title.replace(/\s*\|\s*GhNewsMedia\s*$/i, '').replace(/\s*\|\s*GH News\s*$/i, '').trim();
+  const cleanTitle = title
+    .replace(/\s*\|\s*GhNewsMedia\s*$/i, '')
+    .replace(/\s*\|\s*GH News Media\s*$/i, '')
+    .replace(/\s*\|\s*GH News\s*$/i, '')
+    .trim();
   
   // Build title with proper truncation to stay within 50-60 characters (580 pixels)
   let fullTitle: string;
@@ -201,7 +205,7 @@ export const generateSocialPreviewTags = (article: NewsArticle) => {
     'og:image:height': '630',
     'og:image:alt': article.title,
     'og:url': articleUrl,
-    'og:site_name': 'GH News',
+    'og:site_name': 'GH News Media',
     
     // Twitter Cards
     'twitter:card': 'summary_large_image',
