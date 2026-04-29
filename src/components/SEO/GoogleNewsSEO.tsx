@@ -48,6 +48,16 @@ const GoogleNewsSEO: React.FC<GoogleNewsSEOProps> = ({ article }) => {
   ];
 
   // Enhanced structured data for Google News
+  const authorAvatar = article.author.avatar?.trim();
+  const authorSchema: Record<string, string> = {
+    "@type": "Person",
+    name: article.author.name,
+    url: `https://ghnewsmedia.com/author/${article.author.id}`,
+  };
+  if (authorAvatar) {
+    authorSchema.image = authorAvatar;
+  }
+
   const googleNewsStructuredData = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
@@ -63,12 +73,7 @@ const GoogleNewsSEO: React.FC<GoogleNewsSEOProps> = ({ article }) => {
     },
     "datePublished": publicationDate,
     "dateModified": new Date(article.updatedAt || article.publishedAt).toISOString(),
-    "author": {
-      "@type": "Person",
-      "name": article.author.name,
-      "url": `https://ghnewsmedia.com/author/${article.author.id}`,
-      "image": article.author.avatar
-    },
+    "author": authorSchema,
     "publisher": {
       "@type": "NewsMediaOrganization",
       "name": "GH News",

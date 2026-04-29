@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import { useImmediateIndexing } from '@/hooks/useImmediateIndexing';
 import { supabase } from '@/integrations/supabase/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Eye, EyeOff, Save } from 'lucide-react';
@@ -62,6 +63,7 @@ type ArticleFormData = z.infer<typeof articleSchema>;
 interface Category {
   id: string;
   name: string;
+  slug: string;
   color: string;
 }
 
@@ -110,6 +112,8 @@ const EditArticle = () => {
   });
   const [activeTab, setActiveTab] = useState('content');
   const [previewMode, setPreviewMode] = useState(false);
+  const [initialStatus, setInitialStatus] = useState<'draft' | 'published' | 'archived'>('draft');
+  const { notifySearchEngines } = useImmediateIndexing();
 
   const form = useForm<ArticleFormData>({
     resolver: zodResolver(articleSchema),
@@ -166,6 +170,7 @@ const EditArticle = () => {
         focus_keyword: articleData.focus_keyword || ''
       };
       form.reset(transformedData);
+      setInitialStatus((articleData.status as 'draft' | 'published' | 'archived') || 'draft');
       setSeoData({
         metaTitle: transformedData.meta_title,
         metaDescription: transformedData.meta_description,
@@ -196,7 +201,7 @@ const EditArticle = () => {
     try {
       const { data, error } = await supabase
         .from('categories')
-        .select('id, name, color')
+        .select('id, name, slug, color')
         .order('name');
 
       if (error) throw error;
@@ -232,6 +237,20 @@ const EditArticle = () => {
         .eq('id', articleId);
 
       if (error) throw error;
+
+      if (data.status === 'published') {
+        const selectedCategory = categories.find((category) => category.id === data.category_id);
+        const categorySlug = selectedCategory?.slug || '';
+        if (categorySlug) {
+          await notifySearchEngines(
+            {
+              category: categorySlug,
+              slug: data.slug,
+            },
+            initialStatus === 'published' ? 'update_event' : 'publish_event'
+          );
+        }
+      }
 
       toast.success('Article updated successfully');
       router.push('/admin/articles');

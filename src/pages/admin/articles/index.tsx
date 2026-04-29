@@ -1,6 +1,7 @@
 
 import AdminLayout from '@/components/admin/AdminLayout';
 import { AnimatedLoading } from '@/components/admin/AnimatedLoading';
+import { ADMIN_PANEL_CARD, AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import ArticleCards from '@/components/admin/ArticleCards';
 import ArticleFilters from '@/components/admin/ArticleFilters';
 import ArticleTable from '@/components/admin/ArticleTable';
@@ -8,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { useAllArticles } from '@/hooks/useAllArticles';
 import { filterArticles } from '@/utils/articleFilters';
+import { cn } from '@/lib/utils';
 import { LayoutGrid, List, Plus, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
@@ -47,54 +49,65 @@ const ArticlesManagement = () => {
 
   return (
     <AdminLayout>
-      <div className="space-y-4 lg:space-y-6">
-        <div className="flex flex-col space-y-4 lg:flex-row lg:justify-between lg:items-center lg:space-y-0">
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Articles Management</h1>
-            <p className="text-gray-600 text-sm lg:text-base">
-              Manage all articles in the system ({articles.length} total)
-            </p>
-          </div>
-          <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3">
-            <Button
-              onClick={handleRefresh}
-              variant="outline"
-              className="flex items-center justify-center space-x-2 w-full sm:w-auto"
-            >
-              <RefreshCw className="w-4 h-4" />
-              <span>Refresh</span>
-            </Button>
-            <Button
-              onClick={() => router.push('/admin/articles/create')}
-              className="flex items-center justify-center space-x-2 w-full sm:w-auto"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Create New Article</span>
-            </Button>
-          </div>
-        </div>
+      <div className="space-y-6 pb-4 lg:space-y-8">
+        <AdminPageHeader
+          title="Articles"
+          description={`Manage drafts and published pieces (${articles.length} total).`}
+          actions={
+            <>
+              <Button
+                onClick={handleRefresh}
+                variant="outline"
+                className="w-full gap-2 border-stone-200 bg-white sm:w-auto"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Refresh
+              </Button>
+              <Button onClick={() => router.push('/admin/articles/create')} className="w-full gap-2 sm:w-auto">
+                <Plus className="h-4 w-4" />
+                New article
+              </Button>
+            </>
+          }
+        />
 
-        <div className="flex justify-between items-center">
-          <ArticleFilters
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            trendingFilter={trendingFilter}
-            setTrendingFilter={setTrendingFilter}
-            totalArticles={filteredArticles.length}
-          />
-          <div className="flex space-x-2">
-            <Button variant={viewMode === 'list' ? 'secondary' : 'outline'} size="icon" onClick={() => setViewMode('list')}>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0 flex-1">
+            <ArticleFilters
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              statusFilter={statusFilter}
+              setStatusFilter={setStatusFilter}
+              trendingFilter={trendingFilter}
+              setTrendingFilter={setTrendingFilter}
+              totalArticles={filteredArticles.length}
+            />
+          </div>
+          <div className="flex shrink-0 justify-end gap-1 rounded-2xl border border-stone-200 bg-white p-1 shadow-sm lg:self-start">
+            <Button
+              type="button"
+              variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+              size="icon"
+              className="rounded-xl"
+              onClick={() => setViewMode('list')}
+              aria-label="List view"
+            >
               <List className="h-4 w-4" />
             </Button>
-            <Button variant={viewMode === 'card' ? 'secondary' : 'outline'} size="icon" onClick={() => setViewMode('card')}>
+            <Button
+              type="button"
+              variant={viewMode === 'card' ? 'secondary' : 'ghost'}
+              size="icon"
+              className="rounded-xl"
+              onClick={() => setViewMode('card')}
+              aria-label="Card view"
+            >
               <LayoutGrid className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow">
+        <div className={cn(ADMIN_PANEL_CARD, 'overflow-hidden')}>
           {viewMode === 'list' ? (
             <ArticleTable
               articles={paginatedArticles}

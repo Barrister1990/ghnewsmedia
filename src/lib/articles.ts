@@ -25,7 +25,7 @@ export const transformToNewsArticle = (article: any): NewsArticle => {
       id: article.author_id || '',
       name: article.author_name || 'Unknown Author',
       bio: article.author_bio || '',
-      avatar: article.author_avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+      avatar: article.author_avatar || '',
       title: article.author_title || '',
       social
     },
@@ -142,11 +142,19 @@ export const fetchArticleBySlug = async (slug: string): Promise<{
         if (facebookValue) mergedSocial.facebook = facebookValue;
         if (linkedinValue) mergedSocial.linkedin = linkedinValue;
 
+        const p = profileData.avatar;
+        const mergedAvatar =
+          p === null || (typeof p === 'string' && p.trim() === '')
+            ? ''
+            : typeof p === 'string' && p.trim() !== ''
+              ? p.trim()
+              : transformedArticle.author.avatar ?? '';
+
         transformedArticle.author = {
           ...transformedArticle.author,
           name: profileData.name || transformedArticle.author.name,
           bio: profileData.bio || transformedArticle.author.bio,
-          avatar: profileData.avatar || transformedArticle.author.avatar,
+          avatar: mergedAvatar,
           title: profileData.title || transformedArticle.author.title,
           social: mergedSocial,
         };

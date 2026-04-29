@@ -8,7 +8,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   try {
     const { articles } = await fetchPublishedArticles();
     const baseUrl = 'https://ghnewsmedia.com';
-    const currentDate = new Date().toISOString();
+    const currentDate = new Date().toUTCString();
 
     // Sort articles by publication date (newest first)
     const sortedArticles = articles.sort((a, b) => 
@@ -53,7 +53,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     ${sortedArticles
       .slice(0, 50) // Limit to 50 most recent articles
       .map((article) => {
-        const publicationDate = new Date(article.publishedAt).toISOString();
+        const publicationDate = new Date(article.publishedAt).toUTCString();
         const articleUrl = `${baseUrl}/${article.category.slug}/${article.slug}`;
         const imageUrl = article.featuredImage.startsWith('http') 
           ? article.featuredImage 
@@ -75,7 +75,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
       <content:encoded><![CDATA[${article.content}]]></content:encoded>
       <pubDate>${publicationDate}</pubDate>
       <dc:creator>${article.author.name}</dc:creator>
-      <dc:date>${publicationDate}</dc:date>
+      <dc:date>${new Date(article.publishedAt).toISOString()}</dc:date>
       <category>${article.category.name}</category>
       ${article.tags.map(tag => `<category>${tag}</category>`).join('\n      ')}
       
@@ -99,7 +99,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
 </rss>`;
 
     res.setHeader('Content-Type', 'application/rss+xml; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, s-maxage=1800, stale-while-revalidate=3600'); // Cache for 30 minutes
+    res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=120');
     res.write(rssFeed);
     res.end();
 

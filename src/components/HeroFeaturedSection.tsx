@@ -121,6 +121,11 @@ const HeroFeaturedSection: React.FC<HeroFeaturedSectionProps> = ({ articles }) =
                 >
                   {heroArticle.title}
                 </h2>
+                <div className="flex flex-wrap items-center gap-2 text-[11px] text-white/90">
+                  <span className="font-medium">{heroArticle.author.name}</span>
+                  <span className="text-white/60">•</span>
+                  <span>{heroArticle.readTime} min read</span>
+                </div>
               </div>
             </article>
           </Link>
@@ -169,6 +174,7 @@ const HeroFeaturedSection: React.FC<HeroFeaturedSectionProps> = ({ articles }) =
                   >
                     {article.title}
                   </h3>
+                  <p className="mt-1 text-[11px] text-gray-500">{article.readTime} min read</p>
                 </div>
               </article>
             </Link>

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import React from 'react';
 import { InArticleAd } from '@/components/AdSense';
-import { AD_SLOTS, ENABLE_ADSENSE, ADSENSE_CLIENT_ID } from '@/config/adsense';
+import { AD_SLOTS, ENABLE_ADSENSE } from '@/config/adsense';
 
 // Declare Twitter and Instagram widgets global
 declare global {
@@ -245,19 +245,8 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
       // Server-side rendering: process HTML to add inline styles and inject ads
       let processedContent = processHTMLForSSR(content);
       
-      // Inject ad after 2nd paragraph for SSR (if enabled)
-      // Note: Ad will be initialized via useEffect on client-side
-      if (typeof window === 'undefined' && ENABLE_ADSENSE) {
-        // Only inject in SSR - client-side will use React components
-        const paragraphMatches = processedContent.match(/<p[^>]*>[\s\S]*?<\/p>/gi);
-        if (paragraphMatches && paragraphMatches.length >= 2) {
-          // Find the end of the 2nd paragraph
-          const secondParagraphEnd = processedContent.indexOf(paragraphMatches[1]) + paragraphMatches[1].length;
-          const adHtml = `<div class="adsense-in-article-wrapper" style="margin: 32px 0; text-align: center;"><ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="${ADSENSE_CLIENT_ID}" data-ad-slot="${AD_SLOTS.IN_ARTICLE_1}"></ins></div>`;
-          processedContent = processedContent.slice(0, secondParagraphEnd) + adHtml + processedContent.slice(secondParagraphEnd);
-        }
-      }
-      
+      // Do not inject raw AdSense HTML on SSR. Ads are rendered only via React components
+      // on deterministic positions to avoid duplicate/misaligned ad blocks.
       return (
         <div 
           className="prose prose-lg max-w-none" 

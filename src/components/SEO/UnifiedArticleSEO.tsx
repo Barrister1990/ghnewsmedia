@@ -20,6 +20,7 @@ const UnifiedArticleSEO: React.FC<UnifiedArticleSEOProps> = ({ article }) => {
   const socialTags = seoService.generateSocialMediaTags(article);
   const structuredData = seoService.generateAdvancedArticleSchema(article);
   const imageUrl = seoService.optimizeImageForSEO(article.featuredImage, article.title);
+  const canonicalUrl = `${SITE_URL}/${article.category.slug}/${article.slug}`;
 
   const linkTags = [
     { rel: 'icon' as const, type: 'image/x-icon', href: '/favicon.ico' },
@@ -32,6 +33,8 @@ const UnifiedArticleSEO: React.FC<UnifiedArticleSEOProps> = ({ article }) => {
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
     { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' as const },
     { rel: 'alternate', type: 'application/rss+xml', title: 'GH News RSS Feed', href: `${SITE_URL}/rss.xml` },
+    { rel: 'alternate', hrefLang: 'en-gh', href: canonicalUrl },
+    { rel: 'alternate', hrefLang: 'x-default', href: canonicalUrl },
   ];
 
   return (

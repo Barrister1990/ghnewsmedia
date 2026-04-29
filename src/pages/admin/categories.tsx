@@ -1,6 +1,7 @@
 
 import AdminLayout from '@/components/admin/AdminLayout';
 import { AnimatedLoading } from '@/components/admin/AnimatedLoading';
+import { ADMIN_PANEL_CARD, AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import { useCategories } from '@/hooks/useCategories';
+import { cn } from '@/lib/utils';
 import { Edit, Plus, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
 
@@ -74,24 +76,27 @@ const CategoriesManagement = () => {
   };
 
   if (loading) {
-    return <AnimatedLoading />;
+    return (
+      <AdminLayout>
+        <AnimatedLoading />
+      </AdminLayout>
+    );
   }
 
   return (
     <AdminLayout>
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Categories Management</h1>
-          <p className="text-gray-600">Manage content categories</p>
-        </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="flex items-center space-x-2">
-              <Plus className="w-4 h-4" />
-              <span>Add Category</span>
-            </Button>
-          </DialogTrigger>
+    <div className="space-y-8 pb-4">
+      <AdminPageHeader
+        title="Categories"
+        description="Create and edit sections that power your site navigation and article URLs."
+        actions={
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="w-full gap-2 sm:w-auto">
+                <Plus className="h-4 w-4" />
+                Add category
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
@@ -151,11 +156,12 @@ const CategoriesManagement = () => {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
+        }
+      />
 
-      <Card>
+      <Card className={cn(ADMIN_PANEL_CARD)}>
         <CardHeader>
-          <CardTitle>Categories ({categories.length})</CardTitle>
+          <CardTitle className="text-lg">Categories ({categories.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>

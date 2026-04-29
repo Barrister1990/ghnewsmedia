@@ -218,7 +218,8 @@ const SearchPage: React.FC = () => {
       <Head>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
-        <meta name="robots" content="index, follow" />
+        <meta name="robots" content="noindex, follow" />
+        <link rel="canonical" href="https://ghnewsmedia.com/search" />
         {query && <meta name="keywords" content={`${query}, Ghana news, search results`} />}
       </Head>
       

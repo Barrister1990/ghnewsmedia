@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "seo:lhci": "lhci autorun --config=./lighthouserc.json",
+    "seo:lhci:collect": "lhci collect --config=./lighthouserc.json",
+    "seo:lhci:assert": "lhci assert --config=./lighthouserc.json"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
@@ -88,6 +91,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@lhci/cli": "^0.15.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

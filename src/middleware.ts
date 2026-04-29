@@ -11,6 +11,7 @@ export function middleware(request: NextRequest) {
     '/about',
     '/contact',
     '/advertise',
+    '/authors',
     '/search',
     '/404',
     '/email-verification',

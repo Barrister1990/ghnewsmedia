@@ -11,6 +11,7 @@ import RelatedArticles from '@/components/RelatedArticles';
 import ScrollToTop from '@/components/ScrollToTop';
 import UnifiedArticleSEO from '@/components/SEO/UnifiedArticleSEO';
 import ShareButtons from '@/components/ShareButtons';
+import { UserAvatar } from '@/components/UserAvatar';
 import { useArticleReactions } from '@/hooks/useArticleReactions';
 import { useImmediateIndexing } from '@/hooks/useImmediateIndexing';
 import { useViewTracking } from '@/hooks/useViewTracking';
@@ -53,7 +54,7 @@ const ArticlePage = ({ article, relatedArticles, allArticles, error }: ArticlePa
       
       // For recently published articles (within 1 hour), trigger immediate indexing
       if (articleAge < oneHourMs) {
-        notifySearchEngines(article);
+        notifySearchEngines(article, 'view_fallback');
       }
     }
   }, [article, notifySearchEngines]);
@@ -143,13 +144,10 @@ const ArticlePage = ({ article, relatedArticles, allArticles, error }: ArticlePa
           {authorHasDetails && (
             <section className="mb-8 sm:mb-12 p-4 sm:p-6 border border-gray-200 rounded-lg bg-gray-50">
               <div className="flex items-start gap-4">
-                <img
+                <UserAvatar
                   src={article.author.avatar}
                   alt={article.author.name}
-                  className="w-16 h-16 rounded-full object-cover flex-shrink-0"
-                  onError={(e) => {
-                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(article.author.name)}&background=random`;
-                  }}
+                  className="h-16 w-16 flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
                   <h2 className="text-lg sm:text-xl font-semibold text-gray-900">

@@ -25,19 +25,19 @@ const LatestNews: React.FC<LatestNewsProps> = ({ articles }) => {
     .slice(0, 12);
 
   return (
-    <section className="mb-8">
+    <section className="mb-10">
       {/* Section Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-5 flex items-center justify-between border-b border-stone-200 pb-3">
         <div className="flex items-center gap-2">
           <h2 className="font-bold" style={{ color: '#111111', fontSize: '18px' }}>
             Latest News
           </h2>
-          <span className="text-xs px-2 py-1 rounded-full font-semibold text-white" style={{ backgroundColor: '#1A365D', fontSize: '11px' }}>
-            NEW
+          <span className="rounded-full border border-stone-300 px-2 py-1 text-[11px] font-semibold text-stone-600">
+            Updated
           </span>
         </div>
         <Link 
-          href="/latest"
+          href="/search"
           className="text-xs font-medium hover:underline"
           style={{ color: '#1A365D', fontSize: '12px' }}
         >
@@ -99,7 +99,7 @@ const LatestNews: React.FC<LatestNewsProps> = ({ articles }) => {
             href={`/${article.category.slug}/${article.slug}`}
             className="block group"
           >
-            <article className="bg-white rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200 h-full">
+            <article className="h-full overflow-hidden rounded-lg border border-stone-200/80 bg-white transition-shadow duration-200 hover:shadow-md">
               {/* Image */}
               <div className="relative h-40 overflow-hidden">
                 <img
@@ -134,6 +134,7 @@ const LatestNews: React.FC<LatestNewsProps> = ({ articles }) => {
                 >
                   {article.title}
                 </h3>
+                <p className="mt-1 text-[11px] text-gray-500">{article.readTime} min read</p>
               </div>
             </article>
           </Link>

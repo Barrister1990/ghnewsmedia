@@ -1,11 +1,13 @@
 
 import AdminLayout from '@/components/admin/AdminLayout';
 import { AnimatedLoading } from '@/components/admin/AnimatedLoading';
+import { ADMIN_PANEL_CARD, AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
 import { CheckCircle, Trash2, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -108,42 +110,49 @@ const CommentsManagement = () => {
   });
 
   if (loading) {
-    return <AnimatedLoading />;
+    return (
+      <AdminLayout>
+        <AnimatedLoading />
+      </AdminLayout>
+    );
   }
 
   return (
     <AdminLayout>
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Comments Management</h1>
-          <p className="text-gray-600">Moderate user comments</p>
-        </div>
-        <div className="flex space-x-2">
-          <Button
-            variant={filter === 'all' ? 'default' : 'outline'}
-            onClick={() => setFilter('all')}
-          >
-            All ({comments.length})
-          </Button>
-          <Button
-            variant={filter === 'approved' ? 'default' : 'outline'}
-            onClick={() => setFilter('approved')}
-          >
-            Approved ({comments.filter(c => c.approved).length})
-          </Button>
-          <Button
-            variant={filter === 'pending' ? 'default' : 'outline'}
-            onClick={() => setFilter('pending')}
-          >
-            Pending ({comments.filter(c => !c.approved).length})
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-8 pb-4">
+      <AdminPageHeader
+        title="Comments"
+        description="Review, approve, or remove comments attached to stories."
+        actions={
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
+            <Button
+              variant={filter === 'all' ? 'default' : 'outline'}
+              className={cn(filter !== 'all' && 'border-stone-200 bg-white')}
+              onClick={() => setFilter('all')}
+            >
+              All ({comments.length})
+            </Button>
+            <Button
+              variant={filter === 'approved' ? 'default' : 'outline'}
+              className={cn(filter !== 'approved' && 'border-stone-200 bg-white')}
+              onClick={() => setFilter('approved')}
+            >
+              Approved ({comments.filter(c => c.approved).length})
+            </Button>
+            <Button
+              variant={filter === 'pending' ? 'default' : 'outline'}
+              className={cn(filter !== 'pending' && 'border-stone-200 bg-white')}
+              onClick={() => setFilter('pending')}
+            >
+              Pending ({comments.filter(c => !c.approved).length})
+            </Button>
+          </div>
+        }
+      />
 
-      <Card>
+      <Card className={cn(ADMIN_PANEL_CARD)}>
         <CardHeader>
-          <CardTitle>Comments ({filteredComments.length})</CardTitle>
+          <CardTitle className="text-lg">Queue ({filteredComments.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>

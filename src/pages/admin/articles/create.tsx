@@ -15,6 +15,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { usePreventFormSubmission } from '@/hooks/usePreventFormSubmission';
+import { useImmediateIndexing } from '@/hooks/useImmediateIndexing';
 import { supabase } from '@/integrations/supabase/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { BarChart, Eye, EyeOff, FileText, Save, Search, Send } from 'lucide-react';
@@ -64,6 +65,7 @@ type ArticleFormData = z.infer<typeof articleSchema>;
 interface Category {
   id: string;
   name: string;
+  slug: string;
   color: string;
 }
 
@@ -88,6 +90,7 @@ interface SEOData {
 const CreateArticle = () => {
   const router = useRouter()
   const { formProps } = usePreventFormSubmission();
+  const { notifySearchEngines } = useImmediateIndexing();
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -144,7 +147,7 @@ const CreateArticle = () => {
     try {
       const { data, error } = await supabase
         .from('categories')
-        .select('id, name, color')
+        .select('id, name, slug, color')
         .order('name');
 
       if (error) throw error;
@@ -242,6 +245,20 @@ const CreateArticle = () => {
           .insert(tagInserts);
 
         if (tagError) console.error('Error adding tags:', tagError);
+      }
+
+      if (data.status === 'published' && article) {
+        const selectedCategory = categories.find((category) => category.id === data.category_id);
+        const categorySlug = selectedCategory?.slug || '';
+        if (categorySlug) {
+          await notifySearchEngines(
+            {
+              category: categorySlug,
+              slug: data.slug,
+            },
+            'publish_event'
+          );
+        }
       }
 
       toast.success('Article created successfully!');

@@ -1,14 +1,16 @@
-
 import { AnimatedLoading } from '@/components/admin/AnimatedLoading';
 import ArticleFilters from '@/components/admin/ArticleFilters';
 import CMSArticlesList from '@/components/cms/CMSArticlesList';
 import CMSLayout from '@/components/cms/CMSLayout';
+import { PANEL_CARD, PanelPageHeader } from '@/components/shell/PanelChrome';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { useAllArticles } from '@/hooks/useAllArticles';
 import { filterArticles } from '@/utils/articleFilters';
 import { Plus, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+
 const CMSArticlesManagement = () => {
   const router = useRouter();
   const { articles, loading, refetch } = useAllArticles();
@@ -24,54 +26,52 @@ const CMSArticlesManagement = () => {
 
   if (loading) {
     return (
-        <CMSLayout>
-       <AnimatedLoading />
+      <CMSLayout>
+        <AnimatedLoading />
       </CMSLayout>
     );
   }
+
   return (
     <CMSLayout>
-    <div className="space-y-4 lg:space-y-6">
-      <div className="flex flex-col space-y-4 lg:flex-row lg:justify-between lg:items-center lg:space-y-0">
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Articles Management</h1>
-          <p className="text-gray-600 text-sm lg:text-base">
-            Manage your articles ({articles.length} total)
-          </p>
-        </div>
-        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3">
-          <Button 
-            onClick={handleRefresh}
-            variant="outline"
-            className="flex items-center justify-center space-x-2 w-full sm:w-auto"
-          >
-            <RefreshCw className="w-4 h-4" />
-            <span>Refresh</span>
-          </Button>
-          <Button 
-            onClick={() => router.push('/cms/articles/create')}
-            className="flex items-center justify-center space-x-2 w-full sm:w-auto"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Create New Article</span>
-          </Button>
+      <div className="space-y-8">
+        <PanelPageHeader
+          title="Articles"
+          description={`Manage your drafts and submissions (${articles.length} total)`}
+          actions={
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="border-stone-200 bg-white text-stone-800 hover:bg-stone-50"
+                onClick={handleRefresh}
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Refresh
+              </Button>
+              <Button type="button" size="sm" className="shadow-sm" onClick={() => router.push('/cms/articles/create')}>
+                <Plus className="mr-2 h-4 w-4" />
+                Create article
+              </Button>
+            </>
+          }
+        />
+
+        <ArticleFilters
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          trendingFilter={trendingFilter}
+          setTrendingFilter={setTrendingFilter}
+          totalArticles={filteredArticles.length}
+        />
+
+        <div className={cn(PANEL_CARD, 'overflow-hidden')}>
+          <CMSArticlesList articles={filteredArticles} loading={loading} />
         </div>
       </div>
-
-      <ArticleFilters
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        trendingFilter={trendingFilter}
-        setTrendingFilter={setTrendingFilter}
-        totalArticles={filteredArticles.length}
-      />
-
-      <div className="bg-white rounded-lg shadow">
-        <CMSArticlesList articles={filteredArticles} loading={loading} />
-      </div>
-    </div>
     </CMSLayout>
   );
 };

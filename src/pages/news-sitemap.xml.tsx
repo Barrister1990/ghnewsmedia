@@ -15,7 +15,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
       const articleDate = new Date(article.publishedAt);
       const hoursDiff = (Date.now() - articleDate.getTime()) / (1000 * 60 * 60);
       return hoursDiff <= 48; // Only articles published in last 48 hours
-    });
+    }).sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
     const newsSitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -51,7 +51,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
 </urlset>`;
 
     res.setHeader('Content-Type', 'text/xml');
-    res.setHeader('Cache-Control', 'public, s-maxage=1800, stale-while-revalidate=3600'); // Cache for 30 minutes
+    res.setHeader('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=120');
     res.write(newsSitemap);
     res.end();
 

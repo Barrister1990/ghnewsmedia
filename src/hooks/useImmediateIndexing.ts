@@ -5,19 +5,25 @@ import AdvancedSEOService from '../services/advancedSEOService';
 import { NewsArticle } from '../types/news';
 
 const NOTIFY_INDEXING_API = '/api/notify-indexing';
+type IndexingSource = 'publish_event' | 'update_event' | 'view_fallback';
+type IndexingInput = NewsArticle | { url?: string; category?: string; slug?: string };
+
+function isNewsArticleInput(input: IndexingInput): input is NewsArticle {
+  return typeof (input as NewsArticle).publishedAt === 'string' && typeof (input as NewsArticle).slug === 'string' && typeof (input as NewsArticle).category !== 'string';
+}
 
 export const useImmediateIndexing = () => {
   const seoService = AdvancedSEOService.getInstance();
 
-  const notifySearchEngines = useCallback(async (article: NewsArticle) => {
+  const notifySearchEngines = useCallback(async (input: IndexingInput, source: IndexingSource = 'view_fallback') => {
+    const payload = isNewsArticleInput(input)
+      ? { category: input.category.slug, slug: input.slug, publishedAt: input.publishedAt, source }
+      : { ...input, source };
     try {
       const res = await fetch(NOTIFY_INDEXING_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          category: article.category.slug,
-          slug: article.slug,
-        }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {

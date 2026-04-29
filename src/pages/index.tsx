@@ -68,6 +68,9 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
     slug: cat.slug
   }));
 
+  // Keep ad density predictable on homepage.
+  const canShowHomepageAds = articles.length >= 10;
+
   const combinedStructuredData = [
     generateOrganizationStructuredData(),
     generateWebSiteStructuredData(navCategories),
@@ -180,17 +183,14 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
               <HeroFeaturedSection articles={topFeatured} />
             </div>
 
-            {/* Multiplex Ad #1 - After Hero Section (Top of content) */}
-            <MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} />
-
             {/* Editor's Picks */}
             <EditorsPicks articles={featuredArticles.length > 0 ? featuredArticles : latestArticles.slice(0, 5)} />
 
+            {/* Homepage ad slot 1: after editorial section */}
+            {canShowHomepageAds && <MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} />}
+
             {/* Latest News - Newest articles sorted by date */}
             <LatestNews articles={articles} />
-
-            {/* Multiplex Ad #2 - After Latest News (Middle of content) */}
-            <MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} />
 
             {/* Category Sections - Dynamically display all categories */}
             {allCategories.map((category, index) => {
@@ -209,9 +209,8 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
                 );
               }
               
-              // Add ad only after the 3rd category (one ad max in category section)
-              // This ensures we stay within Google's 3 display ad limit per page
-              const showAd = index === 2;
+              // Homepage ad slot 2: one mid-stream insertion in category blocks.
+              const showAd = canShowHomepageAds && index === 3;
               
               return (
                 <React.Fragment key={category.slug}>

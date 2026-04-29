@@ -68,12 +68,16 @@ class AdvancedSEOService {
 
     const authorSchema: Record<string, string> = {
       "@type": "Person",
-      "name": article.author.name,
-      "image": article.author.avatar
+      name: article.author.name,
     };
 
     if (article.author.id) {
       authorSchema.url = `${this.baseUrl}/author/${article.author.id}`;
+    }
+
+    const av = article.author.avatar?.trim();
+    if (av) {
+      authorSchema.image = av;
     }
 
     return {
@@ -115,10 +119,15 @@ class AdvancedSEOService {
         "@id": articleUrl
       },
       "articleSection": article.category.name,
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": this.siteName,
+        "url": this.baseUrl
+      },
       "keywords": (article.tags || []).join(', '),
       "wordCount": this.getWordCount(article.content),
       "timeRequired": `PT${Math.max(1, article.readTime || 1)}M`,
-      "inLanguage": "en-GB",
+      "inLanguage": "en-GH",
       "isAccessibleForFree": true,
       "url": articleUrl,
       "thumbnailUrl": imageUrl,
@@ -179,7 +188,7 @@ class AdvancedSEOService {
       'og:image:secure_url': optimizedImage,
       'og:url': articleUrl,
       'og:site_name': this.siteName,
-      'og:locale': 'en_GB',
+      'og:locale': 'en_GH',
       
       // Article specific (ISO 8601 for Google News)
       'article:published_time': new Date(article.publishedAt).toISOString(),
@@ -252,8 +261,8 @@ class AdvancedSEOService {
       'article:author': article.author.name,
       'geo.region': 'GH',
       'geo.country': 'Ghana',
-      'language': 'en-GB',
-      'content-language': 'en-GB'
+      'language': 'en-GH',
+      'content-language': 'en-GH'
     };
   }
 }

@@ -2,6 +2,7 @@ import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import ScrollToTop from '@/components/ScrollToTop';
 import SEOHead from '@/components/SEO/SEOHead';
+import { UserAvatar } from '@/components/UserAvatar';
 import { supabase } from '@/integrations/supabase/client';
 import { GetServerSideProps } from 'next';
 import Link from 'next/link';
@@ -42,14 +43,7 @@ const AuthorsPage = ({ authors }: AuthorsPageProps) => {
               {authors.map((author) => (
                 <article key={author.id} className="bg-white border border-gray-200 rounded-xl p-5 sm:p-6">
                   <div className="flex items-start gap-4">
-                    <img
-                      src={author.avatar}
-                      alt={author.name}
-                      className="w-16 h-16 rounded-full object-cover flex-shrink-0"
-                      onError={(e) => {
-                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(author.name)}&background=random`;
-                      }}
-                    />
+                    <UserAvatar src={author.avatar} alt={author.name} className="h-16 w-16 flex-shrink-0" />
                     <div className="min-w-0">
                       <h2 className="text-xl font-semibold text-gray-900">
                         <Link href={`/author/${author.id}`} className="hover:text-primary transition-colors">
@@ -98,9 +92,7 @@ export const getServerSideProps: GetServerSideProps<AuthorsPageProps> = async ()
     articleCounts.set(article.author_id, (articleCounts.get(article.author_id) || 0) + 1);
     articleMetadata.set(article.author_id, {
       name: article.author_name || 'GH News Media Author',
-      avatar:
-        article.author_avatar ||
-        `https://ui-avatars.com/api/?name=${encodeURIComponent(article.author_name || 'GH')}&background=random`,
+      avatar: article.author_avatar || '',
     });
   });
 
@@ -124,10 +116,7 @@ export const getServerSideProps: GetServerSideProps<AuthorsPageProps> = async ()
         id: authorId,
         name: profile?.name || fallback?.name || 'GH News Media Author',
         bio: profile?.bio || '',
-        avatar:
-          profile?.avatar ||
-          fallback?.avatar ||
-          `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.name || 'GH')}&background=random`,
+        avatar: profile?.avatar || fallback?.avatar || '',
         title: profile?.title || '',
         articleCount: articleCounts.get(authorId) || 0,
       };

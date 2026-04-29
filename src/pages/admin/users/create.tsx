@@ -42,62 +42,39 @@ const CreateUser = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      // Since we can't directly create users from the client side due to security,
-      // we'll use the signup flow and then update the profile
-      const { data, error } = await supabase.auth.signUp({
-        email: values.email,
-        password: values.password,
-        options: {
-          data: {
-            name: values.name,
-            title: values.title || null,
-            bio: values.bio || null,
-            avatar: values.avatar || null,
-          }
-        }
-      });
-
-      if (error) {
-        if (error.message.includes('User already registered')) {
-          toast.error('A user with this email already exists');
-        } else {
-          throw error;
-        }
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        toast.error('Your session expired. Sign in again.');
         return;
       }
 
-      // Note: The user will be created with the default editor role via the trigger
-      // If we need a different role, we'll need to update it after creation
-      if (data.user && values.role !== 'editor') {
-        // Update the user role
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .update({ role: values.role })
-          .eq('user_id', data.user.id);
+      const res = await fetch('/api/admin/create-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          email: values.email,
+          password: values.password,
+          name: values.name,
+          role: values.role,
+          title: values.title,
+          bio: values.bio,
+          avatar: values.avatar,
+        }),
+      });
 
-        if (roleError) {
-          console.error('Error updating user role:', roleError);
-          toast.error('User created but role assignment failed');
-        }
+      const payload = (await res.json()) as { error?: string };
+
+      if (!res.ok) {
+        toast.error(payload.error || 'Failed to create user');
+        return;
       }
 
-      // Update the profile with avatar if provided
-      if (data.user && values.avatar) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({ 
-            avatar: values.avatar,
-            title: values.title || null,
-            bio: values.bio || null 
-          })
-          .eq('id', data.user.id);
-
-        if (profileError) {
-          console.error('Error updating profile:', profileError);
-        }
-      }
-
-      toast.success('User created successfully! They will receive a confirmation email.');
+      toast.success('User created. Their email is confirmed and they can sign in now.');
       router.push('/admin/users');
     } catch (error) {
       console.error('Error creating user:', error);

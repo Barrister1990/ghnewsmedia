@@ -38,6 +38,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
   totalArticles, 
   error 
 }) => {
+  const canShowCategoryAds = articles.length >= 8;
   // Handle error state
   if (error) {
     return (
@@ -195,8 +196,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
           )}
         </div>
         
-        {/* Multiplex Ad - Top of Category Page */}
-        <MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} />
+        {/* Category ad slot 1 */}
+        {canShowCategoryAds && <MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} />}
         
         {/* Articles List - Clean Card Layout */}
         <section>
@@ -206,9 +207,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
                 const publishedDate = new Date(article.publishedAt);
                 const timeAgo = formatDistanceToNow(publishedDate, { addSuffix: true });
                 
-                // Show ad only after the 6th article (max 2 ads per page: 1 top + 1 in content)
-                // This ensures we stay within Google's 3 display ad limit per page
-                const showAd = index === 6 && articles.length > 7;
+                // Category ad slot 2 (single in-list insertion)
+                const showAd = canShowCategoryAds && index === 7;
                 
                 return (
                   <React.Fragment key={article.id}>

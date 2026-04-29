@@ -44,7 +44,7 @@ export const useBreakingNews = () => {
         id: article.author_id || '',
         name: article.author_name || 'Unknown Author',
         bio: '',
-        avatar: article.author_avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+        avatar: article.author_avatar || '',
         title: '',
         social: {}
       },

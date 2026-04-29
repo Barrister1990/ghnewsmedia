@@ -1,4 +1,4 @@
-import { ENABLE_ADSENSE, ADSENSE_CLIENT_ID } from '@/config/adsense';
+import { ENABLE_ADSENSE, ADSENSE_CLIENT_ID, isConfiguredAdSlot } from '@/config/adsense';
 import { useAdSenseSlot } from './useAdSenseSlot';
 
 interface MultiplexAdProps {
@@ -24,6 +24,8 @@ const MultiplexAd: React.FC<MultiplexAdProps> = ({
   className = '' 
 }) => {
   const isEnabled = enabled !== undefined ? enabled : ENABLE_ADSENSE;
+  const hasValidSlot = isConfiguredAdSlot(adSlot);
+  if (!hasValidSlot) return null;
 
   const adSlotRef = useAdSenseSlot(isEnabled);
 

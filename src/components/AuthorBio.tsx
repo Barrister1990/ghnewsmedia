@@ -1,4 +1,5 @@
 
+import { UserAvatar } from '@/components/UserAvatar';
 import React from 'react';
 import { Author } from '../types/news';
 
@@ -10,11 +11,7 @@ const AuthorBio: React.FC<AuthorBioProps> = ({ author }) => {
   return (
     <div className="bg-white rounded-xl p-6 mb-12 shadow-sm">
       <div className="flex items-start space-x-4">
-        <img
-          src={author.avatar}
-          alt={author.name}
-          className="w-16 h-16 rounded-full object-cover"
-        />
+        <UserAvatar src={author.avatar} alt={author.name} className="h-16 w-16" />
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-gray-900 mb-1">
             {author.name}

@@ -40,3 +40,9 @@ export const AD_SLOTS = {
   HOMEPAGE_TOP: 'YOUR_HOMEPAGE_TOP_AD_SLOT_ID',
   HOMEPAGE_MIDDLE: 'YOUR_HOMEPAGE_MIDDLE_AD_SLOT_ID',
 } as const;
+
+export const isConfiguredAdSlot = (adSlot?: string): boolean => {
+  if (!adSlot) return false;
+  if (adSlot.includes('YOUR_')) return false;
+  return /^[0-9]{6,}$/.test(adSlot);
+};

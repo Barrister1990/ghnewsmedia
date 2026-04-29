@@ -14,6 +14,14 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
 
     const baseUrl = 'https://ghnewsmedia.com';
     const currentDate = new Date().toISOString();
+    const importantSectionSlugs = ['news', 'entertainment', 'sports', 'business', 'lifestyle', 'tech', 'features', 'opinions'];
+    const categoryMap = new Map(categories.map((category) => [category.slug, category]));
+    const orderedCategorySlugs = [
+      ...importantSectionSlugs.filter((slug) => categoryMap.has(slug)),
+      ...categories
+        .map((category) => category.slug)
+        .filter((slug) => !importantSectionSlugs.includes(slug)),
+    ];
 
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -28,26 +36,22 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     <priority>1.0</priority>
   </url>
   
-  <!-- Main sections for sitelinks - All main category pages -->
-  ${categories
-    .filter(cat => ['news', 'entertainment', 'sports', 'business', 'lifestyle', 'tech', 'features', 'opinions'].includes(cat.slug))
-    .map((category) => {
+  <!-- Category pages -->
+  ${orderedCategorySlugs
+    .map((slug) => {
+      const category = categoryMap.get(slug);
+      if (!category) {
+        return '';
+      }
+      const isPrioritySection = importantSectionSlugs.includes(slug);
       return `  <url>
     <loc>${baseUrl}/${category.slug}</loc>
     <lastmod>${category.updated_at || currentDate}</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.9</priority>
+    <changefreq>${isPrioritySection ? 'hourly' : 'daily'}</changefreq>
+    <priority>${isPrioritySection ? '0.9' : '0.8'}</priority>
   </url>`;
     })
     .join('\n')}
-  
-  <!-- Search page -->
-  <url>
-    <loc>${baseUrl}/search</loc>
-    <lastmod>${currentDate}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
   
   <!-- Static pages -->
   <url>
@@ -80,19 +84,14 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  <!-- Category pages (all categories) -->
-  ${categories
-    .map((category) => {
-      return `  <url>
-    <loc>${baseUrl}/${category.slug}</loc>
-    <lastmod>${category.updated_at || currentDate}</lastmod>
+  <!-- Author pages -->
+  <url>
+    <loc>${baseUrl}/authors</loc>
+    <lastmod>${currentDate}</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>`;
-    })
-    .join('\n')}
-  
-  <!-- Author pages (uncomment if needed) -->
+    <priority>0.7</priority>
+  </url>
+  <!-- Author detail pages (uncomment if needed) -->
   ${/* authors
     .map((author) => {
       return `  <url>
@@ -133,7 +132,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
 </urlset>`;
 
     res.setHeader('Content-Type', 'text/xml');
-    res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate');
+    res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=120');
     res.write(sitemap);
     res.end();
 

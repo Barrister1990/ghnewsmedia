@@ -5,6 +5,7 @@ import PublishingWorkflow from '@/components/admin/PublishingWorkflow';
 import SEOManager from '@/components/admin/SEOManager';
 import TagSelector from '@/components/admin/TagSelector';
 import CMSLayout from '@/components/cms/CMSLayout';
+import { PANEL_CARD, PanelPageHeader } from '@/components/shell/PanelChrome';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -15,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cn } from '@/lib/utils';
 import { BarChart, Eye, EyeOff, FileText, Save, Search, Send } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -240,35 +242,32 @@ const CMSCreateArticle = () => {
 
   return (
     <CMSLayout>
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Create New Article</h1>
-          <p className="text-gray-600">Write and publish a professional news article</p>
-        </div>
-        <div className="flex space-x-2">
-          <Button
-            variant="outline"
-            onClick={() => setPreviewMode(!previewMode)}
-            className="flex items-center space-x-2"
-          >
-            {previewMode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            <span>{previewMode ? 'Edit' : 'Preview'}</span>
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => router.push('/cms/articles')}
-          >
-            Cancel
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-8">
+      <PanelPageHeader
+        title="Create new article"
+        description="Compose your story; drafts are reviewed before publishing."
+        actions={
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="border-stone-200 bg-white shadow-sm"
+              onClick={() => setPreviewMode(!previewMode)}
+            >
+              {previewMode ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
+              {previewMode ? 'Edit' : 'Preview'}
+            </Button>
+            <Button type="button" variant="outline" size="sm" className="border-stone-200 bg-white shadow-sm" onClick={() => router.push('/cms/articles')}>
+              Cancel
+            </Button>
+          </>
+        }
+      />
 
-      {/* Editor Notice */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <p className="text-blue-800 text-sm">
-          <strong>Note:</strong> As an editor, your articles will be saved as drafts. 
-          They need to be published by an administrator.
+      <div className="rounded-2xl border border-amber-200/80 bg-amber-50/90 p-4 text-sm text-amber-950">
+        <p>
+          <strong>Note:</strong> As an editor, your articles are saved as drafts until an administrator publishes them.
         </p>
       </div>
 
@@ -297,7 +296,7 @@ const CMSCreateArticle = () => {
               {/* Main Content */}
               <div className="lg:col-span-2">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                  <TabsList className="grid w-full grid-cols-4">
+                  <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-2xl border border-stone-200 bg-stone-50/90 p-1 sm:grid-cols-4">
                     <TabsTrigger value="content" className="flex items-center space-x-2">
                       <FileText className="w-4 h-4" />
                       <span>Content</span>
@@ -317,7 +316,7 @@ const CMSCreateArticle = () => {
                   </TabsList>
 
                   <TabsContent value="content" className="space-y-6">
-                    <Card>
+                    <Card className={cn(PANEL_CARD)}>
                       <CardHeader>
                         <CardTitle>Article Content</CardTitle>
                         <CardDescription>Write your article content with support for images and video embeds</CardDescription>
@@ -432,9 +431,9 @@ const CMSCreateArticle = () => {
 
                   <TabsContent value="publish">
                     <div className="space-y-6">
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                        <p className="text-yellow-800 text-sm">
-                          <strong>Editor Note:</strong> Articles will be saved as drafts and require administrator approval for publishing.
+                      <div className="rounded-2xl border border-amber-200/80 bg-amber-50/90 p-4 text-sm text-amber-950">
+                        <p>
+                          <strong>Editor note:</strong> Articles are saved as drafts and require administrator approval to go live.
                         </p>
                       </div>
                       <PublishingWorkflow
@@ -452,7 +451,7 @@ const CMSCreateArticle = () => {
               {/* Sidebar */}
               <div className="space-y-6">
                 {/* Publishing Options */}
-                <Card>
+                <Card className={cn(PANEL_CARD)}>
                   <CardHeader>
                     <CardTitle>Publishing</CardTitle>
                   </CardHeader>
@@ -528,7 +527,7 @@ const CMSCreateArticle = () => {
                 </Card>
 
                 {/* Category */}
-                <Card>
+                <Card className={cn(PANEL_CARD)}>
                   <CardHeader>
                     <CardTitle>Category</CardTitle>
                   </CardHeader>
@@ -567,7 +566,7 @@ const CMSCreateArticle = () => {
                 </Card>
 
                 {/* Featured Image */}
-                <Card>
+                <Card className={cn(PANEL_CARD)}>
                   <CardHeader>
                     <CardTitle>Featured Image</CardTitle>
                   </CardHeader>
@@ -600,7 +599,7 @@ const CMSCreateArticle = () => {
                 </Card>
 
                 {/* Tags */}
-                <Card>
+                <Card className={cn(PANEL_CARD)}>
                   <CardHeader>
                     <CardTitle>Tags</CardTitle>
                   </CardHeader>
@@ -613,7 +612,7 @@ const CMSCreateArticle = () => {
                 </Card>
 
                 {/* Actions */}
-                <Card>
+                <Card className={cn(PANEL_CARD)}>
                   <CardContent className="pt-6">
                     <div className="space-y-2">
                       <Button

@@ -13,10 +13,23 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger
+  SheetTrigger,
 } from '@/components/ui/sheet';
 import { useAuth } from '@/hooks/useAuth';
-import { Menu } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import {
+  ExternalLink,
+  FolderTree,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  MessageSquare,
+  Newspaper,
+  Share2,
+  Tags,
+  UserRound,
+  Users,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
@@ -26,20 +39,28 @@ interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
+type NavItem = {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+};
+
+const navigation: NavItem[] = [
+  { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+  { name: 'Articles', href: '/admin/articles', icon: Newspaper },
+  { name: 'Categories', href: '/admin/categories', icon: FolderTree },
+  { name: 'Tags', href: '/admin/tags', icon: Tags },
+  { name: 'Comments', href: '/admin/comments', icon: MessageSquare },
+  { name: 'Social Media', href: '/admin/social-media', icon: Share2 },
+  { name: 'Users', href: '/admin/users', icon: Users },
+];
+
+const BRAND = 'GhNewsMedia';
+
 const AdminLayout = ({ children }: AdminLayoutProps) => {
   const { user, signOut, userRole } = useAuth();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const navigation = [
-    { name: 'Dashboard', href: '/admin', icon: '📊' },
-    { name: 'Articles', href: '/admin/articles', icon: '📝' },
-    { name: 'Categories', href: '/admin/categories', icon: '📁' },
-    { name: 'Tags', href: '/admin/tags', icon: '🏷️' },
-    { name: 'Comments', href: '/admin/comments', icon: '💬' },
-    { name: 'Social Media', href: '/admin/social-media', icon: '📱' },
-    { name: 'Users', href: '/admin/users', icon: '👥' },
-  ];
 
   const handleSignOut = async () => {
     await signOut();
@@ -50,174 +71,189 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     router.push('/');
   };
 
-  const NavigationContent = () => (
-    <nav className="space-y-1 p-4">
+  /** Matches dashboard root + nested routes (e.g. /admin/articles/edit/...) */
+  const isNavActive = (href: string) => {
+    if (href === '/admin') {
+      return router.pathname === '/admin';
+    }
+    return router.pathname === href || router.pathname.startsWith(`${href}/`);
+  };
+
+  const SidebarBrand = ({ compact }: { compact?: boolean }) => (
+    <div className={cn('border-b border-stone-200/80 bg-white px-4 py-5', compact && 'py-4')}>
+      <Link href="/admin" className="group flex items-start gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-stone-900 text-white shadow-sm ring-1 ring-stone-900/10">
+          <Newspaper className="h-5 w-5 opacity-95" aria-hidden />
+        </span>
+        <div className="min-w-0 pt-0.5">
+          <p className="truncate text-[15px] font-semibold tracking-tight text-stone-900">{BRAND}</p>
+          <p className="mt-0.5 text-[11px] font-medium uppercase tracking-[0.14em] text-stone-500">
+            Admin
+          </p>
+        </div>
+      </Link>
+    </div>
+  );
+
+  const SidebarNav = ({ onNavigate }: { onNavigate?: () => void }) => (
+    <nav className="flex-1 space-y-1 px-3 py-4" aria-label="Admin navigation">
       {navigation.map((item) => {
-        const isActive = router.pathname === item.href;
+        const Icon = item.icon;
+        const active = isNavActive(item.href);
         return (
           <Link
             key={item.name}
             href={item.href}
-            onClick={() => setSidebarOpen(false)}
-            className={`
-              group flex items-center px-3 py-2 text-sm font-medium rounded-md w-full
-              ${isActive
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }
-            `}
+            onClick={() => onNavigate?.()}
+            className={cn(
+              'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+              active
+                ? 'bg-stone-900 text-white shadow-sm'
+                : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+            )}
           >
-            <span className="mr-3 text-lg">{item.icon}</span>
-            {item.name}
+            <Icon
+              className={cn(
+                'h-[18px] w-[18px] shrink-0 transition-opacity',
+                active ? 'opacity-100' : 'opacity-80 group-hover:opacity-100'
+              )}
+              aria-hidden
+            />
+            <span>{item.name}</span>
           </Link>
         );
       })}
     </nav>
   );
 
+  const SidebarFooter = () => (
+    <div className="border-t border-stone-200/80 px-4 py-4">
+      <p className="text-[11px] leading-relaxed text-stone-400">
+        Signed in as{' '}
+        <span className="font-medium text-stone-600">{userRole ?? 'admin'}</span>
+      </p>
+    </div>
+  );
+
   return (
     <ProtectedRoute requiredRole="admin">
-    <div className="min-h-screen bg-gray-50">
-      {/* Mobile Header */}
-      <header className="bg-white shadow-sm border-b lg:hidden">
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center space-x-3">
-            <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
-                  <Menu className="h-6 w-6" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-64 p-0">
-                <SheetHeader className="px-4 py-6 border-b">
-                  <SheetTitle className="text-left">
-                    <Link href="/admin" className="text-xl font-bold text-gray-900">
-                      GhNewsMedia CMS
-                    </Link>
-                  </SheetTitle>
-                </SheetHeader>
-                <NavigationContent />
-              </SheetContent>
-            </Sheet>
-            <Link href="/admin" className="text-lg font-bold text-gray-900">
-              GhNewsMedia
-            </Link>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleViewSite}
-              className="hidden sm:flex"
-            >
-              View Site
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="text-xs">
-                      {user?.email?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none truncate">
-                      {user?.email}
-                    </p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {userRole}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleViewSite}>
-                  View Site
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSignOut}>
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </header>
+      <div className="min-h-screen bg-[#f5f4f2] text-stone-900 antialiased">
+        <div className="flex min-h-screen">
+          {/* Desktop sidebar — Nordic neutral shell */}
+          <aside className="relative hidden w-[268px] shrink-0 flex-col border-r border-stone-200/90 bg-white lg:flex lg:sticky lg:top-0 lg:h-screen lg:self-start">
+            <SidebarBrand />
+            <SidebarNav />
+            <SidebarFooter />
+          </aside>
 
-      {/* Desktop Header */}
-      <header className="bg-white shadow hidden lg:block">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <Link href="/admin" className="text-2xl font-bold text-gray-900">
-                GhNewsMedia CMS
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="outline"
-                className="text-sm font-semibold"
-                onClick={handleViewSite}
-              >
-                View News Site
-              </Button>
-              <span className="text-sm text-gray-500">
-                Role: <span className="font-medium capitalize">{userRole}</span>
-              </span>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback>
-                        {user?.email?.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
+          {/* Main column */}
+          <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+            {/* Unified sticky header — mobile + desktop */}
+            <header className="sticky top-0 z-40 border-b border-stone-200/90 bg-white/90 backdrop-blur-md supports-[backdrop-filter]:bg-white/75">
+              <div className="flex h-14 items-center gap-3 px-4 sm:h-[60px] sm:px-6">
+                <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+                  <SheetTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="shrink-0 border-stone-200 bg-white lg:hidden"
+                      aria-label="Open navigation menu"
+                    >
+                      <Menu className="h-5 w-5 text-stone-700" />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="flex w-[min(288px,88vw)] flex-col border-stone-200 bg-[#fafaf9] p-0">
+                    <SheetHeader className="border-b border-stone-200 bg-white px-4 pb-4 pt-6 text-left">
+                      <SheetTitle className="sr-only">Admin navigation</SheetTitle>
+                      <SidebarBrand compact />
+                    </SheetHeader>
+                    <SidebarNav onNavigate={() => setSidebarOpen(false)} />
+                    <SidebarFooter />
+                  </SheetContent>
+                </Sheet>
+
+                <div className="flex min-w-0 flex-1 flex-col justify-center lg:hidden">
+                  <span className="truncate text-sm font-semibold tracking-tight text-stone-900">
+                    {BRAND}
+                  </span>
+                  <span className="text-[11px] font-medium uppercase tracking-[0.12em] text-stone-500">
+                    Console
+                  </span>
+                </div>
+
+                <div className="hidden min-w-0 flex-1 flex-col justify-center lg:flex">
+                  <h1 className="truncate text-lg font-semibold tracking-tight text-stone-900">
+                    Admin dashboard
+                  </h1>
+                  <p className="text-xs text-stone-500">Manage content, people, and publishing</p>
+                </div>
+
+                <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="hidden border-stone-200 bg-white text-stone-700 hover:bg-stone-50 sm:inline-flex"
+                    onClick={handleViewSite}
+                  >
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    View site
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {user?.email}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {userRole}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleViewSite}>
-                    View Site
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleSignOut}>
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="border-stone-200 bg-white sm:hidden"
+                    onClick={handleViewSite}
+                    aria-label="View public site"
+                  >
+                    <ExternalLink className="h-4 w-4 text-stone-700" />
+                  </Button>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="rounded-full border-stone-200 bg-white"
+                        aria-label="Account menu"
+                      >
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-stone-100">
+                            <UserRound className="h-4 w-4 text-stone-600" strokeWidth={1.75} />
+                          </AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56 border-stone-200 bg-white">
+                      <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col space-y-1">
+                          <p className="truncate text-sm font-medium text-stone-900">{user?.email}</p>
+                          <p className="text-xs capitalize text-stone-500">{userRole}</p>
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleViewSite} className="cursor-pointer sm:hidden">
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        View site
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600 focus:text-red-600">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Sign out
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            </header>
+
+            <main className="flex-1 overflow-x-hidden overflow-y-auto">
+              <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10">{children}</div>
+            </main>
           </div>
         </div>
-      </header>
-
-      <div className="flex h-[calc(100vh-73px)] lg:h-[calc(100vh-89px)]">
-        {/* Desktop Sidebar */}
-        <aside className="hidden lg:flex lg:flex-shrink-0">
-          <div className="flex flex-col w-64 bg-white border-r border-gray-200">
-            <NavigationContent />
-          </div>
-        </aside>
-
-        {/* Main content */}
-        <main className="flex-1 overflow-auto">
-          <div className="p-4 lg:p-8">
-            {children}
-          </div>
-        </main>
       </div>
-    </div>
     </ProtectedRoute>
   );
 };

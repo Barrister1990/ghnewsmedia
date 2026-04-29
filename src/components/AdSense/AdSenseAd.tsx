@@ -1,4 +1,4 @@
-import { ENABLE_ADSENSE, ADSENSE_CLIENT_ID } from '@/config/adsense';
+import { ENABLE_ADSENSE, ADSENSE_CLIENT_ID, isConfiguredAdSlot } from '@/config/adsense';
 import { useAdSenseSlot } from './useAdSenseSlot';
 
 interface AdSenseAdProps {
@@ -21,6 +21,8 @@ const AdSenseAd: React.FC<AdSenseAdProps> = ({
 }) => {
   // Use local enabled prop if provided, otherwise use global setting
   const isEnabled = enabled !== undefined ? enabled : ENABLE_ADSENSE;
+  const hasValidSlot = isConfiguredAdSlot(adSlot);
+  if (!hasValidSlot) return null;
 
   const adSlotRef = useAdSenseSlot(isEnabled);
 

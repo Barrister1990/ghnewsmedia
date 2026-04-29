@@ -19,6 +19,11 @@ const ReadAloud: React.FC<ReadAloudProps> = ({ articleTitle, articleContent }) =
     }
   }, []);
 
+  const getSpeechSynthesis = () => {
+    if (typeof window === 'undefined') return null;
+    return 'speechSynthesis' in window ? window.speechSynthesis : null;
+  };
+
   // Extract text content from HTML
   const extractTextFromHTML = (html: string): string => {
     if (typeof document === 'undefined') return '';
@@ -50,7 +55,9 @@ const ReadAloud: React.FC<ReadAloudProps> = ({ articleTitle, articleContent }) =
 
     if (isPaused && utterance) {
       // Resume paused speech
-      window.speechSynthesis.resume();
+      const synth = getSpeechSynthesis();
+      if (!synth) return;
+      synth.resume();
       setIsPlaying(true);
       setIsPaused(false);
     } else {
@@ -58,7 +65,11 @@ const ReadAloud: React.FC<ReadAloudProps> = ({ articleTitle, articleContent }) =
       const text = extractTextFromHTML(articleContent);
       const fullText = `${articleTitle}. ${text}`;
       
-      const synth = window.speechSynthesis;
+      const synth = getSpeechSynthesis();
+      if (!synth) {
+        setIsSupported(false);
+        return;
+      }
       
       // Cancel any ongoing speech
       synth.cancel();
@@ -108,15 +119,19 @@ const ReadAloud: React.FC<ReadAloudProps> = ({ articleTitle, articleContent }) =
   };
 
   const handlePause = () => {
-    if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
-      window.speechSynthesis.pause();
+    const synth = getSpeechSynthesis();
+    if (!synth) return;
+    if (synth.speaking && !synth.paused) {
+      synth.pause();
       setIsPaused(true);
       setIsPlaying(false);
     }
   };
 
   const handleStop = () => {
-    window.speechSynthesis.cancel();
+    const synth = getSpeechSynthesis();
+    if (!synth) return;
+    synth.cancel();
     setIsPlaying(false);
     setIsPaused(false);
     setUtterance(null);
@@ -125,8 +140,9 @@ const ReadAloud: React.FC<ReadAloudProps> = ({ articleTitle, articleContent }) =
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (typeof window !== 'undefined') {
-        window.speechSynthesis.cancel();
+      const synth = getSpeechSynthesis();
+      if (synth) {
+        synth.cancel();
       }
     };
   }, []);

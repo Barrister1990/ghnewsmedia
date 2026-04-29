@@ -117,3 +117,53 @@ export const listArticleImages = async (): Promise<string[]> => {
     return [];
   }
 };
+
+/**
+ * Uploads a profile avatar to the `avatars` bucket (path prefix `avatars/…`).
+ * Object name must start with the profile owner's user id so storage RLS can allow self-upload;
+ * admins can upload for any owner id per migration policies.
+ */
+export const uploadProfileAvatar = async (
+  ownerUserId: string,
+  file: File
+): Promise<UploadResult> => {
+  try {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      return {
+        success: false,
+        error: 'Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.',
+      };
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      return {
+        success: false,
+        error: 'File size too large. Maximum size is 5MB.',
+      };
+    }
+
+    const fileExt = file.name.split('.').pop() || 'jpg';
+    const fileName = `${ownerUserId}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+    const filePath = `avatars/${fileName}`;
+
+    const { error } = await supabase.storage.from('avatars').upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: false,
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from('avatars').getPublicUrl(filePath);
+
+    return { success: true, url: publicUrl, path: filePath };
+  } catch (error) {
+    console.error('Avatar upload error:', error);
+    return { success: false, error: 'An unexpected error occurred during upload' };
+  }
+};

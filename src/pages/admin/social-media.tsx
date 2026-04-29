@@ -3,12 +3,14 @@ import AddAccountDialog from '@/components/admin/AddAccountDialog';
 import AddPostDialog from '@/components/admin/AddPostDialog';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { AnimatedLoading } from '@/components/admin/AnimatedLoading';
+import { ADMIN_PANEL_CARD, AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import SocialMediaAccountsTable from '@/components/admin/SocialMediaAccountsTable';
 import SocialMediaPostsTable from '@/components/admin/SocialMediaPostsTable';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSocialMediaData } from '@/hooks/useSocialMediaData';
+import { cn } from '@/lib/utils';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
@@ -27,38 +29,36 @@ const SocialMediaManagement = () => {
 
   if (error) {
     return (
-        <AdminLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Social Media Management</h1>
-          <p className="text-gray-600 text-sm lg:text-base">Manage your social media accounts and posts</p>
+      <AdminLayout>
+        <div className="space-y-8 pb-4">
+          <AdminPageHeader
+            title="Social media"
+            description="Accounts and scheduled or published posts connected to your channels."
+          />
+          <Card className={cn(ADMIN_PANEL_CARD)}>
+            <CardContent className="p-8">
+              <div className="text-center">
+                <p className="mb-4 text-rose-700">Could not load social data.</p>
+                <Button onClick={refetch}>Try again</Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-        <Card>
-          <CardContent className="p-6">
-            <div className="text-center">
-              <p className="text-red-600 mb-4">Failed to load social media data</p>
-              <Button onClick={refetch}>Try Again</Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
       </AdminLayout>
     );
   }
 
   return (
     <AdminLayout>
-    <div className="space-y-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Social Media Management</h1>
-          <p className="text-gray-600 text-sm lg:text-base">Manage your social media accounts and posts</p>
-        </div>
-      </div>
+    <div className="space-y-8 pb-4">
+      <AdminPageHeader
+        title="Social media"
+        description="Track follower snapshots and manage linked accounts and posts."
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         {accounts.map((account) => (
-          <Card key={account.id}>
+          <Card key={account.id} className={cn(ADMIN_PANEL_CARD)}>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">{account.platform}</CardTitle>
               <CardDescription className="text-xs">{account.handle}</CardDescription>
@@ -72,9 +72,13 @@ const SocialMediaManagement = () => {
       </div>
 
       <Tabs defaultValue="accounts" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="accounts">Accounts</TabsTrigger>
-          <TabsTrigger value="posts">Posts</TabsTrigger>
+        <TabsList className="inline-flex h-auto gap-1 rounded-2xl border border-stone-200 bg-stone-50/90 p-1">
+          <TabsTrigger value="accounts" className="rounded-xl px-4 py-2">
+            Accounts
+          </TabsTrigger>
+          <TabsTrigger value="posts" className="rounded-xl px-4 py-2">
+            Posts
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="accounts" className="space-y-4">

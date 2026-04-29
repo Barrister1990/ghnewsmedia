@@ -6,6 +6,7 @@ import PublishingWorkflow from '@/components/admin/PublishingWorkflow';
 import SEOManager from '@/components/admin/SEOManager';
 import TagSelector from '@/components/admin/TagSelector';
 import CMSLayout from '@/components/cms/CMSLayout';
+import { PANEL_CARD, PanelPageHeader } from '@/components/shell/PanelChrome';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -15,9 +16,9 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/useAuth';
-import { useImmediateIndexing } from '@/hooks/useImmediateIndexing';
 import { supabase } from '@/integrations/supabase/client';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cn } from '@/lib/utils';
 import { BarChart, Eye, EyeOff, FileText, Save, Search, Send } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -91,7 +92,6 @@ const CMSEditArticle = () => {
   // Fix 1: Ensure articleId is always a string
   const articleId = Array.isArray(id) ? id[0] : id;
   const { user } = useAuth();
-  const { notifySearchEngines } = useImmediateIndexing();
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -306,48 +306,6 @@ const CMSEditArticle = () => {
         if (tagError) console.error('Error updating tags:', tagError);
       }
 
-      // If this is a significant update to a published article, notify search engines
-      const currentCategory = categories.find(cat => cat.id === data.category_id);
-      if (currentCategory) {
-        const updatedArticle = {
-          id: articleId, // Fix 3: Use articleId which is now guaranteed to be string
-          title: data.title,
-          slug: data.slug,
-          excerpt: data.excerpt || '',
-          content: data.content,
-          featuredImage: data.featured_image || '',
-          author: {
-            id: user.id,
-            name: user.email?.split('@')[0] || 'Editor',
-            bio: '',
-            avatar: '',
-            title: 'Editor',
-            social: {}
-          },
-          category: {
-            id: currentCategory.id,
-            name: currentCategory.name,
-            slug: currentCategory.name.toLowerCase().replace(/\s+/g, '-'),
-            description: '',
-            color: currentCategory.color,
-            icon: '📰',
-            updated_at: new Date().toISOString()
-          },
-          tags: selectedTags,
-          publishedAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          readTime: data.read_time,
-          views: 0,
-          reactions: { likes: 0, hearts: 0, laughs: 0, angry: 0 },
-          comments: [],
-          featured: data.featured,
-          trending: data.trending
-        };
-
-        // Notify search engines about the significant update
-        await notifySearchEngines(updatedArticle);
-      }
-
       toast.success('Article updated successfully!');
       router.push('/cms/articles');
     } catch (error) {
@@ -371,35 +329,32 @@ const CMSEditArticle = () => {
 
   return (
     <CMSLayout>
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Edit Article</h1>
-          <p className="text-gray-600">Edit and update your article</p>
-        </div>
-        <div className="flex space-x-2">
-          <Button
-            variant="outline"
-            onClick={() => setPreviewMode(!previewMode)}
-            className="flex items-center space-x-2"
-          >
-            {previewMode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            <span>{previewMode ? 'Edit' : 'Preview'}</span>
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => router.push('/cms/articles')}
-          >
-            Cancel
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-8">
+      <PanelPageHeader
+        title="Edit article"
+        description="Update your draft; publishing is handled by an administrator."
+        actions={
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="border-stone-200 bg-white shadow-sm"
+              onClick={() => setPreviewMode(!previewMode)}
+            >
+              {previewMode ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
+              {previewMode ? 'Edit' : 'Preview'}
+            </Button>
+            <Button type="button" variant="outline" size="sm" className="border-stone-200 bg-white shadow-sm" onClick={() => router.push('/cms/articles')}>
+              Cancel
+            </Button>
+          </>
+        }
+      />
 
-      {/* Editor Notice */}
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <p className="text-yellow-800 text-sm">
-          <strong>Note:</strong> As an editor, your articles will be saved as drafts. 
-          They need to be published by an administrator.
+      <div className="rounded-2xl border border-amber-200/80 bg-amber-50/90 p-4 text-sm text-amber-950">
+        <p>
+          <strong>Note:</strong> Saving keeps this article as a draft until an administrator publishes it.
         </p>
       </div>
 
@@ -428,7 +383,7 @@ const CMSEditArticle = () => {
               {/* Main Content */}
               <div className="lg:col-span-2">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                  <TabsList className="grid w-full grid-cols-4">
+                  <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-2xl border border-stone-200 bg-stone-50/90 p-1 sm:grid-cols-4">
                     <TabsTrigger value="content" className="flex items-center space-x-2">
                       <FileText className="w-4 h-4" />
                       <span>Content</span>
@@ -448,7 +403,7 @@ const CMSEditArticle = () => {
                   </TabsList>
 
                   <TabsContent value="content" className="space-y-6">
-                    <Card>
+                    <Card className={cn(PANEL_CARD)}>
                       <CardHeader>
                         <CardTitle>Article Content</CardTitle>
                         <CardDescription>Edit your article content with support for images and video embeds</CardDescription>
@@ -563,9 +518,9 @@ const CMSEditArticle = () => {
 
                   <TabsContent value="publish">
                     <div className="space-y-6">
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                        <p className="text-yellow-800 text-sm">
-                          <strong>Editor Note:</strong> Articles will be saved as drafts and require administrator approval for publishing.
+                      <div className="rounded-2xl border border-amber-200/80 bg-amber-50/90 p-4 text-sm text-amber-950">
+                        <p>
+                          <strong>Editor note:</strong> Updates stay as drafts until an administrator publishes.
                         </p>
                       </div>
                       <PublishingWorkflow
@@ -583,7 +538,7 @@ const CMSEditArticle = () => {
               {/* Sidebar */}
               <div className="space-y-6">
                 {/* Publishing Options */}
-                <Card>
+                <Card className={cn(PANEL_CARD)}>
                   <CardHeader>
                     <CardTitle>Publishing</CardTitle>
                   </CardHeader>
@@ -659,7 +614,7 @@ const CMSEditArticle = () => {
                 </Card>
 
                 {/* Category */}
-                <Card>
+                <Card className={cn(PANEL_CARD)}>
                   <CardHeader>
                     <CardTitle>Category</CardTitle>
                   </CardHeader>
@@ -698,7 +653,7 @@ const CMSEditArticle = () => {
                 </Card>
 
                 {/* Featured Image */}
-                <Card>
+                <Card className={cn(PANEL_CARD)}>
                   <CardHeader>
                     <CardTitle>Featured Image</CardTitle>
                   </CardHeader>
@@ -725,7 +680,7 @@ const CMSEditArticle = () => {
                 </Card>
 
                 {/* Tags */}
-                <Card>
+                <Card className={cn(PANEL_CARD)}>
                   <CardHeader>
                     <CardTitle>Tags</CardTitle>
                   </CardHeader>
@@ -738,7 +693,7 @@ const CMSEditArticle = () => {
                 </Card>
 
                 {/* Actions */}
-                <Card>
+                <Card className={cn(PANEL_CARD)}>
                   <CardContent className="pt-6">
                     <div className="space-y-2">
                       <Button

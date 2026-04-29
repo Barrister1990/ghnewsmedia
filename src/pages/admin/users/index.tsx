@@ -1,6 +1,7 @@
 
 import AdminLayout from '@/components/admin/AdminLayout';
 import { AnimatedLoading } from '@/components/admin/AnimatedLoading';
+import { ADMIN_PANEL_CARD, AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
-import { UserPlus } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { UserPen, UserPlus, UserRound } from 'lucide-react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -96,11 +98,16 @@ const UsersManagement = () => {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'admin': return 'bg-red-100 text-red-800';
-      case 'editor': return 'bg-blue-100 text-blue-800';
-      case 'moderator': return 'bg-purple-100 text-purple-800';
-      case 'user': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'admin':
+        return 'bg-rose-100 text-rose-900 border-rose-200/80';
+      case 'editor':
+        return 'bg-sky-100 text-sky-900 border-sky-200/80';
+      case 'moderator':
+        return 'bg-violet-100 text-violet-900 border-violet-200/80';
+      case 'user':
+        return 'bg-stone-100 text-stone-800 border-stone-200/80';
+      default:
+        return 'bg-stone-100 text-stone-800 border-stone-200/80';
     }
   };
 
@@ -114,21 +121,24 @@ const UsersManagement = () => {
 
   return (
     <AdminLayout>
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Users Management</h1>
-          <p className="text-gray-600">Manage user accounts and roles</p>
-        </div>
-        <Button onClick={() => router.push('/admin/users/create')} className="flex items-center gap-2">
-          <UserPlus className="h-4 w-4" />
-          Add New User
-        </Button>
-      </div>
+    <div className="space-y-8 pb-4">
+      <AdminPageHeader
+        title="Users"
+        description="Manage accounts, roles, and profile details for people who can access the site or CMS."
+        actions={
+          <Button
+            onClick={() => router.push('/admin/users/create')}
+            className="w-full gap-2 sm:w-auto"
+          >
+            <UserPlus className="h-4 w-4" />
+            Add user
+          </Button>
+        }
+      />
 
-      <Card>
+      <Card className={cn(ADMIN_PANEL_CARD)}>
         <CardHeader>
-          <CardTitle>Users ({users.length})</CardTitle>
+          <CardTitle className="text-lg">Directory ({users.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -148,8 +158,8 @@ const UsersManagement = () => {
                     <div className="flex items-center space-x-3">
                       <Avatar className="h-8 w-8">
                          <AvatarImage src={user.avatar ?? undefined} />
-                        <AvatarFallback>
-                          {user.name?.charAt(0).toUpperCase()}
+                        <AvatarFallback className="bg-muted">
+                          <UserRound className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                         </AvatarFallback>
                       </Avatar>
                       <div>
@@ -166,7 +176,7 @@ const UsersManagement = () => {
                     {user.title || 'No title'}
                   </TableCell>
                   <TableCell>
-                    <Badge className={getRoleColor(getUserRole(user))}>
+                    <Badge variant="outline" className={cn('border font-medium capitalize', getRoleColor(getUserRole(user)))}>
                       {getUserRole(user)}
                     </Badge>
                   </TableCell>
@@ -174,7 +184,17 @@ const UsersManagement = () => {
                     {new Date(user.created_at).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="shrink-0"
+                        onClick={() => router.push(`/admin/users/${user.id}`)}
+                      >
+                        <UserPen className="h-4 w-4 mr-1" />
+                        Details
+                      </Button>
                       <Select
                         value={getUserRole(user)}
                         onValueChange={(newRole: 'admin' | 'editor' | 'moderator' | 'user') => handleRoleChange(user.id, newRole)}

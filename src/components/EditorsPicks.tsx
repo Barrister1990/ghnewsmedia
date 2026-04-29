@@ -1,3 +1,4 @@
+import { UserAvatar } from '@/components/UserAvatar';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState } from 'react';
@@ -106,10 +107,10 @@ const EditorsPicks: React.FC<EditorsPicksProps> = ({ articles }) => {
               <article className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 h-full">
                 {/* Author Image - Square */}
                 <div className="flex items-center gap-3 p-4">
-                  <img
+                  <UserAvatar
                     src={article.author.avatar}
                     alt={article.author.name}
-                    className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                    className="h-12 w-12 flex-shrink-0"
                   />
                   <div className="flex-1 min-w-0">
                     {/* Category */}

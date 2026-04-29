@@ -1,10 +1,22 @@
-
 import { AnimatedLoading } from '@/components/admin/AnimatedLoading';
 import CMSLayout from '@/components/cms/CMSLayout';
+import { PANEL_CARD, PanelPageHeader } from '@/components/shell/PanelChrome';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
+import {
+  FolderTree,
+  Heart,
+  MessageSquare,
+  Newspaper,
+  Plus,
+  TrendingUp,
+  Users,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+
 interface DashboardStats {
   totalArticles: number;
   publishedArticles: number;
@@ -64,138 +76,146 @@ const CMSDashboard = () => {
 
   if (loading) {
     return (
-        <CMSLayout>
-       <AnimatedLoading />
+      <CMSLayout>
+        <AnimatedLoading />
       </CMSLayout>
     );
   }
 
   const statCards = [
     {
-      title: 'Total Articles',
+      title: 'Total articles',
       value: stats.totalArticles,
       description: `${stats.publishedArticles} published`,
-      icon: '📝'
+      icon: Newspaper,
     },
     {
       title: 'Categories',
       value: stats.totalCategories,
       description: 'Content categories',
-      icon: '📁'
+      icon: FolderTree,
     },
     {
       title: 'Users',
       value: stats.totalUsers,
       description: 'Registered users',
-      icon: '👥'
+      icon: Users,
     },
     {
       title: 'Comments',
       value: stats.totalComments,
       description: 'User comments',
-      icon: '💬'
+      icon: MessageSquare,
     },
     {
       title: 'Reactions',
       value: stats.totalReactions,
       description: 'User reactions',
-      icon: '❤️'
-    }
+      icon: Heart,
+    },
   ];
 
   return (
     <CMSLayout>
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">CMS Dashboard</h1>
-        <p className="text-gray-600 text-sm lg:text-base">Welcome to the GhNewsMedia Content Management System</p>
-      </div>
+      <div className="space-y-8">
+        <PanelPageHeader
+          title="CMS overview"
+          description="Your editor snapshot of activity across the site."
+        />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-6">
-        {statCards.map((card) => (
-          <Card key={card.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {card.title}
-              </CardTitle>
-              <span className="text-2xl">{card.icon}</span>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 xl:gap-6">
+          {statCards.map((card) => {
+            const Icon = card.icon;
+            return (
+              <Card key={card.title} className={cn(PANEL_CARD)}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-stone-800">{card.title}</CardTitle>
+                  <Icon className="h-5 w-5 text-stone-400" aria-hidden />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-semibold tabular-nums text-stone-900">{card.value}</div>
+                  <p className="text-xs text-stone-500">{card.description}</p>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <Card className={cn(PANEL_CARD)}>
+            <CardHeader>
+              <CardTitle className="text-stone-900">Recent activity</CardTitle>
+              <CardDescription>Illustrative items for the workspace</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{card.value}</div>
-              <p className="text-xs text-muted-foreground">
-                {card.description}
-              </p>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-stone-200 bg-stone-50">
+                    <Newspaper className="h-4 w-4 text-stone-600" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-stone-900">New article created</p>
+                    <p className="text-xs text-stone-500">2 minutes ago</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-stone-200 bg-stone-50">
+                    <MessageSquare className="h-4 w-4 text-stone-600" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-stone-900">New comment received</p>
+                    <p className="text-xs text-stone-500">5 minutes ago</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-stone-200 bg-stone-50">
+                    <Users className="h-4 w-4 text-stone-600" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-stone-900">New user registered</p>
+                    <p className="text-xs text-stone-500">10 minutes ago</p>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              Latest activities in the system
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <span className="text-2xl">📝</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">New article created</p>
-                  <p className="text-xs text-gray-500">2 minutes ago</p>
-                </div>
+          <Card className={cn(PANEL_CARD)}>
+            <CardHeader>
+              <CardTitle className="text-stone-900">Quick actions</CardTitle>
+              <CardDescription>Jump to common editor tasks</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <Button
+                  variant="outline"
+                  className="h-auto w-full justify-start border-stone-200 bg-white py-3 text-left font-medium text-stone-800 hover:bg-stone-50"
+                  asChild
+                >
+                  <Link href="/cms/articles/create" className="flex items-center gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-stone-200 bg-stone-50">
+                      <Plus className="h-4 w-4 text-stone-700" />
+                    </span>
+                    Create new article
+                  </Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-auto w-full justify-start border-stone-200 bg-white py-3 text-left font-medium text-stone-800 hover:bg-stone-50"
+                  asChild
+                >
+                  <Link href="/cms/articles" className="flex items-center gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-stone-200 bg-stone-50">
+                      <TrendingUp className="h-4 w-4 text-stone-700" />
+                    </span>
+                    Manage articles
+                  </Link>
+                </Button>
               </div>
-              <div className="flex items-center space-x-4">
-                <span className="text-2xl">💬</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">New comment received</p>
-                  <p className="text-xs text-gray-500">5 minutes ago</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <span className="text-2xl">👥</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">New user registered</p>
-                  <p className="text-xs text-gray-500">10 minutes ago</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>
-              Frequently used actions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <Link href="/cms/articles/create" className="block">
-                <button className="w-full text-left p-3 rounded-lg border hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <span className="text-xl">➕</span>
-                    <span className="font-medium">Create New Article</span>
-                  </div>
-                </button>
-              </Link>
-              <Link href="/cms/articles" className="block">
-                <button className="w-full text-left p-3 rounded-lg border hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <span className="text-xl">📝</span>
-                    <span className="font-medium">Manage Articles</span>
-                  </div>
-                </button>
-              </Link>
-              
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
     </CMSLayout>
   );
 };

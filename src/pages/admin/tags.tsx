@@ -1,6 +1,7 @@
 
 import AdminLayout from '@/components/admin/AdminLayout';
 import { AnimatedLoading } from '@/components/admin/AnimatedLoading';
+import { ADMIN_PANEL_CARD, AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useTags } from '@/hooks/useTags';
+import { cn } from '@/lib/utils';
 import { Edit, Plus, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
 const TagsManagement = () => {
@@ -57,27 +59,26 @@ const TagsManagement = () => {
 
   if (loading) {
     return (
-        <AdminLayout>
-      <AnimatedLoading />
+      <AdminLayout>
+        <AnimatedLoading />
       </AdminLayout>
     );
   }
 
   return (
     <AdminLayout>
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Tags Management</h1>
-          <p className="text-gray-600">Manage content tags</p>
-        </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="flex items-center space-x-2">
-              <Plus className="w-4 h-4" />
-              <span>Add Tag</span>
-            </Button>
-          </DialogTrigger>
+    <div className="space-y-8 pb-4">
+      <AdminPageHeader
+        title="Tags"
+        description="Labels for articles that help discovery, search, and related content."
+        actions={
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="w-full gap-2 sm:w-auto">
+                <Plus className="h-4 w-4" />
+                Add tag
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
@@ -113,11 +114,12 @@ const TagsManagement = () => {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
+        }
+      />
 
-      <Card>
+      <Card className={cn(ADMIN_PANEL_CARD)}>
         <CardHeader>
-          <CardTitle>Tags ({tags.length})</CardTitle>
+          <CardTitle className="text-lg">Tags ({tags.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>

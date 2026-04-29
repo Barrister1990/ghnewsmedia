@@ -1,5 +1,6 @@
 
 import Footer from '@/components/Footer';
+import { UserAvatar } from '@/components/UserAvatar';
 import Header from '@/components/Header';
 import NewsCard from '@/components/NewsCard';
 import ScrollToTop from '@/components/ScrollToTop';
@@ -26,7 +27,7 @@ const transformToNewsArticle = (article: any): NewsArticle => {
       id: article.author_id || '',
       name: article.author_name || 'Unknown Author',
       bio: '',
-      avatar: article.author_avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+      avatar: article.author_avatar || '',
       title: '',
       social: {}
     },
@@ -86,7 +87,7 @@ const AuthorPage = () => {
             id: authorData.id,
             name: authorData.name || 'GhNewsMedia Author',
             bio: authorData.bio || 'No biography available.',
-            avatar: authorData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(authorData.name || 'G N')}&background=random`,
+            avatar: authorData.avatar ?? '',
             title: authorData.title || 'Journalist',
             social: {
               twitter: authorData.twitter || undefined,
@@ -179,7 +180,7 @@ const AuthorPage = () => {
     "name": author.name,
     "jobTitle": author.title,
     "description": author.bio,
-    "image": author.avatar,
+    ...(author.avatar?.trim() ? { image: author.avatar } : {}),
     "url": `https://ghnewsmedia.com/author/${author.id}`,
     "worksFor": {
       "@type": "Organization",
@@ -211,11 +212,10 @@ const AuthorPage = () => {
         {/* Author Profile */}
         <div className="bg-white rounded-xl p-8 mb-12 shadow-sm">
           <div className="flex flex-col md:flex-row items-start space-y-6 md:space-y-0 md:space-x-8">
-            <img
+            <UserAvatar
               src={author.avatar}
               alt={author.name}
-              className="w-32 h-32 rounded-full object-cover mx-auto md:mx-0"
-              onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(author.name)}&background=random` }}
+              className="mx-auto h-32 w-32 md:mx-0"
             />
             <div className="flex-1 text-center md:text-left">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">

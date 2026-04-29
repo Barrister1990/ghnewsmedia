@@ -30,9 +30,6 @@ const BreakingNews = () => {
     setTimeout(() => setIsAutoPlaying(true), 10000); // Resume auto-play after 10 seconds
   };
 
-  // Debug logging
-  console.log('Breaking news data:', { breakingNews, loading, error, currentNews });
-
   if (loading) {
     return (
       <div className="text-white py-3 sm:py-4 mb-4 relative overflow-hidden" style={{ backgroundColor: '#C53030' }}>
@@ -56,12 +53,10 @@ const BreakingNews = () => {
   }
 
   if (error) {
-    console.error('Breaking news error:', error);
     return null;
   }
 
   if (breakingNews.length === 0) {
-    console.log('No breaking news articles found');
     return null;
   }
 

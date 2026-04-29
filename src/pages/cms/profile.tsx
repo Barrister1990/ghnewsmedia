@@ -1,5 +1,6 @@
 import { AnimatedLoading } from '@/components/admin/AnimatedLoading';
 import CMSLayout from '@/components/cms/CMSLayout';
+import { PANEL_CARD, PanelPageHeader } from '@/components/shell/PanelChrome';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,8 +9,10 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { uploadProfileAvatar } from '@/lib/supabase-storage';
 import { Save, Upload, User } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 interface Profile {
@@ -81,27 +84,12 @@ const CMSProfile = () => {
   const uploadAvatar = async (file: File): Promise<string | null> => {
     if (!user?.id) return null;
 
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Math.random()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-
-      return data.publicUrl;
-    } catch (error) {
-      console.error('Error uploading avatar:', error);
-      toast.error('Failed to upload avatar');
+    const result = await uploadProfileAvatar(user.id, file);
+    if (!result.success || !result.url) {
+      toast.error(result.error || 'Failed to upload avatar');
       return null;
     }
+    return result.url;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -154,14 +142,14 @@ const CMSProfile = () => {
 
   return (
     <CMSLayout>
-    <div className="space-y-6 max-w-2xl">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
-        <p className="text-gray-600">Manage your personal information and preferences</p>
-      </div>
+    <div className="max-w-2xl space-y-8">
+      <PanelPageHeader
+        title="My profile"
+        description="Update how you appear to readers and manage your photo."
+      />
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <Card>
+        <Card className={cn(PANEL_CARD)}>
           <CardHeader>
             <CardTitle>Profile Information</CardTitle>
             <CardDescription>
@@ -178,8 +166,8 @@ const CMSProfile = () => {
                     src={avatarPreview || profile.avatar || undefined} 
                     alt={profile.name} 
                   />
-                  <AvatarFallback className="text-xl">
-                    {profile.name ? profile.name.charAt(0).toUpperCase() : <User className="h-8 w-8" />}
+                  <AvatarFallback className="bg-muted">
+                    <User className="h-8 w-8 text-muted-foreground" strokeWidth={1.75} />
                   </AvatarFallback>
                 </Avatar>
                 <div className="space-y-2">
