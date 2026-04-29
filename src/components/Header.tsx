@@ -1,7 +1,15 @@
-import { Menu, Search, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+import { Menu, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 
 const Header = () => {
@@ -9,6 +17,10 @@ const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [router.asPath]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,14 +63,22 @@ const Header = () => {
 
 
   return (
-    <header className="sticky top-0 z-50 border-b border-stone-200/80 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
-      {/* Main Header - BBC Style */}
+    <header className="sticky top-0 z-50 border-b border-stone-200 bg-white">
+      <div className="border-b border-stone-200 bg-stone-50/80">
+        <div className="container mx-auto flex h-9 items-center justify-between px-4">
+          <p className="text-[11px] uppercase tracking-[0.14em] text-stone-600">GhNewsMedia</p>
+          <Link href="/authors" className="text-[11px] font-medium text-stone-600 hover:text-stone-900">
+            Journalists
+          </Link>
+        </div>
+      </div>
+
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex h-16 items-center justify-between">
           {/* Logo - BBC Style (No text, just logo) */}
           <div className="flex items-center">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className="flex items-center"
               onMouseEnter={() => handleLinkHover('/')}
             >
@@ -99,14 +119,47 @@ const Header = () => {
               <Search className="h-5 w-5 text-stone-800" />
             </button>
             
-            {/* Mobile Menu Button - Simple */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden rounded-md p-2 hover:bg-stone-100"
-              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            >
-              <Menu className="h-6 w-6 text-stone-800" />
-            </button>
+            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden"
+                  aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+                >
+                  <Menu className="h-6 w-6 text-stone-800" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[86vw] max-w-[320px] border-stone-200 bg-white p-0">
+                <SheetHeader className="border-b border-stone-200 px-4 pb-4 pt-6 text-left">
+                  <SheetTitle className="text-base font-semibold text-stone-900">Menu</SheetTitle>
+                </SheetHeader>
+                <div className="py-2">
+                  {menuItems.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={`block px-4 py-3 text-sm transition-colors ${
+                        (item.href === '/' && router.pathname === '/') || (item.href !== '/' && router.asPath.startsWith(item.href))
+                          ? 'bg-stone-900 text-white'
+                          : 'text-stone-800 hover:bg-stone-50'
+                      }`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                  <Link
+                    href="/search"
+                    className="block px-4 py-3 text-sm text-stone-800 transition-colors hover:bg-stone-50"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Search
+                  </Link>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
 
@@ -136,58 +189,6 @@ const Header = () => {
           </div>
         )}
       </div>
-
-      {/* Mobile Menu - BBC Style (Simple) */}
-      {isMenuOpen && (
-        <>
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-            onClick={() => setIsMenuOpen(false)}
-          />
-          
-          {/* Mobile Menu Panel */}
-          <div className="fixed inset-y-0 right-0 z-50 w-72 overflow-y-auto border-l border-stone-200 bg-white shadow-xl lg:hidden">
-            {/* Menu Header */}
-            <div className="flex items-center justify-between border-b border-stone-200 p-4">
-              <h2 className="text-lg font-bold text-stone-900">
-                Menu
-              </h2>
-              <button
-                onClick={() => setIsMenuOpen(false)}
-                className="rounded p-2 transition-colors hover:bg-stone-100"
-              >
-                <X className="h-5 w-5 text-stone-800" />
-              </button>
-            </div>
-
-            {/* Menu Content - Simple List */}
-            <div className="py-2">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`block px-4 py-3 text-sm transition-colors ${
-                    (item.href === '/' && router.pathname === '/') || (item.href !== '/' && router.asPath.startsWith(item.href))
-                      ? 'bg-stone-900 text-white'
-                      : 'text-stone-800 hover:bg-stone-50'
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-              <Link 
-                href="/search" 
-                className="block px-4 py-3 text-sm text-stone-800 transition-colors hover:bg-stone-50"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Search
-              </Link>
-            </div>
-          </div>
-        </>
-      )}
     </header>
   );
 };
