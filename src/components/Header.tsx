@@ -52,11 +52,10 @@ const Header = () => {
   // Define menu items in the requested order
   const menuItems = [
     { name: 'Home', href: '/' },
-    { name: 'Politics', href: '/politics' },
-    { name: 'Entertainment', href: '/entertainment' },
+    { name: 'Lifestyle', href: '/entertainment' },
     { name: 'Sports', href: '/sports' },
     { name: 'Business', href: '/business' },
-    { name: 'Technology', href: '/technology' },
+    { name: 'Tech', href: '/tech' },
     { name: 'Authors', href: '/authors' },
     { name: 'Contact', href: '/contact' },
   ];

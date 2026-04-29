@@ -34,7 +34,7 @@ const companyLinks = [
 const sectionLinks = [
   { href: '/business', label: 'Business' },
   { href: '/sports', label: 'Sports' },
-  { href: '/technology', label: 'Tech' },
+  { href: '/tech', label: 'Tech' },
   { href: '/entertainment', label: 'Lifestyle' },
 ];
 
