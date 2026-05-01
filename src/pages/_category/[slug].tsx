@@ -7,6 +7,7 @@ import SEOHead from '@/components/SEO/SEOHead';
 import { MultiplexAd } from '@/components/AdSense';
 import { AD_SLOTS } from '@/config/adsense';
 import { supabase } from '@/integrations/supabase/client';
+import { categorySectionHeading, categorySlugCandidates } from '@/lib/categorySlugAliases';
 import { transformToNewsArticle } from '@/lib/articles';
 import { Category, NewsArticle } from '@/types/news';
 import { getCategoryColor } from '@/utils/categoryColors';
@@ -21,6 +22,8 @@ interface CategoryPageProps {
   articles: NewsArticle[];
   totalArticles: number;
   error?: string;
+  /** Public URL segment (e.g. `lifestyle` → may resolve DB slug `entertainment`). */
+  urlSlug: string;
 }
 
 const CATEGORY_SEO_TITLE_BY_SLUG: Record<string, string> = {
@@ -28,15 +31,23 @@ const CATEGORY_SEO_TITLE_BY_SLUG: Record<string, string> = {
   sports: 'Ghana Sports News - Black Stars, Football Updates | GH News Media',
   business: 'Ghana Business & Economy News | GH News Media',
   entertainment: 'Ghana Entertainment News, Celebrities | GH News Media',
+  lifestyle: 'Ghana Lifestyle News | GH News Media',
   tech: 'Ghana Tech News, Innovation & Digital | GH News Media',
+  technology: 'Ghana Tech News, Innovation & Digital | GH News Media',
   politics: 'Ghana Politics News - Parliament, Government | GH News Media',
+  health: 'Ghana Health News | GH News Media',
+  feature: 'Featured Stories | GH News Media',
+  features: 'Featured Stories | GH News Media',
+  opinions: 'Opinion & Analysis | GH News Media',
+  opinion: 'Opinion & Analysis | GH News Media',
 };
 
-const CategoryPage: React.FC<CategoryPageProps> = ({ 
-  category, 
-  articles, 
-  totalArticles, 
-  error 
+const CategoryPage: React.FC<CategoryPageProps> = ({
+  category,
+  articles,
+  totalArticles,
+  error,
+  urlSlug,
 }) => {
   const canShowCategoryAds = articles.length >= 8;
   // Handle error state
@@ -109,9 +120,11 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
     );
   }
 
+  const sectionHeading = categorySectionHeading(urlSlug, category.name);
+
   const breadcrumbItems = [
     { name: 'Home', url: 'https://ghnewsmedia.com' },
-    { name: category.name }
+    { name: sectionHeading },
   ];
 
   const categoryStructuredData = {
@@ -119,7 +132,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
     "@type": "CollectionPage",
     "name": `${category.name} News`,
     "description": category.description,
-    "url": `https://ghnewsmedia.com/${category.slug}`,
+    "url": `https://ghnewsmedia.com/${urlSlug}`,
     "mainEntity": {
       "@type": "ItemList",
       "numberOfItems": totalArticles,
@@ -144,15 +157,16 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
   };
 
   const categorySeoTitle =
+    CATEGORY_SEO_TITLE_BY_SLUG[urlSlug.toLowerCase()] ||
     CATEGORY_SEO_TITLE_BY_SLUG[category.slug] ||
-    generateMetaTitle(`${category.name} News`, 'Category');
+    generateMetaTitle(`${sectionHeading} News`, 'Category');
 
   return (
     <div className="min-h-screen bg-white">
       <SEOHead
         title={categorySeoTitle}
         description={truncateDescription(`${category.description} Stay updated with the latest ${category.name.toLowerCase()} news from Ghana.`)}
-        canonical={`https://ghnewsmedia.com/${category.slug}`}
+        canonical={`https://ghnewsmedia.com/${urlSlug}`}
         tags={[`${category.name} news`, 'Ghana news', category.name.toLowerCase(), 'breaking news']}
         structuredData={categoryStructuredData}
       />
@@ -173,7 +187,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
                 fontSize: '12px'
               }}
             >
-              {category.name.toUpperCase()}
+              {sectionHeading.toUpperCase()}
             </span>
           </div>
           <h1 style={{ 
@@ -183,7 +197,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
             lineHeight: '1.3',
             marginBottom: '8px'
           }}>
-            {category.name}
+            {sectionHeading}
           </h1>
           {category.description && (
             <p style={{ 
@@ -324,29 +338,34 @@ export const getServerSideProps: GetServerSideProps<CategoryPageProps> = async (
   }
 
   try {
-    // Fetch category data
-    const { data: categoryData, error: categoryError } = await supabase
-      .from('categories')
-      .select('*')
-      .eq('slug', slug)
-      .single();
+    let categoryData: Record<string, unknown> | null = null;
 
-    if (categoryError || !categoryData) {
-      // No category found - return 404
+    for (const candidateSlug of categorySlugCandidates(slug)) {
+      const { data, error } = await supabase.from('categories').select('*').eq('slug', candidateSlug).maybeSingle();
+
+      if (!error && data) {
+        categoryData = data as Record<string, unknown>;
+        break;
+      }
+    }
+
+    if (!categoryData) {
       return {
         notFound: true,
       };
     }
 
     // Transform category data
+    const categoryId = String(categoryData.id);
+
     const category: Category = {
-      id: categoryData.id,
-      name: categoryData.name,
-      slug: categoryData.slug,
-      description: categoryData.description || '',
-      color: categoryData.color,
-      icon: categoryData.icon || '📰',
-      updated_at: categoryData.updated_at
+      id: categoryId,
+      name: String(categoryData.name),
+      slug: String(categoryData.slug),
+      description: String(categoryData.description || ''),
+      color: String(categoryData.color),
+      icon: String(categoryData.icon || '📰'),
+      updated_at: String(categoryData.updated_at ?? ''),
     };
 
     // Fetch articles for this category
@@ -354,7 +373,7 @@ export const getServerSideProps: GetServerSideProps<CategoryPageProps> = async (
       .from('articles_with_details')
       .select('*')
       .eq('status', 'published')
-      .eq('category_id', categoryData.id)
+      .eq('category_id', categoryId)
       .order('published_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false });
 
@@ -365,8 +384,9 @@ export const getServerSideProps: GetServerSideProps<CategoryPageProps> = async (
           category,
           articles: [],
           totalArticles: 0,
-          error: 'Failed to load articles'
-        }
+          error: 'Failed to load articles',
+          urlSlug: slug,
+        },
       };
     }
 
@@ -386,6 +406,7 @@ export const getServerSideProps: GetServerSideProps<CategoryPageProps> = async (
         category,
         articles: transformedArticles,
         totalArticles: transformedArticles.length,
+        urlSlug: slug,
       },
     };
 
@@ -397,7 +418,8 @@ export const getServerSideProps: GetServerSideProps<CategoryPageProps> = async (
         category: null,
         articles: [],
         totalArticles: 0,
-        error: 'An unexpected error occurred'
+        error: 'An unexpected error occurred',
+        urlSlug: slug,
       }
     };
   }

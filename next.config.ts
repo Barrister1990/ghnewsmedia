@@ -25,15 +25,9 @@ const nextConfig = {
   experimental: {
     allowedDevOrigins: ['http://192.168.0.179:3000'],
   },
-  // Keep vanity section URLs while preserving existing category routes.
-  async rewrites() {
-    return [
-      {
-        source: '/lifestyle',
-        destination: '/entertainment',
-      },
-    ];
-  },
+  // Sitemap and RSS are served by pages/sitemap.xml.tsx and pages/rss.xml.tsx at /sitemap.xml and /rss.xml.
+  // Do not rewrite to /api/* — no API routes exist for these; rewrites would cause 404s and break Google News.
+  // async rewrites() { ... } removed per SEO audit (docs/SEO-AUDIT-GOOGLE-NEWS-DISCOVER.md)
 };
 
 module.exports = nextConfig;

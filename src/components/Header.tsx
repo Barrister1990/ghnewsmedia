@@ -49,15 +49,17 @@ const Header = () => {
     document.head.appendChild(link);
   };
 
-  // Define menu items in the requested order
+  /** Primary category navigation (in requested order). */
   const menuItems = [
     { name: 'Home', href: '/' },
-    { name: 'Lifestyle', href: '/entertainment' },
+    { name: 'News', href: '/news' },
+    { name: 'Entertainment', href: '/entertainment' },
     { name: 'Sports', href: '/sports' },
     { name: 'Business', href: '/business' },
+    { name: 'Lifestyle', href: '/lifestyle' },
     { name: 'Tech', href: '/tech' },
-    { name: 'Authors', href: '/authors' },
-    { name: 'Contact', href: '/contact' },
+    { name: 'Feature', href: '/feature' },
+    { name: 'Opinions', href: '/opinions' },
   ];
 
 
@@ -90,8 +92,8 @@ const Header = () => {
           </div>
 
           {/* Desktop Navigation - BBC Style */}
-          <nav className="hidden lg:flex items-center space-x-1">
-            {menuItems.slice(0, 8).map((item) => (
+          <nav className="hidden lg:flex max-w-[min(100%,52rem)] flex-wrap items-center justify-end gap-1 xl:max-w-none">
+            {menuItems.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}

@@ -12,6 +12,7 @@ export function middleware(request: NextRequest) {
     '/contact',
     '/advertise',
     '/authors',
+    '/news',
     '/search',
     '/404',
     '/email-verification',
