@@ -17,12 +17,12 @@ Use this checklist when setting up [Google Publisher Center](https://publisherce
 
 - [ ] Go to [Publisher Center](https://publishercenter.google.com/).
 - [ ] Click **Add publication** (or use the existing one if you already added the site).
-- [ ] Enter your publication URL: **https://ghnewsmedia.com** (and **https://www.ghnewsmedia.com** if you use www).
+- [ ] Enter your publication URL: **https://www.ghnewsmedia.com**
 - [ ] Complete **ownership verification** (e.g. via Search Console; same as for Search Console verification).
 
 ### 2. Publication details
 
-- [ ] **Publication name:** **GH News** (must match the name used in your schema and sitemaps).
+- [ ] **Publication name:** **GH News Media** (must match the name used in your schema and sitemaps).
 - [ ] **Primary language:** English.
 - [ ] **Geographic focus:** Ghana (and any other regions you target).
 

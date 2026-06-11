@@ -93,7 +93,7 @@ const SEOManager: React.FC<SEOManagerProps> = ({
 
     // Auto-generate canonical URL if empty
     if (!newSeoData.canonicalUrl && slug) {
-      newSeoData.canonicalUrl = `https://ghnewsmedia.com/news/${slug}`;
+      newSeoData.canonicalUrl = `https://www.ghnewsmedia.com/news/${slug}`;
       hasChanged = true;
     }
 
@@ -329,7 +329,7 @@ const SEOManager: React.FC<SEOManagerProps> = ({
               id="canonicalUrl"
               value={seoData.canonicalUrl}
               onChange={(e) => updateSEOField('canonicalUrl', e.target.value)}
-              placeholder="https://ghnewsmedia.com/news/article-slug"
+              placeholder="https://www.ghnewsmedia.com/news/article-slug"
             />
           </div>
         </CardContent>
@@ -589,7 +589,7 @@ const SEOManager: React.FC<SEOManagerProps> = ({
               {seoData.metaTitle || title || 'Your article title will appear here...'}
             </h3>
             <p className="text-green-700 text-sm">
-              {seoData.canonicalUrl || `https://ghnewsmedia.com/news/${slug}` || 'https://ghnewsmedia.com/news/...'}
+              {seoData.canonicalUrl || `https://www.ghnewsmedia.com/news/${slug}` || 'https://www.ghnewsmedia.com/news/...'}
             </p>
             <p className="text-gray-600 text-sm mt-1">
               {seoData.metaDescription || excerpt || 'Your meta description will appear here...'}

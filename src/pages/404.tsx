@@ -12,7 +12,7 @@ const NotFound = () => {
       <EnhancedSEOHead
         title="Page Not Found"
         description="The page you're looking for could not be found. Browse our latest news and updates from Ghana or search for specific topics."
-        canonical="https://ghnewsmedia.com/404"
+        canonical="https://www.ghnewsmedia.com/404"
         noindex={true}
       />
       <Head>

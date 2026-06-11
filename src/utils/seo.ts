@@ -1,3 +1,4 @@
+import { PUBLICATION_NAME, SITE_URL } from '../config/site';
 import SEOService from '../services/seoService';
 import { NewsArticle } from '../types/news';
 
@@ -32,15 +33,15 @@ export const generateWebSiteStructuredData = (categories?: Array<{name: string, 
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "GH News Media",
-    "alternateName": "Ghana's Digital News Platform",
-    "url": "https://ghnewsmedia.com",
+    "name": PUBLICATION_NAME,
+    "alternateName": "GhNewsMedia",
+    "url": SITE_URL,
     "description": "Ghana's trusted source for breaking news, politics, business, sports, and entertainment.",
-    "inLanguage": "en-GB",
+    "inLanguage": "en-GH",
     "potentialAction": [
       {
         "@type": "SearchAction",
-        "target": "https://ghnewsmedia.com/search?q={search_term_string}",
+        "target": `${SITE_URL}/search?q={search_term_string}`,
         "query-input": "required name=search_term_string"
       }
     ],
@@ -50,7 +51,7 @@ export const generateWebSiteStructuredData = (categories?: Array<{name: string, 
         "@type": "SiteNavigationElement",
         "position": index + 1,
         "name": item.name,
-        "url": `https://ghnewsmedia.com/${item.slug}`
+        "url": `${SITE_URL}/${item.slug}`
       }))
     }
   };
@@ -76,7 +77,6 @@ export const truncateDescription = (text: string, maxLength: number = 155): stri
 
 // Truncate title to 50-60 characters (580 pixels) for optimal Google display
 export const truncateTitle = (title: string, maxLength: number = 55): string => {
-  if (!title) return '';
   if (title.length <= maxLength) return title;
   // Try to truncate at word boundary
   const truncated = title.substring(0, maxLength - 3);
@@ -85,6 +85,19 @@ export const truncateTitle = (title: string, maxLength: number = 55): string => 
     return `${truncated.substring(0, lastSpace)}...`;
   }
   return `${truncated.trim()}...`;
+};
+
+/** Short, unique link label for article cards (avoids overly long duplicate anchor text). */
+export const articleLinkAriaLabel = (
+  section: string,
+  category: string,
+  title: string,
+  maxTitleLength = 72
+): string => {
+  const shortTitle = title.length > maxTitleLength
+    ? `${title.slice(0, maxTitleLength - 1).trim()}…`
+    : title;
+  return `${section}: ${category} — ${shortTitle}`;
 };
 
 export const generateMetaTitle = (title: string, category?: string): string => {
@@ -141,7 +154,7 @@ export const generateMetaDescription = (excerpt: string, category?: string): str
 // Enhanced image optimization for social media sharing
 export const optimizeImageForSEO = (imageUrl: string, _title: string): string => {
   if (!imageUrl) {
-    return 'https://ghnewsmedia.com/og-image.jpg';
+    return `${SITE_URL}/og-image.jpg`;
   }
   
   // If it's already a full URL, return as is
@@ -151,7 +164,7 @@ export const optimizeImageForSEO = (imageUrl: string, _title: string): string =>
   
   // If it's a relative URL, make it absolute
   if (imageUrl.startsWith('/')) {
-    return `https://ghnewsmedia.com${imageUrl}`;
+    return `${SITE_URL}${imageUrl}`;
   }
   
   // Add optimization parameters for better social media display
@@ -168,7 +181,7 @@ export const generateArticleSchema = (article: NewsArticle) => {
 
 // Helper function to generate article URL with category
 export const getArticleUrl = (article: { slug: string; category: { slug: string } }): string => {
-  return `https://ghnewsmedia.com/${article.category.slug}/${article.slug}`;
+  return `${SITE_URL}/${article.category.slug}/${article.slug}`;
 };
 
 // Helper function to generate article URL path (without domain)
@@ -177,8 +190,8 @@ export const getArticlePath = (article: { slug: string; category: { slug: string
 };
 
 export const notifySearchEnginesOfNewContent = async (articleSlug: string, categorySlug: string) => {
-  const articleUrl = `https://ghnewsmedia.com/${categorySlug}/${articleSlug}`;
-  const sitemapUrl = 'https://ghnewsmedia.com/sitemap.xml';
+  const articleUrl = `${SITE_URL}/${categorySlug}/${articleSlug}`;
+  const sitemapUrl = `${SITE_URL}/sitemap.xml`;
   
   try {
     await seoService.notifySearchEngines(sitemapUrl);
@@ -190,7 +203,7 @@ export const notifySearchEnginesOfNewContent = async (articleSlug: string, categ
 
 // Generate social media preview tags specifically for WhatsApp and other messaging apps
 export const generateSocialPreviewTags = (article: NewsArticle) => {
-  const siteUrl = 'https://ghnewsmedia.com';
+  const siteUrl = SITE_URL;
   const articleUrl = getArticleUrl(article);
   const optimizedImage = optimizeImageForSEO(article.featuredImage, article.title);
   const description = truncateDescription(article.excerpt || article.content.replace(/<[^>]*>/g, ''));

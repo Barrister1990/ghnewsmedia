@@ -1,9 +1,11 @@
+import { PUBLICATION_NAME, SITE_DISPLAY_NAME, SITE_URL } from '../config/site';
 import { NewsArticle } from '../types/news';
 
 class AdvancedSEOService {
   private static instance: AdvancedSEOService;
-  private readonly baseUrl = 'https://ghnewsmedia.com';
-  private readonly siteName = 'GH News Media';
+  private readonly baseUrl = SITE_URL;
+  private readonly siteName = SITE_DISPLAY_NAME;
+  private readonly publicationName = PUBLICATION_NAME;
 
   static getInstance(): AdvancedSEOService {
     if (!AdvancedSEOService.instance) {
@@ -99,7 +101,7 @@ class AdvancedSEOService {
       "author": authorSchema,
       "publisher": {
         "@type": "NewsMediaOrganization",
-        "name": this.siteName,
+        "name": this.publicationName,
         "url": this.baseUrl,
         "logo": {
           "@type": "ImageObject",

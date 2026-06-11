@@ -3,6 +3,8 @@ import React from 'react';
 import { NewsArticle } from '../types/news';
 import { getCategoryColor } from '../utils/categoryColors';
 
+import { articleLinkAriaLabel } from '../utils/seo';
+
 interface CategorySectionProps {
   title: string;
   articles: NewsArticle[];
@@ -58,6 +60,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
               key={article.id} 
               href={`/${article.category.slug}/${article.slug}`}
               className="block group"
+              aria-label={articleLinkAriaLabel(title, article.category.name, article.title)}
             >
               <article className="flex gap-3 bg-white rounded-lg overflow-hidden hover:shadow-sm transition-shadow duration-200">
                 {/* Image - Smaller on mobile */}
@@ -77,12 +80,12 @@ const CategorySection: React.FC<CategorySectionProps> = ({
                   >
                     {article.category.name}
                   </span>
-                  <h3 
+                  <p 
                     className="font-bold mb-1 line-clamp-2 group-hover:underline transition-colors"
                     style={{ color: '#111111', fontSize: '16px', lineHeight: '1.3' }}
                   >
                     {article.title}
-                  </h3>
+                  </p>
                   <p 
                     className="text-xs"
                     style={{ color: '#6B7280', fontSize: '11px' }}
@@ -104,6 +107,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
               key={article.id} 
               href={`/${article.category.slug}/${article.slug}`}
               className="block group"
+              aria-label={articleLinkAriaLabel(title, article.category.name, article.title)}
             >
               <article className="bg-white rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200">
                 {/* Landscape Image */}
@@ -134,12 +138,12 @@ const CategorySection: React.FC<CategorySectionProps> = ({
                   >
                     {formatDate(article.publishedAt)}
                   </p>
-                  <h3 
+                  <p 
                     className="font-bold line-clamp-2 group-hover:underline transition-colors"
                     style={{ color: '#111111', fontSize: '18px', lineHeight: '1.3' }}
                   >
                     {article.title}
-                  </h3>
+                  </p>
                 </div>
               </article>
             </Link>
@@ -155,6 +159,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
               key={article.id} 
               href={`/${article.category.slug}/${article.slug}`}
               className="block group"
+              aria-label={articleLinkAriaLabel(title, article.category.name, article.title)}
             >
               {/* Desktop: Square thumbnail card layout */}
               <article className="bg-white rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200">
@@ -186,12 +191,12 @@ const CategorySection: React.FC<CategorySectionProps> = ({
                   >
                     {formatDate(article.publishedAt)}
                   </p>
-                  <h3 
+                  <p 
                     className="font-bold line-clamp-2 group-hover:underline transition-colors"
                     style={{ color: '#111111', fontSize: '18px', lineHeight: '1.3' }}
                   >
                     {article.title}
-                  </h3>
+                  </p>
                 </div>
               </article>
             </Link>

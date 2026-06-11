@@ -5,6 +5,8 @@ import React, { useState } from 'react';
 import { NewsArticle } from '../types/news';
 import { getCategoryColor } from '../utils/categoryColors';
 
+import { articleLinkAriaLabel } from '../utils/seo';
+
 interface EditorsPicksProps {
   articles: NewsArticle[];
 }
@@ -103,6 +105,7 @@ const EditorsPicks: React.FC<EditorsPicksProps> = ({ articles }) => {
               href={`/${article.category.slug}/${article.slug}`}
               className="block group flex-shrink-0"
               style={{ width: 'calc(100% - 2rem)', minWidth: '280px' }}
+              aria-label={articleLinkAriaLabel("Editor's Picks", article.category.name, article.title)}
             >
               <article className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 h-full">
                 {/* Author Image - Square */}
@@ -138,12 +141,12 @@ const EditorsPicks: React.FC<EditorsPicksProps> = ({ articles }) => {
                     </p>
                     
                     {/* Title - Smaller on mobile */}
-                    <h3 
+                    <p 
                       className="font-bold line-clamp-2 group-hover:underline transition-colors md:text-lg"
                       style={{ color: '#111111', fontSize: '16px', lineHeight: '1.3' }}
                     >
                       {article.title}
-                    </h3>
+                    </p>
                   </div>
                 </div>
               </article>

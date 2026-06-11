@@ -2,7 +2,16 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 export function middleware(request: NextRequest) {
+  const host = request.headers.get('host') ?? '';
   const { pathname } = request.nextUrl;
+
+  // Always serve the www canonical host (matches SITE_URL and Search Console).
+  if (host === 'ghnewsmedia.com') {
+    const url = request.nextUrl.clone();
+    url.host = 'www.ghnewsmedia.com';
+    url.protocol = 'https:';
+    return NextResponse.redirect(url, 301);
+  }
   
   // Static pages that should not be rewritten to category routes
   const staticPages = [

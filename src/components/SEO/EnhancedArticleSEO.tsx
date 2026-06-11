@@ -95,7 +95,7 @@ const EnhancedArticleSEO: React.FC<EnhancedArticleSEOProps> = ({ article }) => {
           },
           {
             property: 'article:publisher',
-            content: 'https://ghnewsmedia.com',
+            content: 'https://www.ghnewsmedia.com',
           },
           {
             name: 'twitter:image:alt',

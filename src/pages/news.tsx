@@ -2,6 +2,7 @@ import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import ScrollToTop from '@/components/ScrollToTop';
 import SEOHead from '@/components/SEO/SEOHead';
+import { SITE_URL } from '@/config/site';
 import { supabase } from '@/integrations/supabase/client';
 import { transformToNewsArticle } from '@/lib/articles';
 import { NewsArticle } from '@/types/news';
@@ -14,8 +15,6 @@ interface NewsHubProps {
   articles: NewsArticle[];
   error?: string;
 }
-
-const SITE_URL = 'https://ghnewsmedia.com';
 
 function articleImageSrc(path: string): string {
   if (!path) return '/images/placeholder.jpg';

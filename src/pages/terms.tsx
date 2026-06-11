@@ -9,7 +9,7 @@ const TermsOfServicePage = () => {
       <StaticPageLayout 
         title="Terms of Service"
         description="Read GH News Terms of Service. Understand the rules and guidelines for using our platform and accessing our content."
-        canonical="https://ghnewsmedia.com/terms"
+        canonical="https://www.ghnewsmedia.com/terms"
       >
         <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '24px' }}>
           Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}

@@ -9,7 +9,7 @@ const PrivacyPolicyPage = () => {
       <StaticPageLayout 
         title="Privacy Policy"
         description="Learn how GH News collects, uses, and protects your personal information. Our comprehensive privacy policy explains your rights and our data practices."
-        canonical="https://ghnewsmedia.com/privacy"
+        canonical="https://www.ghnewsmedia.com/privacy"
       >
         <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '24px' }}>
           Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}

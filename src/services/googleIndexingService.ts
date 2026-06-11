@@ -1,5 +1,6 @@
 // services/googleIndexingService.ts - Google Indexing API for immediate article indexing (Phase 5)
 import { GoogleAuth } from 'google-auth-library';
+import { SITE_URL } from '../config/site';
 import { NewsArticle } from '../types/news';
 
 const INDEXING_SCOPE = 'https://www.googleapis.com/auth/indexing';
@@ -40,7 +41,7 @@ export interface IndexingSubmissionLogEntry {
 
 class GoogleIndexingService {
   private static instance: GoogleIndexingService;
-  private readonly baseUrl = 'https://ghnewsmedia.com';
+  private readonly baseUrl = SITE_URL;
   private readonly googleIndexingApiUrl = 'https://indexing.googleapis.com/v3/urlNotifications:publish';
   private authClient: GoogleAuth | null = null;
   private readonly recentSubmissionLogs: IndexingSubmissionLogEntry[] = [];

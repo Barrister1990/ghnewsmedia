@@ -9,6 +9,7 @@ import HeroFeaturedSection from '../components/HeroFeaturedSection';
 import LatestNews from '../components/LatestNews';
 import ReadingProgress from '../components/ReadingProgress';
 import ScrollToTop from '../components/ScrollToTop';
+import ShareButtons from '../components/ShareButtons';
 import EnhancedSEOHead from '../components/SEO/EnhancedSEOHead';
 import SitemapGenerator from '../components/SEO/SitemapGenerator';
 import TrendingCarousel from '../components/TrendingCarousel';
@@ -18,6 +19,7 @@ import { AD_SLOTS } from '../config/adsense';
 import { supabase } from '../integrations/supabase/client';
 import { transformToNewsArticle } from '../lib/articles';
 import { NewsArticle } from '../types/news';
+import { DEFAULT_HOME_DESCRIPTION, DEFAULT_HOME_H1, DEFAULT_HOME_TITLE, SITE_URL } from '../config/site';
 import { generateOrganizationStructuredData, generateWebSiteStructuredData } from '../utils/seo';
 
 interface IndexProps {
@@ -79,8 +81,8 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
       "@context": "https://schema.org",
       "@type": "NewsMediaOrganization",
       "name": "GH News Media",
-      "url": "https://ghnewsmedia.com",
-      "logo": "https://ghnewsmedia.com/logo.jpg",
+      "url": SITE_URL,
+      "logo": `${SITE_URL}/logo.jpg`,
       "sameAs": [
         "https://twitter.com/ghnewsmedia",
         "https://facebook.com/ghnewsmedia",
@@ -93,7 +95,7 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
           "@type": "NewsArticle",
           "position": index + 1,
           "headline": article.title,
-          "url": `https://ghnewsmedia.com/${article.category.slug}/${article.slug}`,
+          "url": `${SITE_URL}/${article.category.slug}/${article.slug}`,
           "datePublished": new Date(article.publishedAt).toISOString(),
           "author": {
             "@type": "Person",
@@ -104,8 +106,8 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
     }
   ];
 
-  const seoTitle = "Ghana Breaking News Today | Politics, Sports, Business | GH News Media";
-  const seoDescription = "Get the latest Ghana breaking news, politics, business, sports, and entertainment updates. GH News Media delivers trusted news 24/7 from Accra and across Ghana.";
+  const seoTitle = DEFAULT_HOME_TITLE;
+  const seoDescription = DEFAULT_HOME_DESCRIPTION;
 
   if (error) {
     return (
@@ -113,7 +115,7 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
         <EnhancedSEOHead
           title={seoTitle}
           description={seoDescription}
-          canonical="https://ghnewsmedia.com"
+          canonical={SITE_URL}
           type="website"
           tags={['Ghana news', 'breaking news', 'politics', 'business', 'sports', 'entertainment']}
           structuredData={combinedStructuredData}
@@ -155,11 +157,11 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
       <EnhancedSEOHead
         title={seoTitle}
         description={seoDescription}
-        canonical="https://ghnewsmedia.com"
+        canonical={SITE_URL}
         type="website"
         tags={['Ghana news', 'breaking news', 'politics', 'business', 'sports', 'entertainment', 'Accra news', 'Ghana politics', 'West Africa news', 'Ghana economy', 'Ghana elections']}
         structuredData={combinedStructuredData}
-        language="en-GB"
+        language="en-GH"
       />
       
       <SitemapGenerator />
@@ -171,6 +173,22 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
       <BreakingNews />
       
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-7xl">
+          {/* Homepage H1 + intro — matches meta title keywords for SEO relevance */}
+          <header className="mb-6 border-b border-stone-200 pb-4">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-stone-900">
+              {DEFAULT_HOME_H1}
+            </h1>
+            <p className="mt-2 max-w-3xl text-sm sm:text-base text-stone-600 leading-relaxed">
+              {seoDescription} Covering politics, sports, business, entertainment, and breaking news from Accra and across Ghana.
+            </p>
+            <ShareButtons
+              url={SITE_URL}
+              title={seoTitle}
+              description={seoDescription}
+              className="mt-4"
+            />
+          </header>
+
           {/* Main Content Area - Full width (Pulse style) */}
           <div>
             {/* Mobile Hero: Trending Carousel */}

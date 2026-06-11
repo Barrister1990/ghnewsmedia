@@ -1,10 +1,11 @@
-
+import { PUBLICATION_NAME, SITE_DISPLAY_NAME, SITE_URL } from '../config/site';
 import { Category, NewsArticle } from '../types/news';
 
 class SEOService {
   private static instance: SEOService;
-  private siteUrl = 'https://ghnewsmedia.com';
-  private siteName = 'GH News Media';
+  private siteUrl = SITE_URL;
+  private siteName = SITE_DISPLAY_NAME;
+  private publicationName = PUBLICATION_NAME;
 
   static getInstance(): SEOService {
     if (!SEOService.instance) {
@@ -19,7 +20,6 @@ class SEOService {
     
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 `;
 
@@ -63,24 +63,14 @@ class SEOService {
 `;
     });
 
-    // Article pages with news sitemap and image tags (ISO 8601 for Google News)
+    // Article pages (news metadata lives in news-sitemap.xml only)
     articles.forEach(article => {
       const lastmod = new Date(article.updatedAt || article.publishedAt).toISOString();
-      const pubDate = new Date(article.publishedAt).toISOString();
       sitemap += `  <url>
     <loc>${this.siteUrl}/${article.category.slug}/${article.slug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-    <news:news>
-      <news:publication>
-        <news:name>${this.siteName}</news:name>
-        <news:language>en</news:language>
-      </news:publication>
-      <news:publication_date>${pubDate}</news:publication_date>
-      <news:title><![CDATA[${article.title}]]></news:title>
-      <news:keywords>${article.tags.join(', ')}</news:keywords>
-    </news:news>`;
+    <priority>0.9</priority>`;
 
       if (article.featuredImage) {
         sitemap += `
@@ -185,7 +175,7 @@ class SEOService {
       },
       "publisher": {
         "@type": "NewsMediaOrganization",
-        "name": this.siteName,
+        "name": this.publicationName,
         "logo": {
           "@type": "ImageObject",
           "url": `${this.siteUrl}/logo.png`,
@@ -231,8 +221,8 @@ class SEOService {
     return {
       "@context": "https://schema.org",
       "@type": "NewsMediaOrganization",
-      "name": this.siteName,
-      "alternateName": "Ghana's Digital News Platform",
+      "name": this.publicationName,
+      "alternateName": this.siteName,
       "url": this.siteUrl,
       "logo": `${this.siteUrl}/logo.png`,
       "description": "Ghana's premier digital news platform providing credible, timely news coverage across politics, business, sports, entertainment, and technology.",

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePublishedArticles } from '../hooks/usePublishedArticles';
 import { getCategoryColor } from '../utils/categoryColors';
+import { articleLinkAriaLabel } from '../utils/seo';
 
 interface TrendingCarouselProps {
   initialArticles?: NewsArticle[]; // Accept server-side articles
@@ -82,7 +83,11 @@ const TrendingCarousel = ({ initialArticles }: TrendingCarouselProps) => {
       <div className="relative bg-white rounded-xl shadow-sm overflow-hidden">
         {/* Main Slideshow */}
         <div className="relative h-64 sm:h-80 lg:h-96 overflow-hidden">
-          <Link href={`/${currentArticle.category.slug}/${currentArticle.slug}`} className="block h-full group">
+          <Link
+            href={`/${currentArticle.category.slug}/${currentArticle.slug}`}
+            className="block h-full group"
+            aria-label={articleLinkAriaLabel('Trending Now', currentArticle.category.name, currentArticle.title)}
+          >
             <div className="relative h-full">
               <img
                 src={currentArticle.featuredImage}
@@ -107,9 +112,9 @@ const TrendingCarousel = ({ initialArticles }: TrendingCarouselProps) => {
                   </span>
                 </div>
                 
-                <h3 className="text-base sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 line-clamp-2 text-white transition-colors" style={{ fontSize: '16px' }}>
+                <p className="text-base sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 line-clamp-2 text-white transition-colors" style={{ fontSize: '16px' }}>
                   {currentArticle.title}
-                </h3>
+                </p>
                 
                 <p className="text-gray-200 text-sm mb-3 sm:mb-4 line-clamp-2 max-w-2xl hidden sm:block">
                   {currentArticle.excerpt}
@@ -191,18 +196,6 @@ const TrendingCarousel = ({ initialArticles }: TrendingCarouselProps) => {
           Article {currentSlide + 1} of {trendingArticles.length}
         </div>
       )}
-
-      {/* Hidden content for SEO - All trending articles */}
-      <div className="sr-only">
-        {trendingArticles.map((article) => (
-          <article key={article.id}>
-            <h3>{article.title}</h3>
-            <p>{article.excerpt}</p>
-            <div>Category: {article.category.name}</div>
-            <div>Published: {new Date(article.publishedAt).toLocaleDateString()}</div>
-          </article>
-        ))}
-      </div>
     </section>
   );
 };

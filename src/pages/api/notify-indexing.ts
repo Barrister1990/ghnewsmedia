@@ -1,11 +1,12 @@
 // API route: notify Google (Indexing API + sitemap ping) and other search engines. Runs on server only (credentials in env).
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { SITE_URL } from '@/config/site';
 import GoogleIndexingService from '@/services/googleIndexingService';
 import SEOService from '@/services/seoService';
 
 const seoService = SEOService.getInstance();
 
-const BASE_URL = 'https://ghnewsmedia.com';
+const BASE_URL = SITE_URL;
 
 type Payload = {
   url?: string;
@@ -48,7 +49,7 @@ function isAuthorizedRequest(req: NextApiRequest): boolean {
 
   const origin = req.headers.origin;
   const referer = req.headers.referer;
-  const allowedHost = 'https://ghnewsmedia.com';
+  const allowedHost = SITE_URL;
 
   if (typeof origin === 'string') {
     return origin === allowedHost;

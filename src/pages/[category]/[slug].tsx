@@ -1,4 +1,5 @@
 // pages/[category]/[slug].tsx - SEO-Optimized Article Page with Category-based URLs
+import { SITE_URL } from '@/config/site';
 import ArticleContent from '@/components/ArticleContent';
 import ArticleHeader from '@/components/ArticleHeader';
 import ArticleNotFound from '@/components/ArticleNotFound';
@@ -83,12 +84,12 @@ const ArticlePage = ({ article, relatedArticles, allArticles, error }: ArticlePa
   }
 
   const breadcrumbItems = [
-    { name: 'Home', url: 'https://ghnewsmedia.com' },
-    { name: article.category.name, url: `https://ghnewsmedia.com/${article.category.slug}` },
+    { name: 'Home', url: SITE_URL },
+    { name: article.category.name, url: `${SITE_URL}/${article.category.slug}` },
     { name: article.title }
   ];
 
-  const articleUrl = `https://ghnewsmedia.com/${article.category.slug}/${article.slug}`;
+  const articleUrl = `${SITE_URL}/${article.category.slug}/${article.slug}`;
   const authorProfileUrl = article.author.id ? `/author/${article.author.id}` : '';
   const authorHasDetails = Boolean(article.author.bio || article.author.title || article.author.id);
 
@@ -271,7 +272,7 @@ export const getServerSideProps: GetServerSideProps<ArticlePageProps, Params> = 
     context.res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600'); // Cache for 5 minutes, serve stale for 10 minutes
 
     // Set canonical URL header
-    context.res.setHeader('Link', `<https://ghnewsmedia.com/${article.category.slug}/${article.slug}>; rel="canonical"`);
+    context.res.setHeader('Link', `<${SITE_URL}/${article.category.slug}/${article.slug}>; rel="canonical"`);
 
     // Set last modified header for better caching
     if (article.updatedAt) {

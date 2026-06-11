@@ -1,6 +1,7 @@
 // components/SEO/EnhancedSEO.tsx
 import { ArticleJsonLd, BreadcrumbJsonLd, NextSeo } from 'next-seo';
 import { truncateDescription, truncateTitle } from '@/utils/seo';
+import { SITE_DISPLAY_NAME, SITE_LANGUAGE, SITE_URL } from '@/config/site';
 
 interface EnhancedSEOProps {
   title: string;
@@ -33,10 +34,10 @@ const EnhancedSEO: React.FC<EnhancedSEOProps> = ({
   structuredData,
   breadcrumbData,
   noindex = false,
-  language = 'en-GB'
+  language = SITE_LANGUAGE
 }) => {
-  const siteName = 'GH News Media';
-  const siteUrl = 'https://ghnewsmedia.com';
+  const siteName = SITE_DISPLAY_NAME;
+  const siteUrl = SITE_URL;
   // Remove any existing site name from title to avoid duplication
   const cleanTitle = title
     .replace(/\s*\|\s*GhNewsMedia\s*$/i, '')
@@ -60,7 +61,10 @@ const EnhancedSEO: React.FC<EnhancedSEOProps> = ({
   // Ensure description is within 150-160 characters (920 pixels)
   const optimizedDescription = truncateDescription(description, 155);
   
-  const canonicalUrl = canonical || siteUrl;
+  const canonicalUrl = (canonical || siteUrl).replace(
+    /^https:\/\/ghnewsmedia\.com/i,
+    SITE_URL
+  );
   const imageUrl = image || `${siteUrl}/og-image.jpg`;
 
   const openGraph = {
@@ -112,6 +116,28 @@ const EnhancedSEO: React.FC<EnhancedSEOProps> = ({
           { name: 'article:publisher', content: siteUrl },
         ]}
         additionalLinkTags={[
+          {
+            rel: 'icon',
+            type: 'image/x-icon',
+            href: '/favicon.ico',
+          },
+          {
+            rel: 'apple-touch-icon',
+            sizes: '180x180',
+            href: '/apple-touch-icon.png',
+          },
+          {
+            rel: 'icon',
+            type: 'image/png',
+            sizes: '32x32',
+            href: '/favicon-32x32.png',
+          },
+          {
+            rel: 'icon',
+            type: 'image/png',
+            sizes: '16x16',
+            href: '/favicon-16x16.png',
+          },
           {
             rel: 'alternate',
             type: 'application/rss+xml',

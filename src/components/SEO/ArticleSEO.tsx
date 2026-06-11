@@ -1,3 +1,4 @@
+import { SITE_URL } from '@/config/site';
 import { ArticleJsonLd, NextSeo } from 'next-seo';
 import React from 'react';
 import { NewsArticle } from '../../types/news';
@@ -7,7 +8,7 @@ interface ArticleSEOProps {
 }
 
 const ArticleSEO: React.FC<ArticleSEOProps> = ({ article }) => {
-  const siteUrl = 'https://ghnewsmedia.com';
+  const siteUrl = SITE_URL;
   const articleUrl = `${siteUrl}/${article.category.slug}/${article.slug}`;
   
   // Clean and optimize the title for social media

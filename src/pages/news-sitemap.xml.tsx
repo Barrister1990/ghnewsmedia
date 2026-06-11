@@ -1,5 +1,7 @@
 // pages/news-sitemap.xml.tsx - Google News Sitemap for immediate indexing
+import { PUBLICATION_NAME, SITE_URL } from '@/config/site';
 import { fetchPublishedArticles } from '@/lib/articles';
+import { escapeXml } from '@/utils/escapeXml';
 import { GetServerSideProps } from 'next';
 
 const NewsSitemap = () => null;
@@ -7,14 +9,12 @@ const NewsSitemap = () => null;
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   try {
     const { articles } = await fetchPublishedArticles();
-    const baseUrl = 'https://ghnewsmedia.com';
-    const currentDate = new Date().toISOString();
 
-    // Google News sitemap - only recent articles (within 48 hours)
+    // Google News sitemap - only recent articles (within 48 hours / 2 days)
     const recentArticles = articles.filter(article => {
       const articleDate = new Date(article.publishedAt);
       const hoursDiff = (Date.now() - articleDate.getTime()) / (1000 * 60 * 60);
-      return hoursDiff <= 48; // Only articles published in last 48 hours
+      return hoursDiff <= 48;
     }).sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
     const newsSitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -23,27 +23,21 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   ${recentArticles
     .map((article) => {
       const publicationDate = new Date(article.publishedAt).toISOString();
-      const title = article.title.replace(/[<>&'"]/g, function (c) {
-        switch (c) {
-          case '<': return '&lt;';
-          case '>': return '&gt;';
-          case '&': return '&amp;';
-          case "'": return '&apos;';
-          case '"': return '&quot;';
-          default: return c;
-        }
-      });
-      
+      const title = escapeXml(article.title);
+      const keywords = (article.tags || []).filter(Boolean);
+      const keywordsBlock = keywords.length > 0
+        ? `\n      <news:keywords>${escapeXml(keywords.join(', '))}</news:keywords>`
+        : '';
+
       return `  <url>
-    <loc>${baseUrl}/${article.category.slug}/${article.slug}</loc>
+    <loc>${SITE_URL}/${article.category.slug}/${article.slug}</loc>
     <news:news>
       <news:publication>
-        <news:name>GH News</news:name>
+        <news:name>${PUBLICATION_NAME}</news:name>
         <news:language>en</news:language>
       </news:publication>
       <news:publication_date>${publicationDate}</news:publication_date>
-      <news:title>${title}</news:title>
-      <news:keywords>${(article.tags || []).join(', ')}</news:keywords>
+      <news:title>${title}</news:title>${keywordsBlock}
     </news:news>
   </url>`;
     })

@@ -2,6 +2,8 @@ import Link from 'next/link';
 import React from 'react';
 import { NewsArticle } from '../types/news';
 
+import { articleLinkAriaLabel } from '../utils/seo';
+
 interface TrendingSidebarProps {
   articles: NewsArticle[];
 }
@@ -38,6 +40,7 @@ const TrendingSidebar: React.FC<TrendingSidebarProps> = ({ articles }) => {
               <Link 
                 href={`/${article.category.slug}/${article.slug}`}
                 className="block group"
+                aria-label={articleLinkAriaLabel('Trending', article.category.name, article.title)}
               >
                 <div className="flex gap-2 sm:gap-3">
                   {/* Number/Bullet - Red circular (Pulse style, but using our blue) */}
@@ -49,12 +52,12 @@ const TrendingSidebar: React.FC<TrendingSidebarProps> = ({ articles }) => {
                   </span>
                   
                   {/* Title */}
-                  <h3 
+                  <p 
                     className="font-semibold line-clamp-2 group-hover:underline transition-colors flex-1"
                     style={{ color: '#111111', fontSize: '13px', lineHeight: '1.4' }}
                   >
                     {article.title}
-                  </h3>
+                  </p>
                 </div>
               </Link>
             </li>

@@ -8,7 +8,7 @@ import React from 'react';
 import AdvancedSEOService from '../../services/advancedSEOService';
 import { NewsArticle } from '../../types/news';
 
-const SITE_URL = 'https://ghnewsmedia.com';
+import { SITE_URL } from '@/config/site';
 
 interface UnifiedArticleSEOProps {
   article: NewsArticle;
@@ -32,7 +32,7 @@ const UnifiedArticleSEO: React.FC<UnifiedArticleSEOProps> = ({ article }) => {
     { rel: 'dns-prefetch', href: '//cdn.jsdelivr.net' },
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
     { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' as const },
-    { rel: 'alternate', type: 'application/rss+xml', title: 'GH News RSS Feed', href: `${SITE_URL}/rss.xml` },
+    { rel: 'alternate', type: 'application/rss+xml', title: 'GH News Media RSS Feed', href: `${SITE_URL}/rss.xml` },
     { rel: 'alternate', hrefLang: 'en-gh', href: canonicalUrl },
     { rel: 'alternate', hrefLang: 'x-default', href: canonicalUrl },
   ];

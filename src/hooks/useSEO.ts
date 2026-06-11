@@ -1,5 +1,6 @@
 import { Category, NewsArticle } from '@/types/news';
 import { useCallback, useEffect, useState } from 'react';
+import { SITE_URL } from '../config/site';
 import SEOService from '../services/seoService';
 import { usePublishedArticles } from './usePublishedArticles';
 import { useSupabaseCategories } from './useSupabaseCategories';
@@ -20,11 +21,18 @@ export const useSEO = () => {
   const [seoService] = useState(() => SEOService.getInstance());
   
   const updateDocumentMeta = useCallback(() => {
-    // Add canonical link if not exists
-    if (!document.querySelector('link[rel="canonical"]')) {
+    // Ensure canonical always uses the www domain (never bare ghnewsmedia.com).
+    const existingCanonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    const normalizedHref = window.location.href.replace(
+      /^https:\/\/ghnewsmedia\.com/i,
+      SITE_URL
+    );
+    if (existingCanonical) {
+      existingCanonical.href = normalizedHref;
+    } else {
       const canonical = document.createElement('link');
       canonical.rel = 'canonical';
-      canonical.href = window.location.href;
+      canonical.href = normalizedHref;
       document.head.appendChild(canonical);
     }
 
@@ -33,8 +41,8 @@ export const useSEO = () => {
       const rssLink = document.createElement('link');
       rssLink.rel = 'alternate';
       rssLink.type = 'application/rss+xml';
-      rssLink.title = 'GhNewsMedia RSS Feed';
-      rssLink.href = 'https://ghnewsmedia.com/rss.xml';
+      rssLink.title = 'GH News Media RSS Feed';
+      rssLink.href = `${SITE_URL}/rss.xml`;
       document.head.appendChild(rssLink);
     }
 
@@ -62,7 +70,7 @@ export const useSEO = () => {
       console.log('Generated RSS feed:', rssContent.substring(0, 200) + '...');
       
       // Notify search engines of updates
-      const sitemapUrl = 'https://ghnewsmedia.com/sitemap.xml';
+      const sitemapUrl = `${SITE_URL}/sitemap.xml`;
       seoService.notifySearchEngines(sitemapUrl);
     }
   }, [articles, categories, seoService, updateDocumentMeta]);

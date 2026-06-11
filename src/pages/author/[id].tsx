@@ -155,7 +155,7 @@ const AuthorPage = () => {
         <SEOHead
           title="Author Not Found - GhNewsMedia"
           description="The author you're looking for could not be found. Browse our team of journalists and their latest articles."
-          canonical="https://ghnewsmedia.com/404"
+          canonical="https://www.ghnewsmedia.com/404"
         />
         <div className="text-center p-4">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Author Not Found</h1>
@@ -169,8 +169,8 @@ const AuthorPage = () => {
   }
 
   const breadcrumbItems = [
-    { name: 'Home', url: 'https://ghnewsmedia.com' },
-    { name: 'Authors', url: 'https://ghnewsmedia.com/authors' },
+    { name: 'Home', url: 'https://www.ghnewsmedia.com' },
+    { name: 'Authors', url: 'https://www.ghnewsmedia.com/authors' },
     { name: author.name }
   ];
 
@@ -181,7 +181,7 @@ const AuthorPage = () => {
     "jobTitle": author.title,
     "description": author.bio,
     ...(author.avatar?.trim() ? { image: author.avatar } : {}),
-    "url": `https://ghnewsmedia.com/author/${author.id}`,
+    "url": `https://www.ghnewsmedia.com/author/${author.id}`,
     "worksFor": {
       "@type": "Organization",
       "name": "GH News"
@@ -198,7 +198,7 @@ const AuthorPage = () => {
       <SEOHead
         title={generateMetaTitle(`${author.name} - ${author.title}`, 'Author')}
         description={truncateDescription(`Read articles by ${author.name}, ${author.title} at GH News. ${author.bio}`)}
-        canonical={`https://ghnewsmedia.com/author/${author.id}`}
+        canonical={`https://www.ghnewsmedia.com/author/${author.id}`}
         image={author.avatar}
         tags={[author.name, 'journalist', 'Ghana news', 'author', author.title]}
         structuredData={authorStructuredData}

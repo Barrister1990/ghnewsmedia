@@ -29,7 +29,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
         <SEOHead
           title="Error - GH News"
           description="An error occurred while loading the category page."
-          canonical="https://ghnewsmedia.com"
+          canonical="https://www.ghnewsmedia.com"
         />
         <div className="text-center px-4">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
@@ -56,7 +56,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
         <SEOHead
           title="Category Not Found"
           description="The category you're looking for could not be found. Browse our news categories and latest updates from Ghana."
-          canonical="https://ghnewsmedia.com/404"
+          canonical="https://www.ghnewsmedia.com/404"
         />
         <div className="text-center px-4">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
@@ -77,7 +77,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
   }
 
   const breadcrumbItems = [
-    { name: 'Home', url: 'https://ghnewsmedia.com' },
+    { name: 'Home', url: 'https://www.ghnewsmedia.com' },
     { name: category.name }
   ];
 
@@ -86,7 +86,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
     "@type": "CollectionPage",
     "name": `${category.name} News`,
     "description": category.description,
-    "url": `https://ghnewsmedia.com/category/${category.slug}`,
+    "url": `https://www.ghnewsmedia.com/category/${category.slug}`,
     "mainEntity": {
       "@type": "ItemList",
       "numberOfItems": totalArticles,
@@ -94,7 +94,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
         "@type": "NewsArticle",
         "position": index + 1,
         "headline": article.title,
-        "url": `https://ghnewsmedia.com/${article.category.slug}/${article.slug}`,
+        "url": `https://www.ghnewsmedia.com/${article.category.slug}/${article.slug}`,
         "datePublished": new Date(article.publishedAt).toISOString(),
         "author": {
           "@type": "Person",
@@ -109,7 +109,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
       <SEOHead
         title={generateMetaTitle(`${category.name} News`, 'Category')}
         description={truncateDescription(`${category.description} Stay updated with the latest ${category.name.toLowerCase()} news from Ghana.`)}
-        canonical={`https://ghnewsmedia.com/category/${category.slug}`}
+        canonical={`https://www.ghnewsmedia.com/category/${category.slug}`}
         tags={[`${category.name} news`, 'Ghana news', category.name.toLowerCase(), 'breaking news']}
         structuredData={categoryStructuredData}
       />

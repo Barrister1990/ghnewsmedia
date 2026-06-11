@@ -1,4 +1,5 @@
 // components/SEO/GoogleNewsSEO.tsx - Google News specific SEO optimization
+import { PUBLICATION_NAME, SITE_URL } from '../../config/site';
 import Head from 'next/head';
 import React from 'react';
 import { NewsArticle } from '../../types/news';
@@ -8,7 +9,7 @@ interface GoogleNewsSEOProps {
 }
 
 const GoogleNewsSEO: React.FC<GoogleNewsSEOProps> = ({ article }) => {
-  const articleUrl = `https://ghnewsmedia.com/${article.category.slug}/${article.slug}`;
+  const articleUrl = `${SITE_URL}/${article.category.slug}/${article.slug}`;
   const publicationDate = new Date(article.publishedAt).toISOString();
   
   // Google News specific meta tags
@@ -29,8 +30,8 @@ const GoogleNewsSEO: React.FC<GoogleNewsSEOProps> = ({ article }) => {
     { name: 'content-language', content: 'en-GB' },
     
     // News organization tags
-    { property: 'article:publisher', content: 'https://ghnewsmedia.com' },
-    { name: 'publisher', content: 'GH News' },
+    { property: 'article:publisher', content: SITE_URL },
+    { name: 'publisher', content: PUBLICATION_NAME },
     
     // Google News specific
     { name: 'googlebot-news', content: 'noarchive' },
@@ -38,7 +39,7 @@ const GoogleNewsSEO: React.FC<GoogleNewsSEOProps> = ({ article }) => {
     
     // Social media for news sharing
     { property: 'og:type', content: 'article' },
-    { property: 'og:site_name', content: 'GH News' },
+    { property: 'og:site_name', content: PUBLICATION_NAME },
     { property: 'og:locale', content: 'en_GB' },
     
     // Twitter Cards for news
@@ -52,7 +53,7 @@ const GoogleNewsSEO: React.FC<GoogleNewsSEOProps> = ({ article }) => {
   const authorSchema: Record<string, string> = {
     "@type": "Person",
     name: article.author.name,
-    url: `https://ghnewsmedia.com/author/${article.author.id}`,
+      url: `${SITE_URL}/author/${article.author.id}`,
   };
   if (authorAvatar) {
     authorSchema.image = authorAvatar;
@@ -66,7 +67,7 @@ const GoogleNewsSEO: React.FC<GoogleNewsSEOProps> = ({ article }) => {
     "description": article.excerpt,
     "image": {
       "@type": "ImageObject",
-      "url": article.featuredImage.startsWith('http') ? article.featuredImage : `https://ghnewsmedia.com${article.featuredImage}`,
+      "url": article.featuredImage.startsWith('http') ? article.featuredImage : `${SITE_URL}${article.featuredImage}`,
       "width": 1200,
       "height": 630,
       "caption": article.title
@@ -76,11 +77,11 @@ const GoogleNewsSEO: React.FC<GoogleNewsSEOProps> = ({ article }) => {
     "author": authorSchema,
     "publisher": {
       "@type": "NewsMediaOrganization",
-      "name": "GH News",
-      "url": "https://ghnewsmedia.com",
+      "name": PUBLICATION_NAME,
+      "url": SITE_URL,
       "logo": {
         "@type": "ImageObject",
-        "url": "https://ghnewsmedia.com/logo.png",
+        "url": `${SITE_URL}/logo.png`,
         "width": 600,
         "height": 60
       },
@@ -101,7 +102,7 @@ const GoogleNewsSEO: React.FC<GoogleNewsSEOProps> = ({ article }) => {
     "inLanguage": "en-GB",
     "isAccessibleForFree": true,
     "url": articleUrl,
-    "thumbnailUrl": article.featuredImage.startsWith('http') ? article.featuredImage : `https://ghnewsmedia.com${article.featuredImage}`,
+    "thumbnailUrl": article.featuredImage.startsWith('http') ? article.featuredImage : `${SITE_URL}${article.featuredImage}`,
     
     // Google News specific properties
     "speakable": {
@@ -138,10 +139,10 @@ const GoogleNewsSEO: React.FC<GoogleNewsSEOProps> = ({ article }) => {
       
       {/* Google News specific link tags */}
       <link rel="canonical" href={articleUrl} />
-      <link rel="alternate" type="application/rss+xml" title="GH News RSS Feed" href="https://ghnewsmedia.com/rss.xml" />
+      <link rel="alternate" type="application/rss+xml" title="GH News Media RSS Feed" href={`${SITE_URL}/rss.xml`} />
       
       {/* Preload critical resources for faster loading */}
-      <link rel="preload" href={article.featuredImage.startsWith('http') ? article.featuredImage : `https://ghnewsmedia.com${article.featuredImage}`} as="image" />
+      <link rel="preload" href={article.featuredImage.startsWith('http') ? article.featuredImage : `${SITE_URL}${article.featuredImage}`} as="image" />
       
       {/* DNS prefetch for external resources */}
       <link rel="dns-prefetch" href="//www.google-analytics.com" />

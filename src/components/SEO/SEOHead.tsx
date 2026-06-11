@@ -1,5 +1,6 @@
 import { ArticleJsonLd, NextSeo } from 'next-seo';
 import React from 'react';
+import { SITE_DISPLAY_NAME, SITE_URL } from '@/config/site';
 
 interface SEOHeadProps {
   title: string;
@@ -28,8 +29,8 @@ const SEOHead: React.FC<SEOHeadProps> = ({
   tags,
   structuredData
 }) => {
-  const siteName = 'GH News Media';
-  const siteUrl = 'https://ghnewsmedia.com';
+  const siteName = SITE_DISPLAY_NAME;
+  const siteUrl = SITE_URL;
   // Remove any existing site name from title to avoid duplication
   const cleanTitle = title
     .replace(/\s*\|\s*GhNewsMedia\s*$/i, '')

@@ -10,12 +10,12 @@ const ArticleNotFound = () => {
     slug: "404",
     excerpt: "The article you're looking for could not be found. Browse our latest news and updates from Ghana.",
     content: "This article could not be found.",
-    featuredImage: "https://ghnewsmedia.com/placeholder.svg",
+    featuredImage: "https://www.ghnewsmedia.com/placeholder.svg",
     author: { 
       id: "404", 
       name: "GH News", 
       bio: "Ghana's leading news source",
-      avatar: "https://ghnewsmedia.com/placeholder.svg",
+      avatar: "https://www.ghnewsmedia.com/placeholder.svg",
       title: "Editorial Team",
       social: {}
     },

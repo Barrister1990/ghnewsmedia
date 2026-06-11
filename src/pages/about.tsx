@@ -10,7 +10,7 @@ const AboutPage = () => {
       <StaticPageLayout 
         title="About Us"
         description="Learn about GH News - Ghana's premier digital news platform. Our mission, values, team, and commitment to delivering accurate, timely news."
-        canonical="https://ghnewsmedia.com/about"
+        canonical="https://www.ghnewsmedia.com/about"
       >
         <section style={{ marginBottom: '32px' }}>
           <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111111', marginBottom: '16px', marginTop: '32px' }}>Who We Are</h2>

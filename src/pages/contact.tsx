@@ -10,7 +10,7 @@ const ContactPage = () => {
       <StaticPageLayout 
         title="Contact Us"
         description="Get in touch with GH News. Contact our editorial team, advertising department, or customer service. We're here to help."
-        canonical="https://ghnewsmedia.com/contact"
+        canonical="https://www.ghnewsmedia.com/contact"
       >
         <section style={{ marginBottom: '32px' }}>
           <p style={{ fontSize: '18px', lineHeight: '1.7', color: '#374151', marginBottom: '24px' }}>

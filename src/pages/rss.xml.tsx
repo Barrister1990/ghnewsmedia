@@ -1,4 +1,5 @@
 // pages/rss.xml.tsx - RSS Feed for news syndication and Google News
+import { SITE_URL } from '@/config/site';
 import { fetchPublishedArticles } from '@/lib/articles';
 import { GetServerSideProps } from 'next';
 
@@ -7,7 +8,7 @@ const RSSFeed = () => null;
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   try {
     const { articles } = await fetchPublishedArticles();
-    const baseUrl = 'https://ghnewsmedia.com';
+    const baseUrl = SITE_URL;
     const currentDate = new Date().toUTCString();
 
     // Sort articles by publication date (newest first)

@@ -11,7 +11,7 @@ const AdvertisePage = () => {
       <StaticPageLayout 
         title="Advertise With Us"
         description="Reach Ghana's most engaged audience with GH News. Discover our advertising solutions, audience insights, and partnership opportunities."
-        canonical="https://ghnewsmedia.com/advertise"
+        canonical="https://www.ghnewsmedia.com/advertise"
       >
         <section style={{ marginBottom: '32px' }}>
           <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111111', marginBottom: '16px', marginTop: '32px' }}>Reach Ghana&apos;s Most Engaged Audience</h2>

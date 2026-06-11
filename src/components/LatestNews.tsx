@@ -3,6 +3,8 @@ import React from 'react';
 import { NewsArticle } from '../types/news';
 import { getCategoryColor } from '../utils/categoryColors';
 
+import { articleLinkAriaLabel } from '../utils/seo';
+
 interface LatestNewsProps {
   articles: NewsArticle[];
 }
@@ -52,6 +54,7 @@ const LatestNews: React.FC<LatestNewsProps> = ({ articles }) => {
             key={article.id}
             href={`/${article.category.slug}/${article.slug}`}
             className="block group"
+            aria-label={articleLinkAriaLabel('Latest News', article.category.name, article.title)}
           >
             <article className="flex gap-3 bg-white rounded-lg overflow-hidden hover:shadow-sm transition-shadow duration-200">
               {/* Image */}
@@ -79,12 +82,12 @@ const LatestNews: React.FC<LatestNewsProps> = ({ articles }) => {
                     {formatDate(article.publishedAt)}
                   </span>
                 </div>
-                <h3 
+                <p 
                   className="font-bold line-clamp-2 group-hover:underline transition-colors"
                   style={{ color: '#111111', fontSize: '16px', lineHeight: '1.3' }}
                 >
                   {article.title}
-                </h3>
+                </p>
               </div>
             </article>
           </Link>
@@ -98,6 +101,7 @@ const LatestNews: React.FC<LatestNewsProps> = ({ articles }) => {
             key={article.id}
             href={`/${article.category.slug}/${article.slug}`}
             className="block group"
+            aria-label={articleLinkAriaLabel('Latest News', article.category.name, article.title)}
           >
             <article className="h-full overflow-hidden rounded-lg border border-stone-200/80 bg-white transition-shadow duration-200 hover:shadow-md">
               {/* Image */}
@@ -128,12 +132,12 @@ const LatestNews: React.FC<LatestNewsProps> = ({ articles }) => {
                 >
                   {formatDate(article.publishedAt)}
                 </p>
-                <h3 
+                <p 
                   className="font-bold line-clamp-2 group-hover:underline transition-colors"
                   style={{ color: '#111111', fontSize: '18px', lineHeight: '1.3' }}
                 >
                   {article.title}
-                </h3>
+                </p>
                 <p className="mt-1 text-[11px] text-gray-500">{article.readTime} min read</p>
               </div>
             </article>

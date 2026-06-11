@@ -1,9 +1,9 @@
-
+import { SITE_URL } from '../config/site';
 import { Category, NewsArticle } from '../types/news';
 
 export class DynamicSitemapGenerator {
   private static instance: DynamicSitemapGenerator;
-  private readonly baseUrl = 'https://ghnewsmedia.com';
+  private readonly baseUrl = SITE_URL;
 
   static getInstance(): DynamicSitemapGenerator {
     if (!DynamicSitemapGenerator.instance) {
@@ -17,7 +17,6 @@ export class DynamicSitemapGenerator {
     
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 `;
 
@@ -81,21 +80,11 @@ export class DynamicSitemapGenerator {
     const priority = isRecent ? '0.9' : '0.8';
     
     const lastmod = new Date(article.updatedAt || article.publishedAt).toISOString();
-    const pubDate = new Date(article.publishedAt).toISOString();
     return `  <url>
     <loc>${articleUrl}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>${priority}</priority>
-    <news:news>
-      <news:publication>
-        <news:name>GH News</news:name>
-        <news:language>en</news:language>
-      </news:publication>
-      <news:publication_date>${pubDate}</news:publication_date>
-      <news:title>${this.escapeXml(article.title)}</news:title>
-      <news:keywords>${article.tags.join(', ')}</news:keywords>
-    </news:news>
     <image:image>
       <image:loc>${imageUrl}</image:loc>
       <image:title>${this.escapeXml(article.title)}</image:title>

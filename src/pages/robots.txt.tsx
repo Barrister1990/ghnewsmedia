@@ -1,11 +1,10 @@
 // pages/robots.txt.tsx
+import { SITE_URL } from '@/config/site';
 import { GetServerSideProps } from 'next';
 
 const Robots = () => null;
 
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
-  const baseUrl = 'https://ghnewsmedia.com';
-  
   const robotsTxt = `User-agent: Googlebot
 Allow: /
 
@@ -27,10 +26,10 @@ Disallow: /cms/
 Disallow: /api/
 Disallow: /private/
 
-# Sitemaps for better indexing (Phase 3: only real sitemaps; RSS is linked in HTML)
-Sitemap: ${baseUrl}/sitemap.xml
-Sitemap: ${baseUrl}/sitemap-index.xml
-Sitemap: ${baseUrl}/news-sitemap.xml`;
+# Sitemaps for better indexing
+Sitemap: ${SITE_URL}/sitemap.xml
+Sitemap: ${SITE_URL}/sitemap-index.xml
+Sitemap: ${SITE_URL}/news-sitemap.xml`;
 
   res.setHeader('Content-Type', 'text/plain');
   res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate');

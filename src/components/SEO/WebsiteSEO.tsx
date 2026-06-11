@@ -2,6 +2,7 @@ import { NextSeo } from 'next-seo';
 import Head from 'next/head';
 import React from 'react';
 import { truncateDescription, truncateTitle } from '@/utils/seo';
+import { PUBLICATION_NAME, SITE_DISPLAY_NAME, SITE_URL } from '@/config/site';
 
 interface WebsiteSEOProps {
   title?: string;
@@ -14,7 +15,7 @@ const WebsiteSEO: React.FC<WebsiteSEOProps> = ({
   description = "Stay informed with Ghana's leading digital news platform. Get breaking news, politics, business, sports, and entertainment updates from trusted sources.",
   path = ""
 }) => {
-  const siteUrl = 'https://ghnewsmedia.com';
+  const siteUrl = SITE_URL;
   const pageUrl = `${siteUrl}${path}`;
   const logoUrl = `${siteUrl}/logo.png`;
   const ogImageUrl = `${siteUrl}/og-image.jpg`;
@@ -34,11 +35,11 @@ const WebsiteSEO: React.FC<WebsiteSEOProps> = ({
   const websiteStructuredData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "GH News",
-    "alternateName": "Ghana's Digital News Platform",
+    "name": PUBLICATION_NAME,
+    "alternateName": SITE_DISPLAY_NAME,
     "url": siteUrl,
     "description": description,
-    "inLanguage": "en-GB",
+    "inLanguage": "en-GH",
     "potentialAction": [
       {
         "@type": "SearchAction",
@@ -60,8 +61,8 @@ const WebsiteSEO: React.FC<WebsiteSEOProps> = ({
   const organizationStructuredData = {
     "@context": "https://schema.org",
     "@type": "NewsMediaOrganization",
-    "name": "GH News",
-    "alternateName": "Ghana's Digital News Platform",
+    "name": PUBLICATION_NAME,
+    "alternateName": SITE_DISPLAY_NAME,
     "url": siteUrl,
     "logo": logoUrl,
     "description": description,
@@ -112,7 +113,7 @@ const WebsiteSEO: React.FC<WebsiteSEOProps> = ({
               alt: 'GH News - Ghana\'s Digital News Platform',
             },
           ],
-          siteName: 'GH News',
+          siteName: PUBLICATION_NAME,
           locale: 'en_GB',
         }}
         twitter={{
@@ -139,7 +140,7 @@ const WebsiteSEO: React.FC<WebsiteSEOProps> = ({
           },
           {
             name: 'language',
-            content: 'en-GB'
+            content: 'en-GH'
           }
         ]}
         additionalLinkTags={[

@@ -3,6 +3,8 @@ import React from 'react';
 import { NewsArticle } from '../types/news';
 import { getCategoryColor } from '../utils/categoryColors';
 
+import { articleLinkAriaLabel } from '../utils/seo';
+
 interface HeroFeaturedSectionProps {
   articles: NewsArticle[];
 }
@@ -32,6 +34,7 @@ const HeroFeaturedSection: React.FC<HeroFeaturedSectionProps> = ({ articles }) =
               key={article.id}
               href={`/${article.category.slug}/${article.slug}`}
               className="block group"
+              aria-label={articleLinkAriaLabel('Featured', article.category.name, article.title)}
             >
               <article className="flex gap-3 bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                 {/* Small Square Thumbnail */}
@@ -62,12 +65,12 @@ const HeroFeaturedSection: React.FC<HeroFeaturedSectionProps> = ({ articles }) =
                   </p>
                   
                   {/* Title - Smaller on mobile */}
-                  <h3 
+                  <p 
                     className="font-bold line-clamp-2 group-hover:underline transition-colors"
                     style={{ color: '#111111', fontSize: '16px', lineHeight: '1.3' }}
                   >
                     {article.title}
-                  </h3>
+                  </p>
                 </div>
               </article>
             </Link>
@@ -82,6 +85,7 @@ const HeroFeaturedSection: React.FC<HeroFeaturedSectionProps> = ({ articles }) =
           <Link 
             href={`/${heroArticle.category.slug}/${heroArticle.slug}`}
             className="md:col-span-2 block group"
+            aria-label={articleLinkAriaLabel('Featured', heroArticle.category.name, heroArticle.title)}
           >
             <article className="relative h-80 overflow-hidden rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
               <img
@@ -115,12 +119,12 @@ const HeroFeaturedSection: React.FC<HeroFeaturedSectionProps> = ({ articles }) =
               
               {/* Title - Bottom Overlay */}
               <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-10">
-                <h2 
+                <p 
                   className="font-bold text-white mb-2 line-clamp-3"
                   style={{ fontSize: '18px', lineHeight: '1.3' }}
                 >
                   {heroArticle.title}
-                </h2>
+                </p>
                 <div className="flex flex-wrap items-center gap-2 text-[11px] text-white/90">
                   <span className="font-medium">{heroArticle.author.name}</span>
                   <span className="text-white/60">•</span>
@@ -138,6 +142,7 @@ const HeroFeaturedSection: React.FC<HeroFeaturedSectionProps> = ({ articles }) =
               key={article.id}
               href={`/${article.category.slug}/${article.slug}`}
               className="block group"
+              aria-label={articleLinkAriaLabel('Featured', article.category.name, article.title)}
             >
               <article className="flex gap-3 bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                 {/* Small Square Thumbnail */}
@@ -168,12 +173,12 @@ const HeroFeaturedSection: React.FC<HeroFeaturedSectionProps> = ({ articles }) =
                   </p>
                   
                   {/* Title */}
-                  <h3 
+                  <p 
                     className="font-bold line-clamp-2 group-hover:underline transition-colors"
                     style={{ color: '#111111', fontSize: '18px', lineHeight: '1.3' }}
                   >
                     {article.title}
-                  </h3>
+                  </p>
                   <p className="mt-1 text-[11px] text-gray-500">{article.readTime} min read</p>
                 </div>
               </article>

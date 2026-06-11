@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { SITE_URL } from '../../config/site';
 import { usePublishedArticles } from '../../hooks/usePublishedArticles';
 import { useSupabaseCategories } from '../../hooks/useSupabaseCategories';
 import { dynamicSitemapGenerator } from '../../utils/dynamicSitemapGenerator';
@@ -14,7 +15,7 @@ const SitemapGenerator: React.FC = () => {
       dynamicSitemapGenerator.generateRSSFeed(articles);
 
       // Notify search engines about updates
-      const sitemapUrl = 'https://ghnewsmedia.com/sitemap.xml';
+      const sitemapUrl = `${SITE_URL}/sitemap.xml`;
       dynamicSitemapGenerator.notifySearchEngines(sitemapUrl);
       if (process.env.NODE_ENV === 'development' && process.env.DEBUG_SEO === 'true') {
         console.log('SEO: Sitemap generated with', articles.length, 'articles');

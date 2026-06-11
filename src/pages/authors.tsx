@@ -26,7 +26,7 @@ const AuthorsPage = ({ authors }: AuthorsPageProps) => {
       <SEOHead
         title="Our Journalists | GH News Media"
         description="Meet the GH News Media journalists and editors. Explore verified author profiles and read all articles by our newsroom team."
-        canonical="https://ghnewsmedia.com/authors"
+        canonical="https://www.ghnewsmedia.com/authors"
         tags={['GH News Media journalists', 'Ghana news authors', 'reporters', 'editors', 'newsroom']}
       />
       <Header />
