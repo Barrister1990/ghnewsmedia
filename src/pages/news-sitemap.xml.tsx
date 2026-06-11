@@ -1,5 +1,5 @@
 // pages/news-sitemap.xml.tsx - Google News Sitemap for immediate indexing
-import { PUBLICATION_NAME, SITE_URL } from '@/config/site';
+import { buildArticleUrl, PUBLICATION_NAME } from '@/config/site';
 import { fetchPublishedArticles } from '@/lib/articles';
 import { escapeXml } from '@/utils/escapeXml';
 import { GetServerSideProps } from 'next';
@@ -30,7 +30,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
         : '';
 
       return `  <url>
-    <loc>${SITE_URL}/${article.category.slug}/${article.slug}</loc>
+    <loc>${buildArticleUrl(article.category.slug, article.slug)}</loc>
     <news:news>
       <news:publication>
         <news:name>${PUBLICATION_NAME}</news:name>

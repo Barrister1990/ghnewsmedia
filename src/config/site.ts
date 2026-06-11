@@ -19,3 +19,13 @@ export const DEFAULT_HOME_DESCRIPTION =
 
 /** Visible homepage H1 (matches title keywords for relevance). */
 export const DEFAULT_HOME_H1 = 'Latest Ghana News Today, Sports & Business';
+
+/** Build a canonical article URL on the verified www domain. */
+export function buildArticleUrl(categorySlug: string, articleSlug: string): string {
+  return `${SITE_URL}/${categorySlug}/${articleSlug}`;
+}
+
+/** Normalize any ghnewsmedia URL to the verified www canonical host. */
+export function normalizeToSiteUrl(url: string): string {
+  return url.replace(/^https?:\/\/ghnewsmedia\.com/i, SITE_URL);
+}
