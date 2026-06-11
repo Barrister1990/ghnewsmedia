@@ -179,7 +179,7 @@ const Index: React.FC<IndexProps> = ({ articles, error }) => {
               {DEFAULT_HOME_H1}
             </h1>
             <p className="mt-2 max-w-3xl text-sm sm:text-base text-stone-600 leading-relaxed">
-              {seoDescription} Covering politics, sports, business, entertainment, and breaking news from Accra and across Ghana.
+              {seoDescription}
             </p>
             <ShareButtons
               url={SITE_URL}

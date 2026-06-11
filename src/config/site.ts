@@ -11,11 +11,11 @@ export const PUBLICATION_NAME = 'GH News Media';
 export const SITE_DISPLAY_NAME = 'GH News Media';
 
 /** Default homepage SEO title — aligned with visible H1 and intro copy. */
-export const DEFAULT_HOME_TITLE = 'Ghana Breaking News Today | Politics, Sports, Business';
+export const DEFAULT_HOME_TITLE = 'Latest Ghana News Today, Sports & Business | GhNewsMedia';
 
 /** Default homepage meta description. */
 export const DEFAULT_HOME_DESCRIPTION =
-  'Get the latest Ghana breaking news, politics, business, sports, and entertainment updates. GH News Media delivers trusted news 24/7 from Accra and across Ghana.';
+  'Get the latest Ghana news today — sports, business, politics, and entertainment. GhNewsMedia delivers trusted breaking news 24/7 from Accra and across Ghana.';
 
 /** Visible homepage H1 (matches title keywords for relevance). */
-export const DEFAULT_HOME_H1 = 'Ghana Breaking News Today';
+export const DEFAULT_HOME_H1 = 'Latest Ghana News Today, Sports & Business';
