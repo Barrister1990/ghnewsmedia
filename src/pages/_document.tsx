@@ -13,6 +13,12 @@ export default function Document() {
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
 
+        {/* Google Search Console site verification — keep permanently */}
+        <meta
+          name="google-site-verification"
+          content="JGfzO_K34iWzkRJ7peIKmbAL6GCFNq-9BJZMnt3OhhI"
+        />
+
         {/* Google Analytics */}
         <script
           async
