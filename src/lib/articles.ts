@@ -1,10 +1,29 @@
 // src/lib/articles.ts
+import { PLACEHOLDER_FEATURED_IMAGE } from '@/config/site';
 import { supabase } from '@/integrations/supabase/client';
 import { NewsArticle } from '@/types/news';
 
+export { PLACEHOLDER_FEATURED_IMAGE };
+
+/**
+ * Columns needed to render article cards and listings. Excludes `content` (the
+ * full HTML body), which is by far the largest field.
+ */
+export const ARTICLE_CARD_COLUMNS = [
+  'id', 'title', 'slug', 'excerpt', 'featured', 'trending', 'read_time', 'views',
+  'featured_image', 'created_at', 'updated_at', 'published_at',
+  'category_id', 'category_name', 'category_slug', 'category_color', 'category_icon',
+  'author_id', 'author_name', 'author_avatar', 'tag_names',
+].join(',');
+
+/** PostgREST caps responses at 1000 rows; page through results in chunks of this size. */
+const PAGE_SIZE = 1000;
+
+/** A row from `articles_with_details`, as accepted by `transformToNewsArticle`. */
+export type ArticleRow = Parameters<typeof transformToNewsArticle>[0];
+
 export const transformToNewsArticle = (article: any): NewsArticle => {
-  // Skip articles with null essential fields
-  if (!article.id || !article.title || !article.content) {
+  if (!article.id || !article.title) {
     throw new Error('Article missing essential fields');
   }
 
@@ -18,8 +37,8 @@ export const transformToNewsArticle = (article: any): NewsArticle => {
     title: article.title,
     slug: article.slug || '',
     excerpt: article.excerpt || '',
-    content: article.content,
-    featuredImage: article.featured_image || 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&h=400&fit=crop',
+    content: article.content || '',
+    featuredImage: article.featured_image || PLACEHOLDER_FEATURED_IMAGE,
     featured_image_credit: article.featured_image_credit || null,
     author: {
       id: article.author_id || '',
@@ -55,33 +74,58 @@ export const transformToNewsArticle = (article: any): NewsArticle => {
   };
 };
 
-export const fetchPublishedArticles = async (): Promise<{
+interface FetchPublishedOptions {
+  /** Columns to select. Defaults to card columns (no article body). */
+  columns?: string;
+  /** Maximum rows to return. Defaults to every published article. */
+  limit?: number;
+  /** Only include articles published at or after this date. */
+  publishedSince?: Date;
+}
+
+export const fetchPublishedArticles = async ({
+  columns = ARTICLE_CARD_COLUMNS,
+  limit = Infinity,
+  publishedSince,
+}: FetchPublishedOptions = {}): Promise<{
   articles: NewsArticle[];
   error: string | null;
 }> => {
   try {
-    const { data: articlesData, error: articlesError } = await supabase
-      .from('articles_with_details')
-      .select('*')
-      .eq('status', 'published')
-      .order('published_at', { ascending: false, nullsFirst: false })
-      .order('created_at', { ascending: false });
+    const rows: ArticleRow[] = [];
 
-    if (articlesError) {
-      console.error('Error fetching articles:', articlesError);
-      throw articlesError;
+    while (rows.length < limit) {
+      const from = rows.length;
+      const to = Math.min(from + PAGE_SIZE, limit) - 1;
+
+      let query = supabase
+        .from('articles_with_details')
+        .select(columns)
+        .eq('status', 'published')
+        .not('content', 'is', null);
+      if (publishedSince) {
+        // Some published rows have no published_at; they are dated by created_at elsewhere.
+        const since = publishedSince.toISOString();
+        query = query.or(
+          `published_at.gte.${since},and(published_at.is.null,created_at.gte.${since})`
+        );
+      }
+
+      const { data, error } = await query
+        .order('published_at', { ascending: false, nullsFirst: false })
+        .order('created_at', { ascending: false })
+        .order('id', { ascending: true })
+        .range(from, to);
+
+      if (error) throw error;
+
+      rows.push(...(data || []));
+      if (!data || data.length < to - from + 1) break;
     }
 
-    // Filter and transform articles, handling potential null values
-    const transformedArticles = (articlesData || [])
-      .filter(article => article.id && article.title && article.content) // Filter out incomplete articles
-      .map(transformToNewsArticle);
-
-    console.log('Fetched published articles:', transformedArticles);
-
     return {
-      articles: transformedArticles,
-      error: null
+      articles: rows.filter((row) => row.id && row.title).map(transformToNewsArticle),
+      error: null,
     };
   } catch (error) {
     console.error('Error in fetchPublishedArticles:', error);
@@ -92,19 +136,111 @@ export const fetchPublishedArticles = async (): Promise<{
   }
 };
 
+/**
+ * Related article cards: same category first, topped up with the latest from
+ * other categories. Only fetches what is rendered.
+ */
+export const fetchRelatedArticles = async (
+  article: NewsArticle,
+  limit = 3
+): Promise<NewsArticle[]> => {
+  const baseQuery = () =>
+    supabase
+      .from('articles_with_details')
+      .select(ARTICLE_CARD_COLUMNS)
+      .eq('status', 'published')
+      .neq('id', article.id)
+      .order('published_at', { ascending: false, nullsFirst: false });
+
+  try {
+    const { data: sameCategory, error } = await baseQuery()
+      .eq('category_id', article.category.id)
+      .limit(limit);
+    if (error) throw error;
+
+    const related = (sameCategory || []) as ArticleRow[];
+    if (related.length < limit) {
+      const { data: others, error: othersError } = await baseQuery()
+        .neq('category_id', article.category.id)
+        .limit(limit - related.length);
+      if (othersError) throw othersError;
+      related.push(...((others || []) as ArticleRow[]));
+    }
+
+    return related.filter((row) => row.id && row.title).map(transformToNewsArticle);
+  } catch (error) {
+    console.error('Error in fetchRelatedArticles:', error);
+    return [];
+  }
+};
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Most-viewed published stories of the last `days` days, widening to 30 days when
+ * the recent window is too thin to fill the list. Returns [] on failure.
+ */
+export const fetchMostPopular = async (limit = 10, days = 7): Promise<NewsArticle[]> => {
+  const query = (sinceDays: number) =>
+    supabase
+      .from('articles_with_details')
+      .select(ARTICLE_CARD_COLUMNS)
+      .eq('status', 'published')
+      .not('content', 'is', null)
+      .gte('published_at', new Date(Date.now() - sinceDays * DAY_MS).toISOString())
+      .order('views', { ascending: false, nullsFirst: false })
+      .limit(limit);
+
+  try {
+    let { data, error } = await query(days);
+    if (error) throw error;
+    if ((data?.length ?? 0) < Math.min(limit, 5) && days < 30) {
+      ({ data, error } = await query(30));
+      if (error) throw error;
+    }
+    return ((data || []) as ArticleRow[]).filter((row) => row.id && row.title).map(transformToNewsArticle);
+  } catch (error) {
+    console.error('Error in fetchMostPopular:', error);
+    return [];
+  }
+};
+
+/** Latest published stories in any of the given category slugs. Returns [] on failure. */
+export const fetchLatestInCategories = async (categorySlugs: string[], limit = 3): Promise<NewsArticle[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('articles_with_details')
+      .select(ARTICLE_CARD_COLUMNS)
+      .eq('status', 'published')
+      .not('content', 'is', null)
+      .in('category_slug', categorySlugs)
+      .order('published_at', { ascending: false, nullsFirst: false })
+      .limit(limit);
+    if (error) throw error;
+    return ((data || []) as ArticleRow[]).filter((row) => row.id && row.title).map(transformToNewsArticle);
+  } catch (error) {
+    console.error('Error in fetchLatestInCategories:', error);
+    return [];
+  }
+};
+
+/**
+ * Fetch one published article. `article` is null with no `error` when the slug
+ * does not exist; `error` is set only for real failures (network, database).
+ */
 export const fetchArticleBySlug = async (slug: string): Promise<{
   article: NewsArticle | null;
   error: string | null;
 }> => {
   try {
-    console.log('Fetching article by slug:', slug);
-    
     const { data: articleData, error: articleError } = await supabase
       .from('articles_with_details')
       .select('*')
       .eq('status', 'published')
       .eq('slug', slug)
-      .single(); // Use single() to get one result
+      .order('published_at', { ascending: false, nullsFirst: false })
+      .limit(1)
+      .maybeSingle();
 
     if (articleError) {
       console.error('Error fetching article by slug:', articleError);
@@ -115,10 +251,9 @@ export const fetchArticleBySlug = async (slug: string): Promise<{
     }
 
     if (!articleData || !articleData.id || !articleData.title || !articleData.content) {
-      console.log('Article not found or incomplete:', articleData);
       return {
         article: null,
-        error: 'Article not found or incomplete'
+        error: null
       };
     }
 
@@ -130,7 +265,7 @@ export const fetchArticleBySlug = async (slug: string): Promise<{
         .from('profiles')
         .select('name, bio, avatar, title, twitter, facebook, linkedin')
         .eq('id', transformedArticle.author.id)
-        .single();
+        .maybeSingle();
 
       if (profileData) {
         const mergedSocial: { twitter?: string; facebook?: string; linkedin?: string } = {};
@@ -160,7 +295,6 @@ export const fetchArticleBySlug = async (slug: string): Promise<{
         };
       }
     }
-    console.log('Successfully transformed article:', transformedArticle.title);
 
     return {
       article: transformedArticle,

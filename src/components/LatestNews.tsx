@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 import { NewsArticle } from '../types/news';
@@ -59,10 +60,12 @@ const LatestNews: React.FC<LatestNewsProps> = ({ articles }) => {
             <article className="flex gap-3 bg-white rounded-lg overflow-hidden hover:shadow-sm transition-shadow duration-200">
               {/* Image */}
               <div className="relative w-24 h-20 flex-shrink-0 overflow-hidden rounded">
-                <img
+                <Image
                   src={article.featuredImage}
                   alt={article.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  fill
+                  sizes="96px"
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
               
@@ -106,10 +109,12 @@ const LatestNews: React.FC<LatestNewsProps> = ({ articles }) => {
             <article className="h-full overflow-hidden rounded-lg border border-stone-200/80 bg-white transition-shadow duration-200 hover:shadow-md">
               {/* Image */}
               <div className="relative h-40 overflow-hidden">
-                <img
+                <Image
                   src={article.featuredImage}
                   alt={article.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 bg-black/20"></div>
                 

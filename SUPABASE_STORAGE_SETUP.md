@@ -1,6 +1,6 @@
 # Supabase Storage Setup for Article Images
 
-This document explains how to set up the Supabase storage bucket for article images in the GH News Media application.
+This document explains how to set up the Supabase storage bucket for article images in the Ghana Point application.
 
 ## Prerequisites
 

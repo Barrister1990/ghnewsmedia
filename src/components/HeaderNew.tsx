@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 
+import { SITE_DOMAIN } from '../config/site';
 import { useSupabaseCategories } from '../hooks/useSupabaseCategories';
 
 const HeaderNew = () => {
@@ -151,7 +152,7 @@ const HeaderNew = () => {
             >
               <div className="relative">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-red-600 via-blue-600 to-green-600 bg-clip-text text-transparent">
-                  GhNewsMedia
+                  Ghana Point
                 </h1>
                 <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-red-600 to-blue-600 group-hover:w-full transition-all duration-300"></div>
               </div>
@@ -251,7 +252,7 @@ const HeaderNew = () => {
             <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
               <div className="flex items-center space-x-3">
                 <h2 className="text-2xl font-bold bg-gradient-to-r from-red-600 to-blue-600 bg-clip-text text-transparent">
-                  GhNewsMedia
+                  Ghana Point
                 </h2>
                 <span className="bg-gradient-to-r from-red-600 to-blue-600 text-white text-xs px-2 py-1 rounded-full font-bold">
                   TRUSTED NEWS
@@ -355,7 +356,7 @@ const HeaderNew = () => {
 
               {/* Website URL Footer */}
               <div className="px-6 py-6 text-center border-t border-gray-100 bg-gray-50">
-                <span className="text-sm text-gray-600 font-medium">ghnewsmedia.com</span>
+                <span className="text-sm text-gray-600 font-medium">{SITE_DOMAIN}</span>
               </div>
             </div>
           </div>

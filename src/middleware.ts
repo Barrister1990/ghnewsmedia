@@ -1,15 +1,30 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { LEGACY_DOMAIN, SITE_DOMAIN } from './config/site';
+
+const REDIRECT_HOSTS = new Set([
+  `www.${SITE_DOMAIN}`,
+  LEGACY_DOMAIN,
+  `www.${LEGACY_DOMAIN}`,
+]);
 
 export function middleware(request: NextRequest) {
-  const host = request.headers.get('host') ?? '';
+  const host = (request.headers.get('host') ?? '').toLowerCase().split(':')[0];
   const { pathname } = request.nextUrl;
 
-  // Always serve the www canonical host (matches SITE_URL and Search Console).
-  if (host === 'ghnewsmedia.com') {
+  // Always serve the apex canonical host (matches SITE_URL and Search Console).
+  if (REDIRECT_HOSTS.has(host)) {
     const url = request.nextUrl.clone();
-    url.host = 'www.ghnewsmedia.com';
+    url.host = SITE_DOMAIN;
+    url.port = '';
     url.protocol = 'https:';
+    return NextResponse.redirect(url, 301);
+  }
+
+  // /_category/* is only an internal rewrite target; visited directly it would duplicate /<slug>.
+  if (pathname.startsWith('/_category/')) {
+    const url = request.nextUrl.clone();
+    url.pathname = pathname.replace(/^\/_category/, '');
     return NextResponse.redirect(url, 301);
   }
   
@@ -20,6 +35,7 @@ export function middleware(request: NextRequest) {
     '/about',
     '/contact',
     '/advertise',
+    '/editorial-policy',
     '/authors',
     '/news',
     '/search',
@@ -37,7 +53,6 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname.startsWith('/static') ||
-    pathname.startsWith('/_category') ||
     pathname.startsWith('/admin') ||
     pathname.startsWith('/auth') ||
     pathname.startsWith('/cms') ||
@@ -56,8 +71,11 @@ export function middleware(request: NextRequest) {
   // If it's a single segment, rewrite to internal category route
   if (pathSegments.length === 1) {
     const categorySlug = pathSegments[0];
-    // Rewrite to internal route that won't conflict with [category]/[slug].tsx
-    return NextResponse.rewrite(new URL(`/_category/${categorySlug}`, request.url));
+    // Rewrite to internal route that won't conflict with [category]/[slug].tsx.
+    // Clone the URL so query params (e.g. ?page=2) survive the rewrite.
+    const url = request.nextUrl.clone();
+    url.pathname = `/_category/${categorySlug}`;
+    return NextResponse.rewrite(url);
   }
   
   // Two segments - definitely an article (category/article-slug)

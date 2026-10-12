@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 import { NewsArticle } from '../types/news';
@@ -39,10 +40,12 @@ const HeroFeaturedSection: React.FC<HeroFeaturedSectionProps> = ({ articles }) =
               <article className="flex gap-3 bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                 {/* Small Square Thumbnail */}
                 <div className="relative w-24 h-20 flex-shrink-0 overflow-hidden rounded">
-                  <img
+                  <Image
                     src={article.featuredImage}
                     alt={article.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    fill
+                    sizes="96px"
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
                 
@@ -88,10 +91,12 @@ const HeroFeaturedSection: React.FC<HeroFeaturedSectionProps> = ({ articles }) =
             aria-label={articleLinkAriaLabel('Featured', heroArticle.category.name, heroArticle.title)}
           >
             <article className="relative h-80 overflow-hidden rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
-              <img
+              <Image
                 src={heroArticle.featuredImage}
                 alt={heroArticle.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover group-hover:scale-105 transition-transform duration-300"
               />
               
               {/* Dark Overlay - Bottom only (Pulse style) - No gradient */}
@@ -147,10 +152,12 @@ const HeroFeaturedSection: React.FC<HeroFeaturedSectionProps> = ({ articles }) =
               <article className="flex gap-3 bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                 {/* Small Square Thumbnail */}
                 <div className="relative w-24 h-24 flex-shrink-0 overflow-hidden rounded">
-                  <img
+                  <Image
                     src={article.featuredImage}
                     alt={article.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    fill
+                    sizes="96px"
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
                 

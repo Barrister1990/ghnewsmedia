@@ -1,23 +1,26 @@
 import { cn } from '@/lib/utils';
 import { UserRound } from 'lucide-react';
+import Image from 'next/image';
 import React, { useState } from 'react';
 
 export interface UserAvatarProps {
   /** Profile image URL; empty / invalid shows icon placeholder */
   src?: string | null;
   alt: string;
-  /** Outer wrapper — set size here, e.g. `h-16 w-16` */
+  /** Outer wrapper - set size here, e.g. `h-16 w-16` */
   className?: string;
   iconClassName?: string;
+  /** Largest rendered size in CSS pixels, used to request a right-sized image. */
+  size?: number;
 }
 
 /**
  * User photo when `src` is set and loads; otherwise a neutral **icon** (no initials / no generated avatar URLs).
  */
-export function UserAvatar({ src, alt, className, iconClassName }: UserAvatarProps) {
+export function UserAvatar({ src, alt, className, iconClassName, size = 64 }: UserAvatarProps) {
   const [broken, setBroken] = useState(false);
   const trimmed = typeof src === 'string' ? src.trim() : '';
-  const showPhoto = Boolean(trimmed) && !broken;
+  const showPhoto = (trimmed.startsWith('https://') || /^\/(?!\/)/.test(trimmed)) && !broken;
 
   return (
     <span
@@ -29,11 +32,13 @@ export function UserAvatar({ src, alt, className, iconClassName }: UserAvatarPro
       )}
     >
       {showPhoto ? (
-        <img
+        <Image
           src={trimmed}
           alt=""
           aria-hidden
-          className="h-full w-full object-cover"
+          fill
+          sizes={`${size}px`}
+          className="object-cover"
           onError={() => setBroken(true)}
         />
       ) : (

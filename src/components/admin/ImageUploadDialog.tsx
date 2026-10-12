@@ -169,7 +169,7 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
                 {...getRootProps()}
                 className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
                   isDragActive
-                    ? 'border-blue-500 bg-blue-50'
+                    ? 'border-dash-teal-dark bg-dash-mint'
                     : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
                 }`}
               >
@@ -192,7 +192,7 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
               <div className="space-y-2">
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    className="bg-dash-teal-dark h-2 rounded-full transition-all duration-300"
                     style={{ width: `${uploadProgress}%` }}
                   />
                 </div>

@@ -10,11 +10,11 @@ For privacy concerns, email: privacy@ghnewsmedia.com
  
 Also add a short Terms of Service page. Here is a simple version:
  
-Terms of Service — GH News Media
+Terms of Service — Ghana Point
  
-By using ghnewsmedia.com, you agree to the following terms:
+By using ghanapoint.com, you agree to the following terms:
 • Content on this site is for informational purposes only.
-• All articles are copyright of GH News Media. Do not republish without permission.
+• All articles are copyright of Ghana Point. Do not republish without permission.
 • We are not responsible for the content of external links.
 • We reserve the right to remove comments that violate our community guidelines.
  
@@ -22,7 +22,7 @@ For permissions or republishing enquiries: editor@ghnewsmedia.com
  
 04  Real Journalist Bylines on Articles
  
-Google's E-E-A-T guidelines heavily favour articles written by identifiable, real people with verifiable expertise. Replacing "GH News Media" with named journalists is one of the highest-impact changes you can make for Google News eligibility.
+Google's E-E-A-T guidelines heavily favour articles written by identifiable, real people with verifiable expertise. Replacing "Ghana Point" with named journalists is one of the highest-impact changes you can make for Google News eligibility.
  
 What to add to every article:
  
@@ -35,13 +35,13 @@ What to add to every article:
 Example author bio to use as a template:
  
 Kwame Asante — Senior Political Reporter
-Kwame Asante covers Ghanaian politics and governance for GH News Media. He has reported on elections, parliament, and government policy for over 6 years. Follow him on X: @KwameAsante_GH
+Kwame Asante covers Ghanaian politics and governance for Ghana Point. He has reported on elections, parliament, and government policy for over 6 years. Follow him on X: @KwameAsante_GH
  
 TIP: Create an /authors page listing all your journalists. This page becomes an SEO asset over time as each author builds a track record of published articles.
  
 05  NewsArticle Schema Markup
  
-Schema markup is code you add to your article pages that tells Google exactly what type of content is on the page. Adding NewsArticle schema is the #1 technical change needed to get GH News Media eligible for Google News and Top Stories rich results in search.
+Schema markup is code you add to your article pages that tells Google exactly what type of content is on the page. Adding NewsArticle schema is the #1 technical change needed to get Ghana Point eligible for Google News and Top Stories rich results in search.
  
 Where to add it:
 Add the following JSON-LD code inside the <head> tag of every article page. Replace the placeholder values with real data from each article.
@@ -54,26 +54,26 @@ NewsArticle schema code template:
  "@type": "NewsArticle",
  "headline": "PASTE YOUR ARTICLE HEADLINE HERE",
  "description": "PASTE YOUR ARTICLE SUMMARY/EXCERPT HERE",
- "image": "https://www.ghnewsmedia.com/YOUR-ARTICLE-IMAGE.jpg",
+ "image": "https://ghanapoint.com/YOUR-ARTICLE-IMAGE.jpg",
  "datePublished": "2026-03-17T08:00:00+00:00",
  "dateModified": "2026-03-17T08:00:00+00:00",
  "author": {
    "@type": "Person",
    "name": "Kwame Asante",
-   "url": "https://www.ghnewsmedia.com/author/kwame-asante"
+   "url": "https://ghanapoint.com/author/kwame-asante"
  },
  "publisher": {
    "@type": "Organization",
-   "name": "GH News Media",
-   "url": "https://www.ghnewsmedia.com",
+   "name": "Ghana Point",
+   "url": "https://ghanapoint.com",
    "logo": {
      "@type": "ImageObject",
-     "url": "https://www.ghnewsmedia.com/gh-news-media-logo.svg"
+     "url": "https://ghanapoint.com/gh-news-media-logo.svg"
    }
  },
  "mainEntityOfPage": {
    "@type": "WebPage",
-   "@id": "https://www.ghnewsmedia.com/news/YOUR-ARTICLE-SLUG"
+   "@id": "https://ghanapoint.com/news/YOUR-ARTICLE-SLUG"
  }
 }
 </script>
@@ -85,9 +85,9 @@ Homepage Organization schema (add to homepage <head>):
 {
  "@context": "https://schema.org",
  "@type": "Organization",
- "name": "GH News Media",
- "url": "https://www.ghnewsmedia.com",
- "logo": "https://www.ghnewsmedia.com/gh-news-media-logo.svg",
+ "name": "Ghana Point",
+ "url": "https://ghanapoint.com",
+ "logo": "https://ghanapoint.com/gh-news-media-logo.svg",
  "sameAs": [
    "https://www.facebook.com/ghnewsmedia",
    "https://twitter.com/ghnewsmedia",
@@ -98,10 +98,10 @@ Homepage Organization schema (add to homepage <head>):
  
 06  Homepage Title Tag & Meta Descriptions
  
-Your current homepage title is: "Ghana's Digital News Platform | GH News".
+Your current homepage title is: "Ghana's Digital News Platform | Ghana Point".
 
-GH News Media — SEO & Content Improvement Guide  |  ghnewsmedia.com
-GH News Media
+Ghana Point — SEO & Content Improvement Guide  |  ghanapoint.com
+Ghana Point
 SEO & Content Improvement Guide
 7 Recommendations for Stronger Google Results  •  March 2026
  
@@ -113,17 +113,17 @@ This guide provides the exact content, copy, and code you need to implement all 
 Your About Us page is one of the most important pages for Google's E-E-A-T scoring (Experience, Expertise, Authority, Trustworthiness). A strong About page tells Google — and your readers — that a real, credible organisation is behind the news.
  
 Recommended page title (for your browser tab / SEO title):
-About GH News Media | Ghana's Trusted Digital News Platform
+About Ghana Point | Ghana's Trusted Digital News Platform
  
 Recommended meta description (150–160 characters):
-GH News Media is Ghana's fast-growing digital news platform, delivering breaking news, politics, sports, entertainment, and business updates 24/7.
+Ghana Point is Ghana's fast-growing digital news platform, delivering breaking news, politics, sports, entertainment, and business updates 24/7.
  
 Full page content to publish:
  
 Use the following text on your About Us page. You can adjust names and founding year as needed.
  
 Who We Are
-GH News Media is a Ghanaian digital news platform founded with one mission: to deliver accurate, fast, and independent news to Ghanaians everywhere — at home and in the diaspora.
+Ghana Point is a Ghanaian digital news platform founded with one mission: to deliver accurate, fast, and independent news to Ghanaians everywhere — at home and in the diaspora.
  
 We cover breaking news, politics, business, sports, entertainment, lifestyle, and technology, keeping our readers informed around the clock.
  
@@ -144,10 +144,10 @@ TIP: Add a team photo or your logo prominently on this page. Google rewards Abou
 A Contact page signals to Google that your site is legitimate and reachable. It is also required by Google's Publisher policies for news sites to be eligible for Google News inclusion.
  
 Recommended page title:
-Contact GH News Media | Send Tips, Advertise, Reach Our Newsroom
+Contact Ghana Point | Send Tips, Advertise, Reach Our Newsroom
  
 Recommended meta description:
-Reach the GH News Media team. Send news tips, press releases, or advertising enquiries. Contact our editors in Accra, Ghana.
+Reach the Ghana Point team. Send news tips, press releases, or advertising enquiries. Contact our editors in Accra, Ghana.
  
 Full page content to publish:
  
@@ -165,7 +165,7 @@ General Enquiries
 info@ghnewsmedia.com
  
 Our Office
-GH News Media, Accra, Ghana
+Ghana Point, Accra, Ghana
  
 Follow Us
 Facebook | Twitter/X | Instagram | YouTube | TikTok
@@ -177,14 +177,14 @@ TIP: Add a simple web form (Name, Email, Message) so readers can contact you wit
 A Privacy Policy is legally required in many countries (including under GDPR for EU visitors) and is required by Google AdSense and Google News. Without it, your site cannot be monetised through Google and may be excluded from Google News.
  
 Recommended page title:
-Privacy Policy | GH News Media
+Privacy Policy | Ghana Point
  
 Full Privacy Policy content to publish:
  
-Privacy Policy — GH News Media
+Privacy Policy — Ghana Point
 Last updated: March 2026
  
-GH News Media (ghnewsmedia.com) is committed to protecting your privacy. This policy explains what data we collect and how we use it.
+Ghana Point (ghanapoint.com) is committed to protecting your privacy. This policy explains what data we collect and how we use it.
  
 1. Information We Collect
 We may collect your name and email address if you subscribe to our newsletter. We collect anonymous usage data (pages visited, device type, location) via analytics tools.
@@ -195,25 +195,25 @@ To send news updates if you have subscribed. To improve our website and content.
 This is weak because it does not include the most-searched keywords Ghanaians use to find news online.
  
 Recommended homepage title tag (replace your current one):
-Ghana Breaking News Today | Politics, Sports, Business | GH News Media
+Ghana Breaking News Today | Politics, Sports, Business | Ghana Point
  
 This new title is 65 characters (within Google's 60–65 character limit) and targets the keywords: Ghana breaking news, Ghana news today, Ghana politics news, Ghana sports news.
  
 Recommended homepage meta description:
-Get the latest Ghana breaking news, politics, business, sports, and entertainment updates. GH News Media delivers trusted news 24/7 from Accra and across Ghana.
+Get the latest Ghana breaking news, politics, business, sports, and entertainment updates. Ghana Point delivers trusted news 24/7 from Accra and across Ghana.
  
 Category page title templates (use for each section):
  
 Page              →  Recommended Title Tag
-/news             →  Ghana News Today — Latest Headlines | GH News Media
-/sports           →  Ghana Sports News — Black Stars, Football Updates | GH News Media
-/business         →  Ghana Business & Economy News | GH News Media
-/entertainment    →  Ghana Entertainment News, Celebrities | GH News Media
-/tech             →  Ghana Tech News, Innovation & Digital | GH News Media
-/politics         →  Ghana Politics News — Parliament, Government | GH News Media
+/news             →  Ghana News Today — Latest Headlines | Ghana Point
+/sports           →  Ghana Sports News — Black Stars, Football Updates | Ghana Point
+/business         →  Ghana Business & Economy News | Ghana Point
+/entertainment    →  Ghana Entertainment News, Celebrities | Ghana Point
+/tech             →  Ghana Tech News, Innovation & Digital | Ghana Point
+/politics         →  Ghana Politics News — Parliament, Government | Ghana Point
  
 Article page title template:
-[Article Headline] | GH News Media
+[Article Headline] | Ghana Point
  
 Keep article headlines under 60 characters where possible. If the headline is longer, Google will auto-truncate — ensure the most important keywords are at the front.
  
@@ -246,7 +246,7 @@ Newsletter signup box copy to use on your site:
  
 Stay informed. Get Ghana's top news in your inbox.
  
-Join thousands of Ghanaians who read GH News Media every day.
+Join thousands of Ghanaians who read Ghana Point every day.
 We send one email per day — only the most important stories, no spam.
  
 [Enter your email address]    [Subscribe Free]
@@ -258,7 +258,7 @@ C. Submit Your Sitemap to Google Search Console
 • Step 1: Go to search.google.com/search-console and add your site
 • Step 2: Verify ownership (Google will guide you through this)
 • Step 3: Go to Sitemaps in the left menu
-• Step 4: Enter your sitemap URL: www.ghnewsmedia.com/sitemap.xml
+• Step 4: Enter your sitemap URL: ghanapoint.com/sitemap.xml
 • Step 5: Click Submit. Google will now crawl and index your articles faster
  
 TIP: After submitting your sitemap, use the URL Inspection tool in Search Console to check individual articles. For breaking news, use 'Request Indexing' to get stories indexed within minutes.

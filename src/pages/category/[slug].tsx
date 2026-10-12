@@ -4,6 +4,7 @@ import NewsCard from '@/components/NewsCard';
 import ScrollToTop from '@/components/ScrollToTop';
 import BreadcrumbSEO from '@/components/SEO/BreadcrumbSEO';
 import SEOHead from '@/components/SEO/SEOHead';
+import { SITE_URL } from '@/config/site';
 import { Category, NewsArticle } from '@/types/news';
 import { getCategoryIcon } from '@/utils/categoryIcons';
 import { generateMetaTitle, truncateDescription } from '@/utils/seo';
@@ -27,9 +28,9 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <SEOHead
-          title="Error - GH News"
+          title="Error - Ghana Point"
           description="An error occurred while loading the category page."
-          canonical="https://www.ghnewsmedia.com"
+          canonical={SITE_URL}
         />
         <div className="text-center px-4">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
@@ -56,7 +57,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
         <SEOHead
           title="Category Not Found"
           description="The category you're looking for could not be found. Browse our news categories and latest updates from Ghana."
-          canonical="https://www.ghnewsmedia.com/404"
+          canonical={`${SITE_URL}/404`}
         />
         <div className="text-center px-4">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
@@ -77,7 +78,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
   }
 
   const breadcrumbItems = [
-    { name: 'Home', url: 'https://www.ghnewsmedia.com' },
+    { name: 'Home', url: SITE_URL },
     { name: category.name }
   ];
 
@@ -86,7 +87,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
     "@type": "CollectionPage",
     "name": `${category.name} News`,
     "description": category.description,
-    "url": `https://www.ghnewsmedia.com/category/${category.slug}`,
+    "url": `${SITE_URL}/category/${category.slug}`,
     "mainEntity": {
       "@type": "ItemList",
       "numberOfItems": totalArticles,
@@ -94,7 +95,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
         "@type": "NewsArticle",
         "position": index + 1,
         "headline": article.title,
-        "url": `https://www.ghnewsmedia.com/${article.category.slug}/${article.slug}`,
+        "url": `${SITE_URL}/${article.category.slug}/${article.slug}`,
         "datePublished": new Date(article.publishedAt).toISOString(),
         "author": {
           "@type": "Person",
@@ -109,7 +110,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
       <SEOHead
         title={generateMetaTitle(`${category.name} News`, 'Category')}
         description={truncateDescription(`${category.description} Stay updated with the latest ${category.name.toLowerCase()} news from Ghana.`)}
-        canonical={`https://www.ghnewsmedia.com/category/${category.slug}`}
+        canonical={`${SITE_URL}/category/${category.slug}`}
         tags={[`${category.name} news`, 'Ghana news', category.name.toLowerCase(), 'breaking news']}
         structuredData={categoryStructuredData}
       />

@@ -1,13 +1,13 @@
+import SEOHead from '@/components/SEO/SEOHead';
 import { NewsArticle } from '@/types/news';
 import { Search } from 'lucide-react';
-import Head from 'next/head';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import AdvancedSearchFilters from '../components/AdvancedSearchFilters';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
-import NewsCard from '../components/NewsCard';
 import ScrollToTop from '../components/ScrollToTop';
+import StoryCard from '../components/site/StoryCard';
 import { usePublishedArticles } from '../hooks/usePublishedArticles';
 interface SearchFilters {
   category: string;
@@ -176,135 +176,82 @@ const SearchPage: React.FC = () => {
     handleSearch(term);
   };
 
-  if (articlesLoading) {
-    return (
-      <>
-        <Head>
-          <title>Search News - Loading | GH News</title>
-          <meta name="description" content="Search for news articles on GH News" />
-        </Head>
-        <div className="min-h-screen bg-gray-50">
-          <Header />
-          <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-            <div className="text-center mb-8 sm:mb-12">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">Search News</h1>
-              <div className="animate-pulse">
-                <div className="h-10 sm:h-12 bg-gray-200 rounded-xl max-w-2xl mx-auto mb-6 sm:mb-8"></div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <div key={i} className="bg-white rounded-xl shadow-sm p-3 sm:p-4">
-                      <div className="h-40 sm:h-48 bg-gray-200 rounded mb-3 sm:mb-4"></div>
-                      <div className="h-3 sm:h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                      <div className="h-3 sm:h-4 bg-gray-200 rounded w-1/2"></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </main>
-          <Footer />
-        </div>
-      </>
-    );
-  }
-
-  const pageTitle = query ? `Search Results for "${query}" | GH News` : 'Search News | GH News';
+  const pageTitle = query ? `Search Results for "${query}" | Ghana Point` : 'Search News | Ghana Point';
   const pageDescription = query
-    ? `Search results for "${query}" on GH News - Ghana's premier news platform`
-    : 'Search for news articles, topics, and authors on GH News - Ghana\'s leading digital news platform';
+    ? `Search results for "${query}" on Ghana Point - Ghana's premier news platform`
+    : 'Search for news articles, topics, and authors on Ghana Point - Ghana\'s leading digital news platform';
+  const busy = articlesLoading || isLoading;
 
   return (
     <>
-      <Head>
-        <title>{pageTitle}</title>
-        <meta name="description" content={pageDescription} />
-        <meta name="robots" content="noindex, follow" />
-        <link rel="canonical" href="https://www.ghnewsmedia.com/search" />
-        {query && <meta name="keywords" content={`${query}, Ghana news, search results`} />}
-      </Head>
-      
-      <div className="min-h-screen bg-gray-50">
+      <SEOHead title={pageTitle} description={pageDescription} noindex />
+
+      <div className="gp-site min-h-screen bg-white">
         <Header />
-        
-        <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-          {/* Search Header */}
-          <div className="text-center mb-8 sm:mb-12">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">Search News</h1>
-            <form onSubmit={handleSubmit} className="max-w-2xl mx-auto relative">
-              <input
-                type="text"
-                placeholder="Search articles, topics, authors..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="w-full px-4 sm:px-6 py-3 sm:py-4 pl-10 sm:pl-12 text-base sm:text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
-              />
-              <Search className="absolute left-3 sm:left-4 top-3.5 sm:top-5 w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
-              <button
-                type="submit"
-                className="absolute right-1.5 sm:right-2 top-1.5 sm:top-2 px-3 sm:px-6 py-1.5 sm:py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors text-sm sm:text-base"
-              >
-                <span className="hidden sm:inline">Search</span>
-                <Search className="w-4 h-4 sm:hidden" />
+
+        <main id="main-content" className="mx-auto max-w-[1280px] px-4 pb-8">
+          <header className="mb-6 mt-6 border-b-2 border-gp-ink pb-6">
+            <h1 className="text-[2rem] font-black leading-tight text-gp-ink sm:text-[2.75rem]">Search</h1>
+            <form onSubmit={handleSubmit} className="mt-4 flex max-w-3xl items-center gap-3" role="search">
+              <div className="flex flex-1 items-center gap-2 border-b-2 border-gp-ink">
+                <Search className="h-5 w-5 shrink-0 text-gp-muted" aria-hidden />
+                <input
+                  type="search"
+                  placeholder="Search articles, topics, authors..."
+                  aria-label="Search Ghana Point"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="w-full bg-transparent py-2 text-lg outline-none"
+                />
+              </div>
+              <button type="submit" className="bg-gp-ink px-6 py-2.5 text-sm font-bold text-white hover:bg-gp-text">
+                Search
               </button>
             </form>
-          </div>
-          
-          {/* Advanced Filters */}
-          <AdvancedSearchFilters 
-            onFiltersChange={handleFiltersChange}
-            className="mb-6 sm:mb-8"
-          />
-          
-          {/* Search Results */}
-          <section>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-2 sm:gap-4">
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
-                {query ? `Search Results for "${query}"` : 'All Articles'}
+          </header>
+
+          <AdvancedSearchFilters onFiltersChange={handleFiltersChange} className="mb-6" />
+
+          <section aria-live="polite" className="max-w-4xl">
+            <div className="flex items-end justify-between border-b border-gp-line pb-2">
+              <h2 className="text-xl font-bold text-gp-ink">
+                {query ? `Results for "${query}"` : 'All Articles'}
               </h2>
-              <span className="text-gray-600 text-sm sm:text-base">
-                {isLoading ? 'Searching...' : `${results.length} ${results.length === 1 ? 'result' : 'results'}`}
+              <span className="text-sm text-gp-muted">
+                {busy ? 'Searching...' : `${results.length} ${results.length === 1 ? 'result' : 'results'}`}
               </span>
             </div>
-            
-            {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {[...Array(6)].map((_, index) => (
-                  <div key={index} className="bg-white rounded-xl overflow-hidden shadow-sm animate-pulse">
-                    <div className="h-40 sm:h-48 bg-gray-200"></div>
-                    <div className="p-4 sm:p-6">
-                      <div className="h-3 sm:h-4 bg-gray-200 rounded mb-2 sm:mb-3"></div>
-                      <div className="h-4 sm:h-6 bg-gray-200 rounded mb-2 sm:mb-3"></div>
-                      <div className="h-3 sm:h-4 bg-gray-200 rounded mb-3 sm:mb-4"></div>
-                      <div className="flex justify-between">
-                        <div className="h-3 sm:h-4 bg-gray-200 rounded w-20 sm:w-24"></div>
-                        <div className="h-3 sm:h-4 bg-gray-200 rounded w-12 sm:w-16"></div>
-                      </div>
+
+            {busy ? (
+              <ul aria-hidden>
+                {[...Array(5)].map((_, i) => (
+                  <li key={i} className="flex animate-pulse gap-6 border-b border-gp-line py-5">
+                    <div className="flex-1 space-y-3">
+                      <div className="h-3 w-20 bg-gp-surface" />
+                      <div className="h-5 w-3/4 bg-gp-surface" />
+                      <div className="h-4 w-1/2 bg-gp-surface" />
                     </div>
-                  </div>
+                    <div className="aspect-video w-32 bg-gp-surface sm:w-56" />
+                  </li>
                 ))}
-              </div>
+              </ul>
             ) : results.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {results.map((article) => (
-                  <NewsCard key={article.id} article={article} />
-                ))}
-              </div>
+              results.map((article) => (
+                <StoryCard key={article.id} article={article} variant="feed" showCategory headingLevel="h3" />
+              ))
             ) : (
-              <div className="text-center py-8 sm:py-12">
-                <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">🔍</div>
-                <p className="text-gray-600 text-base sm:text-lg mb-3 sm:mb-4">
+              <div className="py-12">
+                <p className="text-lg font-bold text-gp-ink">
                   {query ? `No articles found for "${query}".` : 'No articles match your current filters.'}
                 </p>
-                <p className="text-gray-500 mb-6 sm:mb-8 text-sm sm:text-base">
-                  Try adjusting your search terms or filters to find what you&quot;re looking for.
-                </p>
-                <div className="flex flex-wrap justify-center gap-2">
-                  <span className="text-xs sm:text-sm text-gray-500 mr-2">Popular searches:</span>
+                <p className="mt-2 text-gp-muted">Try different words or adjust the filters.</p>
+                <div className="mt-6 flex flex-wrap items-center gap-2">
+                  <span className="text-sm text-gp-muted">Popular searches:</span>
                   {['politics', 'business', 'sports', 'technology'].map((term) => (
                     <button
                       key={term}
                       onClick={() => handlePopularSearchClick(term)}
-                      className="px-2 sm:px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs sm:text-sm hover:bg-gray-200 transition-colors"
+                      className="border border-gp-ink px-3 py-1 text-sm font-bold hover:bg-gp-ink hover:text-white"
                     >
                       {term}
                     </button>
@@ -314,7 +261,7 @@ const SearchPage: React.FC = () => {
             )}
           </section>
         </main>
-        
+
         <Footer />
         <ScrollToTop />
       </div>

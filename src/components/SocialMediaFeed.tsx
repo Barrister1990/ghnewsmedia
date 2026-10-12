@@ -7,7 +7,7 @@ const SocialMediaFeed = () => {
       id: '1',
       platform: 'facebook' as const,
       content: 'Breaking news from Ghana! Stay tuned for the latest updates on politics, business, and sports.',
-      author: 'GhNewsMedia',
+      author: 'Ghana Point',
       timestamp: '2 hours ago',
       engagement: {
         likes: 245,
@@ -21,7 +21,7 @@ const SocialMediaFeed = () => {
       id: '2',
       platform: 'twitter' as const,
       content: '🚨 BREAKING: Major developments in Ghana\'s tech sector. Innovation is driving the future! #GhanaTech #Innovation',
-      author: 'GhNewsMedia',
+      author: 'Ghana Point',
       timestamp: '4 hours ago',
       engagement: {
         likes: 189,
@@ -34,7 +34,7 @@ const SocialMediaFeed = () => {
       id: '3',
       platform: 'youtube' as const,
       content: 'New video: Exclusive interview with Ghana\'s leading business figures. Learn about the future of entrepreneurship in Africa.',
-      author: 'GhNewsMedia',
+      author: 'Ghana Point',
       timestamp: '1 day ago',
       engagement: {
         likes: 456,
@@ -49,7 +49,7 @@ const SocialMediaFeed = () => {
       id: '4',
       platform: 'whatsapp' as const,
       content: 'Join our WhatsApp channel for instant news updates! Be the first to know about breaking stories in Ghana.',
-      author: 'GhNewsMedia',
+      author: 'Ghana Point',
       timestamp: '2 days ago',
       engagement: {
         likes: 89,

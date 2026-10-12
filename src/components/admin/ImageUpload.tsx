@@ -4,9 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { uploadArticleImage } from '@/lib/supabase-storage';
-import { AlertTriangle, Copyright, Image as ImageIcon, Link, Upload, X } from 'lucide-react';
+import { AlertTriangle, Copyright, Crop as CropIcon, Image as ImageIcon, Link, Upload, X } from 'lucide-react';
 import React, { useRef, useState } from 'react';
 import { toast } from 'sonner';
+import ImageCropDialog from './ImageCropDialog';
 
 interface ImageUploadProps {
   value?: string;
@@ -22,6 +23,8 @@ interface ImageUploadProps {
   description?: string;
   required?: boolean;
   type?: 'featured' | 'inline';
+  /** Crop to 1200x675 before saving. Defaults to on for featured images. */
+  crop?: boolean;
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({
@@ -37,8 +40,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   label = 'Upload Image',
   description = 'Upload an image for your article',
   required = false,
-  type = 'featured'
+  type = 'featured',
+  crop = type === 'featured',
 }) => {
+  const [cropSource, setCropSource] = useState<{ src: string; name: string } | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [imageUrl, setImageUrl] = useState(value || currentImage || '');
@@ -95,9 +100,40 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     }
   };
 
+  const closeCropper = () => {
+    if (cropSource) URL.revokeObjectURL(cropSource.src);
+    setCropSource(null);
+  };
+
+  const handleCropped = (file: File) => {
+    closeCropper();
+    handleFileUpload(file);
+  };
+
+  /** Downloads a remote image so it can be cropped; false if the host blocks cross-site access. */
+  const openCropperFromUrl = async (url: string): Promise<boolean> => {
+    try {
+      const response = await fetch(url, { mode: 'cors' });
+      if (!response.ok) return false;
+      const blob = await response.blob();
+      if (!blob.type.startsWith('image/')) return false;
+      const name = url.split('?')[0].split('/').pop() || 'featured.jpg';
+      setCropSource({ src: URL.createObjectURL(blob), name });
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (file && crop) {
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please choose an image file');
+      } else {
+        setCropSource({ src: URL.createObjectURL(file), name: file.name });
+      }
+    } else if (file) {
       handleFileUpload(file);
     }
     // Reset file input
@@ -106,7 +142,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     }
   };
 
-  const handleUrlInsert = () => {
+  const handleUrlInsert = async () => {
     if (!urlInput.trim()) {
       toast.error('Please enter an image URL');
       return;
@@ -115,6 +151,15 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     if (!urlInput.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)/i)) {
       toast.error('Please enter a valid image URL');
       return;
+    }
+
+    if (crop) {
+      if (await openCropperFromUrl(urlInput)) {
+        setUrlInput('');
+        setShowUrlInput(false);
+        return;
+      }
+      toast.warning('That website does not allow its image to be cropped here. Download it and upload the file to crop it to 1200×675.');
     }
 
     setImageUrl(urlInput);
@@ -203,8 +248,32 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             >
               <X className="w-4 h-4" />
             </Button>
+            {crop && (
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="absolute bottom-2 right-2"
+                disabled={isUploading}
+                onClick={async () => {
+                  if (!(await openCropperFromUrl(imageUrl))) {
+                    toast.error('This image cannot be re-cropped here. Remove it and upload the file again.');
+                  }
+                }}
+              >
+                <CropIcon className="w-4 h-4 mr-1" />
+                Crop to 1200×675
+              </Button>
+            )}
           </div>
         )}
+
+        <ImageCropDialog
+          imageSrc={cropSource?.src ?? null}
+          fileName={cropSource?.name}
+          onCancel={closeCropper}
+          onCropped={handleCropped}
+        />
 
         {/* Upload Options */}
         {!imageUrl && (
@@ -237,13 +306,15 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
               {isUploading && (
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div 
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    className="bg-dash-teal-dark h-2 rounded-full transition-all duration-300"
                     style={{ width: `${uploadProgress}%` }}
                   />
                 </div>
               )}
               <p className="text-xs text-gray-500">
-                Supported formats: JPEG, PNG, GIF, WebP (max 5MB)
+                {crop
+                  ? 'JPEG, PNG or WebP. You will crop it to 1200×675 (16:9) before it is saved.'
+                  : 'Supported formats: JPEG, PNG, GIF, WebP (max 5MB)'}
               </p>
             </div>
 

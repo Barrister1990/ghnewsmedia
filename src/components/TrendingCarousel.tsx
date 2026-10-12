@@ -1,6 +1,7 @@
 // components/TrendingCarousel.tsx - Updated for SEO
 import { NewsArticle } from '@/types/news';
 import { ChevronLeft, ChevronRight, Clock, Eye, TrendingUp } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePublishedArticles } from '../hooks/usePublishedArticles';
@@ -89,10 +90,13 @@ const TrendingCarousel = ({ initialArticles }: TrendingCarouselProps) => {
             aria-label={articleLinkAriaLabel('Trending Now', currentArticle.category.name, currentArticle.title)}
           >
             <div className="relative h-full">
-              <img
+              <Image
                 src={currentArticle.featuredImage}
                 alt={currentArticle.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                fill
+                preload={currentSlide === 0}
+                sizes="(max-width: 1024px) 100vw, 66vw"
+                className="object-cover group-hover:scale-105 transition-transform duration-700"
               />
               
               {/* Overlay - No gradient */}

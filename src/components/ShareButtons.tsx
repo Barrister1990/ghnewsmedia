@@ -1,5 +1,5 @@
-import { Facebook, Link, Mail, MessageCircle, Share2, Twitter } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { Check, Facebook, Link2, Mail, MessageCircle, Share2, Twitter } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface ShareButtonsProps {
   url: string;
@@ -9,139 +9,90 @@ interface ShareButtonsProps {
   className?: string;
 }
 
-const ShareButtons: React.FC<ShareButtonsProps> = ({
-  url,
-  title,
-  description = '',
-  image = '',
-  className = ''
-}) => {
-  const [copied, setCopied] = useState(false);
-  const [isShareSupported, setIsShareSupported] = useState(false);
-
-  // Check if Web Share API is supported
-  useEffect(() => {
-    setIsShareSupported(typeof navigator !== 'undefined' && 'share' in navigator);
-  }, []);
-
-  const shareData = {
-    url: encodeURIComponent(url),
-    title: encodeURIComponent(title),
-    description: encodeURIComponent(description),
-    image: encodeURIComponent(image)
+export const shareUrls = (url: string, title: string, description = '') => {
+  const u = encodeURIComponent(url);
+  const t = encodeURIComponent(title);
+  return {
+    whatsapp: `https://wa.me/?text=${t}%20${u}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${u}`,
+    x: `https://twitter.com/intent/tweet?url=${u}&text=${t}&via=GhNewsMedia`,
+    email: `mailto:?subject=${t}&body=${encodeURIComponent(description)}%0A%0A${u}`,
   };
+};
 
-  const shareLinks = [
-    {
-      name: 'Facebook',
-      icon: Facebook,
-      url: `https://www.facebook.com/sharer/sharer.php?u=${shareData.url}&quote=${shareData.title}`,
-      color: 'bg-blue-600 hover:bg-blue-700'
-    },
-    {
-      name: 'Twitter',
-      icon: Twitter,
-      url: `https://twitter.com/intent/tweet?url=${shareData.url}&text=${shareData.title}&via=GhNewsMedia`,
-      color: 'bg-sky-500 hover:bg-sky-600'
-    },
-    {
-      name: 'WhatsApp',
-      icon: MessageCircle,
-      url: `https://wa.me/?text=${shareData.title}%20${shareData.url}`,
-      color: 'bg-green-600 hover:bg-green-700'
-    },
-    {
-      name: 'Email',
-      icon: Mail,
-      url: `mailto:?subject=${shareData.title}&body=${shareData.description}%0A%0A${shareData.url}`,
-      color: 'bg-gray-600 hover:bg-gray-700'
+/** Native share sheet when available, otherwise copies the link. Returns true if the link was copied. */
+export const shareOrCopy = async (url: string, title: string, text?: string): Promise<boolean> => {
+  if (typeof navigator !== 'undefined' && navigator.share) {
+    try {
+      await navigator.share({ title, text, url });
+      return false;
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return false;
     }
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const btn =
+  'flex h-10 w-10 items-center justify-center rounded-full border border-gp-line text-gp-ink transition-colors hover:border-gp-ink hover:bg-gp-ink hover:text-white sm:h-9 sm:w-9';
+
+const ShareButtons: React.FC<ShareButtonsProps> = ({ url, title, description = '', className = '' }) => {
+  const [copied, setCopied] = useState(false);
+  const links = shareUrls(url, title, description);
+
+  const items = [
+    { name: 'WhatsApp', href: links.whatsapp, icon: MessageCircle },
+    { name: 'Facebook', href: links.facebook, icon: Facebook },
+    { name: 'X', href: links.x, icon: Twitter },
+    { name: 'Email', href: links.email, icon: Mail },
   ];
 
-  const copyToClipboard = async () => {
+  const copy = async () => {
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = url;
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      try {
-        document.execCommand('copy');
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      } catch (fallbackErr) {
-        console.error('Fallback copy failed:', fallbackErr);
-      }
-      document.body.removeChild(textArea);
+    } catch {
+      /* clipboard blocked */
     }
   };
 
-  const handleNativeShare = async () => {
-    if (isShareSupported && navigator.share) {
-      try {
-        await navigator.share({
-          title: title,
-          text: description,
-          url: url,
-        });
-      } catch (err) {
-        // User cancelled the share or an error occurred
-        if (err instanceof Error && err.name !== 'AbortError') {
-          console.error('Error sharing:', err);
-        }
-      }
+  const share = async () => {
+    if (await shareOrCopy(url, title, description)) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
   return (
-    <div className={`flex items-center space-x-3 ${className}`}>
-      <span className="text-sm font-medium text-gray-700">Share:</span>
-      <div className="flex space-x-2">
-        {shareLinks.map((social) => (
-          <a
-            key={social.name}
-            href={social.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`p-2 rounded-lg text-white transition-colors ${social.color}`}
-            title={`Share on ${social.name}`}
-            aria-label={`Share on ${social.name}`}
-          >
-            <social.icon className="w-4 h-4" />
-          </a>
-        ))}
-        
-        <button
-          onClick={copyToClipboard}
-          className={`p-2 rounded-lg transition-colors ${
-            copied
-              ? 'bg-green-500 hover:bg-green-600'
-              : 'bg-gray-500 hover:bg-gray-600'
-          } text-white`}
-          title={copied ? 'Copied!' : 'Copy link'}
-          aria-label={copied ? 'Link copied to clipboard' : 'Copy link to clipboard'}
+    <div className={`flex items-center gap-2 ${className}`} role="group" aria-label="Share this story">
+      {items.map(({ name, href, icon: Icon }) => (
+        <a
+          key={name}
+          href={href}
+          target={name === 'Email' ? undefined : '_blank'}
+          rel="noopener noreferrer"
+          className={btn}
+          aria-label={`Share on ${name}`}
+          title={`Share on ${name}`}
         >
-          <Link className="w-4 h-4" />
-        </button>
-
-        {/* Native share button for supported devices */}
-        {isShareSupported && (
-          <button
-            onClick={handleNativeShare}
-            className="p-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
-            title="Share via device"
-            aria-label="Share using device's native share menu"
-          >
-            <Share2 className="w-4 h-4" />
-          </button>
-        )}
-      </div>
+          <Icon className="h-4 w-4" aria-hidden />
+        </a>
+      ))}
+      <button type="button" onClick={copy} className={btn} aria-label={copied ? 'Link copied' : 'Copy link'} title="Copy link">
+        {copied ? <Check className="h-4 w-4" aria-hidden /> : <Link2 className="h-4 w-4" aria-hidden />}
+      </button>
+      <button type="button" onClick={share} className={`${btn} sm:hidden`} aria-label="More sharing options">
+        <Share2 className="h-4 w-4" aria-hidden />
+      </button>
+      <span className="sr-only" aria-live="polite">
+        {copied ? 'Link copied to clipboard' : ''}
+      </span>
     </div>
   );
 };

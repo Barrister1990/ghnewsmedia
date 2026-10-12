@@ -11,7 +11,6 @@ export const useViewTracking = (articleSlug: string) => {
         await supabase.rpc('increment_article_views', {
           article_slug: articleSlug
         });
-        console.log('Article view tracked for:', articleSlug);
       } catch (error) {
         console.error('Error tracking article view:', error);
       }

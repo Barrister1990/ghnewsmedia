@@ -1,262 +1,95 @@
-import { Pause, Play, Volume2 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { Headphones, Pause, Play, Square } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface ReadAloudProps {
   articleTitle: string;
   articleContent: string;
+  readTime?: number;
 }
 
-const ReadAloud: React.FC<ReadAloudProps> = ({ articleTitle, articleContent }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [isSupported, setIsSupported] = useState(false);
-  const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(null);
+type Status = 'idle' | 'playing' | 'paused';
+
+const htmlToText = (html: string) => {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  div.querySelectorAll('script, style, iframe, figure, .gp-credit').forEach((el) => el.remove());
+  return (div.textContent || '').replace(/\s+/g, ' ').trim();
+};
+
+/** "Listen" control using the browser's speech synthesis. */
+const ReadAloud: React.FC<ReadAloudProps> = ({ articleTitle, articleContent, readTime }) => {
+  const [status, setStatus] = useState<Status>('idle');
+  const [supported, setSupported] = useState(true);
+  // Chrome drops `onend` if the utterance is garbage-collected mid-speech, so keep a reference.
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   useEffect(() => {
-    // Check if browser supports speech synthesis
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      setIsSupported(true);
-    }
-  }, []);
-
-  const getSpeechSynthesis = () => {
-    if (typeof window === 'undefined') return null;
-    return 'speechSynthesis' in window ? window.speechSynthesis : null;
-  };
-
-  // Extract text content from HTML
-  const extractTextFromHTML = (html: string): string => {
-    if (typeof document === 'undefined') return '';
-    
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = html;
-    
-    // Remove script and style elements
-    const scripts = tempDiv.querySelectorAll('script, style, iframe');
-    scripts.forEach(el => el.remove());
-    
-    // Get text content
-    let text = tempDiv.textContent || tempDiv.innerText || '';
-    
-    // Clean up text
-    text = text
-      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
-      .replace(/\n+/g, ' ') // Replace newlines with space
-      .trim();
-    
-    return text;
-  };
-
-  const handlePlay = () => {
-    if (!isSupported) {
-      alert('Your browser does not support text-to-speech. Please use a modern browser like Chrome, Firefox, or Safari.');
-      return;
-    }
-
-    if (isPaused && utterance) {
-      // Resume paused speech
-      const synth = getSpeechSynthesis();
-      if (!synth) return;
-      synth.resume();
-      setIsPlaying(true);
-      setIsPaused(false);
-    } else {
-      // Start new speech
-      const text = extractTextFromHTML(articleContent);
-      const fullText = `${articleTitle}. ${text}`;
-      
-      const synth = getSpeechSynthesis();
-      if (!synth) {
-        setIsSupported(false);
-        return;
-      }
-      
-      // Cancel any ongoing speech
-      synth.cancel();
-      
-      const newUtterance = new SpeechSynthesisUtterance(fullText);
-      
-      // Configure voice settings
-      newUtterance.rate = 1.0; // Normal speed
-      newUtterance.pitch = 1.0; // Normal pitch
-      newUtterance.volume = 1.0; // Full volume
-      
-      // Set language (optional, can be adjusted)
-      newUtterance.lang = 'en-GB';
-      
-      // Event handlers
-      newUtterance.onstart = () => {
-        setIsPlaying(true);
-        setIsPaused(false);
-      };
-      
-      newUtterance.onend = () => {
-        setIsPlaying(false);
-        setIsPaused(false);
-        setUtterance(null);
-      };
-      
-      newUtterance.onerror = (event) => {
-        console.error('Speech synthesis error:', event);
-        setIsPlaying(false);
-        setIsPaused(false);
-        setUtterance(null);
-      };
-      
-      newUtterance.onpause = () => {
-        setIsPaused(true);
-        setIsPlaying(false);
-      };
-      
-      newUtterance.onresume = () => {
-        setIsPaused(false);
-        setIsPlaying(true);
-      };
-      
-      setUtterance(newUtterance);
-      synth.speak(newUtterance);
-    }
-  };
-
-  const handlePause = () => {
-    const synth = getSpeechSynthesis();
-    if (!synth) return;
-    if (synth.speaking && !synth.paused) {
-      synth.pause();
-      setIsPaused(true);
-      setIsPlaying(false);
-    }
-  };
-
-  const handleStop = () => {
-    const synth = getSpeechSynthesis();
-    if (!synth) return;
-    synth.cancel();
-    setIsPlaying(false);
-    setIsPaused(false);
-    setUtterance(null);
-  };
-
-  // Cleanup on unmount
-  useEffect(() => {
+    setSupported('speechSynthesis' in window);
     return () => {
-      const synth = getSpeechSynthesis();
-      if (synth) {
-        synth.cancel();
-      }
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     };
   }, []);
 
-  if (!isSupported) {
-    return null; // Don't show the component if not supported
-  }
+  useEffect(() => {
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    setStatus('idle');
+  }, [articleContent]);
+
+  if (!supported) return null;
+
+  const play = () => {
+    const synth = window.speechSynthesis;
+    if (status === 'paused') {
+      synth.resume();
+      setStatus('playing');
+      return;
+    }
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(`${articleTitle}. ${htmlToText(articleContent)}`);
+    u.lang = 'en-GB';
+    u.onend = () => setStatus('idle');
+    u.onerror = () => setStatus('idle');
+    utteranceRef.current = u;
+    synth.speak(u);
+    setStatus('playing');
+  };
+
+  const pause = () => {
+    window.speechSynthesis.pause();
+    setStatus('paused');
+  };
+
+  const stop = () => {
+    window.speechSynthesis.cancel();
+    setStatus('idle');
+  };
+
+  const pill =
+    'inline-flex h-10 items-center gap-2 rounded-full border border-gp-ink px-4 text-sm font-bold text-gp-ink transition-colors hover:bg-gp-ink hover:text-white sm:h-9';
 
   return (
-    <div 
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        padding: '12px 16px',
-        backgroundColor: '#F3F4F6',
-        borderRadius: '8px',
-        marginBottom: '16px',
-        fontFamily: "'Inter', 'Source Sans 3', system-ui, sans-serif"
-      }}
-    >
-      <Volume2 size={18} style={{ color: '#6B7280', flexShrink: 0 }} />
-      <span style={{ fontSize: '13px', color: '#111111', fontWeight: '500', flex: 1 }}>
-        Listen to article
-      </span>
-      <div style={{ display: 'flex', gap: '8px' }}>
-        {!isPlaying && !isPaused && (
-          <button
-            onClick={handlePlay}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '6px 12px',
-              backgroundColor: '#1A365D',
-              color: '#FFFFFF',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '12px',
-              fontWeight: '500',
-              cursor: 'pointer'
-            }}
-            aria-label="Play article"
-          >
-            <Play size={14} />
-            Play
-          </button>
-        )}
-        
-        {isPlaying && (
-          <button
-            onClick={handlePause}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '6px 12px',
-              backgroundColor: '#6B7280',
-              color: '#FFFFFF',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '12px',
-              fontWeight: '500',
-              cursor: 'pointer'
-            }}
-            aria-label="Pause article"
-          >
-            <Pause size={14} />
-            Pause
-          </button>
-        )}
-        
-        {isPaused && (
-          <button
-            onClick={handlePlay}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '6px 12px',
-              backgroundColor: '#1A365D',
-              color: '#FFFFFF',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '12px',
-              fontWeight: '500',
-              cursor: 'pointer'
-            }}
-            aria-label="Resume article"
-          >
-            <Play size={14} />
-            Resume
-          </button>
-        )}
-        
-        {(isPlaying || isPaused) && (
-          <button
-            onClick={handleStop}
-            style={{
-              padding: '6px 12px',
-              backgroundColor: '#DC2626',
-              color: '#FFFFFF',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '12px',
-              fontWeight: '500',
-              cursor: 'pointer'
-            }}
-            aria-label="Stop article"
-          >
-            Stop
-          </button>
-        )}
-      </div>
+    <div className="flex items-center gap-2">
+      {status === 'playing' ? (
+        <button type="button" onClick={pause} className={pill} aria-label="Pause listening">
+          <Pause className="h-4 w-4" aria-hidden /> Pause
+        </button>
+      ) : (
+        <button type="button" onClick={play} className={pill} aria-label={status === 'paused' ? 'Resume listening' : 'Listen to this article'}>
+          {status === 'paused' ? <Play className="h-4 w-4" aria-hidden /> : <Headphones className="h-4 w-4" aria-hidden />}
+          {status === 'paused' ? 'Resume' : 'Listen'}
+          {status === 'idle' && readTime ? <span className="font-normal opacity-70">· {readTime} min</span> : null}
+        </button>
+      )}
+      {status !== 'idle' && (
+        <button
+          type="button"
+          onClick={stop}
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-gp-line text-gp-ink hover:border-gp-ink sm:h-9 sm:w-9"
+          aria-label="Stop listening"
+        >
+          <Square className="h-3.5 w-3.5" aria-hidden />
+        </button>
+      )}
     </div>
   );
 };

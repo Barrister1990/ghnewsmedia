@@ -1,84 +1,77 @@
-
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
-import EnhancedSEOHead from '@/components/SEO/EnhancedSEOHead';
-import { ArrowLeft, Home, Search } from 'lucide-react';
+import SEOHead from '@/components/SEO/SEOHead';
 import Link from 'next/link';
-import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
+
+const SECTIONS = [
+  { href: '/news', label: 'Latest News' },
+  { href: '/sports', label: 'Sport' },
+  { href: '/business', label: 'Business' },
+  { href: '/entertainment', label: 'Entertainment' },
+  { href: '/opinions', label: 'Opinion' },
+  { href: '/features', label: 'Features' },
+];
 
 const NotFound = () => {
+  const router = useRouter();
+  const [query, setQuery] = useState('');
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <EnhancedSEOHead
+    <div className="gp-site flex min-h-screen flex-col bg-white">
+      <SEOHead
         title="Page Not Found"
         description="The page you're looking for could not be found. Browse our latest news and updates from Ghana or search for specific topics."
-        canonical="https://www.ghnewsmedia.com/404"
-        noindex={true}
+        noindex
       />
-      <Head>
-        <meta name="robots" content="noindex, nofollow" />
-        <meta name="googlebot" content="noindex, nofollow" />
-      </Head>
-      
+
       <Header />
-      
-      <main className="flex-1 flex items-center justify-center px-4">
-        <div className="text-center max-w-2xl">
-          <div className="mb-8">
-            <h1 className="text-9xl font-bold text-gray-200 mb-4">404</h1>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Page Not Found
-            </h2>
-            <p className="text-xl text-gray-600 mb-8">
-              Sorry, we couldn&apos;t find the page you&apos;re looking for. It might have been moved, 
-              deleted, or you entered the wrong URL.
-            </p>
-          </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/"
-              className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors"
-            >
-              <Home className="w-5 h-5 mr-2" />
-              Go Home
-            </Link>
-            <button
-              onClick={() => window.history.back()}
-              className="inline-flex items-center px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5 mr-2" />
-              Go Back
-            </button>
-            <Link
-              href="/search"
-              className="inline-flex items-center px-6 py-3 border-2 border-primary text-primary rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors"
-            >
-              <Search className="w-5 h-5 mr-2" />
-              Search
-            </Link>
-          </div>
+      <main id="main-content" className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-12 sm:py-16">
+        <p className="text-sm font-black uppercase tracking-wide text-gp-accent-dark">Error 404</p>
+        <h1 className="mt-2 text-[2rem] font-black leading-tight text-gp-ink sm:text-[3rem]">This page could not be found</h1>
+        <p className="mt-3 max-w-2xl text-lg leading-relaxed text-gp-muted">
+          The story or page you are looking for may have been moved, deleted, or the link may be wrong. Try searching, or
+          head to one of our sections.
+        </p>
 
-          <div className="mt-12 p-6 bg-white rounded-xl shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Popular Sections</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Link href="/politics" className="text-primary hover:text-primary-700 font-medium">
-                Politics
-              </Link>
-              <Link href="/business" className="text-primary hover:text-primary-700 font-medium">
-                Business
-              </Link>
-              <Link href="/sports" className="text-primary hover:text-primary-700 font-medium">
-                Sports
-              </Link>
-              <Link href="/tech" className="text-primary hover:text-primary-700 font-medium">
-                Technology
-              </Link>
-            </div>
-          </div>
-        </div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (query.trim()) router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+          }}
+          className="mt-8 flex max-w-2xl items-center gap-3"
+        >
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search Ghana Point"
+            aria-label="Search Ghana Point"
+            className="w-full border-b-2 border-gp-ink bg-transparent py-2 text-lg outline-none"
+          />
+          <button type="submit" className="bg-gp-ink px-5 py-2.5 text-sm font-bold text-white">Search</button>
+        </form>
+
+        <nav aria-labelledby="sections-heading" className="mt-12 max-w-2xl">
+          <h2 id="sections-heading" className="mb-2 border-b-2 border-gp-ink pb-1.5 text-xl font-bold text-gp-ink">
+            Browse our sections
+          </h2>
+          <ul className="grid grid-cols-2 sm:grid-cols-3">
+            {SECTIONS.map((s) => (
+              <li key={s.href} className="border-b border-gp-line">
+                <Link href={s.href} className="block py-3 font-bold text-gp-ink hover:underline">{s.label}</Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <Link href="/" className="mt-10 inline-block border-2 border-gp-ink px-8 py-2.5 text-sm font-bold hover:bg-gp-ink hover:text-white">
+          Go to the home page
+        </Link>
       </main>
-      
+
       <Footer />
     </div>
   );

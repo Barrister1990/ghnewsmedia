@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { AuthError, Session, User } from '@supabase/supabase-js';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 interface AuthContextType {
@@ -16,71 +16,92 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const ROLE_CACHE_KEY = 'gp-role';
+
+const readCachedRole = (userId: string): string | null => {
+  try {
+    const raw = sessionStorage.getItem(ROLE_CACHE_KEY);
+    if (!raw) return null;
+    const cached = JSON.parse(raw) as { userId?: string; role?: string };
+    return cached.userId === userId && cached.role ? cached.role : null;
+  } catch {
+    return null;
+  }
+};
+
+const writeCachedRole = (userId: string, role: string | null) => {
+  try {
+    if (role) sessionStorage.setItem(ROLE_CACHE_KEY, JSON.stringify({ userId, role }));
+    else sessionStorage.removeItem(ROLE_CACHE_KEY);
+  } catch {
+    /* storage unavailable */
+  }
+};
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [sessionLoading, setSessionLoading] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
-
-  const fetchUserRole = async (userId: string) => {
-    try {
-      console.log('Fetching role for user:', userId);
-      const { data: roleData, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .single();
-      
-      if (error) {
-        console.error('Error fetching user role:', error);
-        setUserRole('editor');
-        return;
-      }
-      
-      console.log('User role fetched:', roleData?.role);
-      setUserRole(roleData?.role || 'editor');
-    } catch (error) {
-      console.error('Error in fetchUserRole:', error);
-      setUserRole('editor');
-    }
-  };
+  const [roleUserId, setRoleUserId] = useState<string | null>(null);
+  const roleRequest = useRef<string | null>(null);
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.id);
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          // Fetch user role but don't block the UI
-          fetchUserRole(session.user.id);
-        } else {
-          setUserRole(null);
-        }
-        
-        // Always set loading to false, regardless of role fetching status
-        setLoading(false);
-      }
-    );
+    const resolveRole = async (userId: string) => {
+      if (roleRequest.current === userId) return;
+      roleRequest.current = userId;
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session check:', session?.user?.id);
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        fetchUserRole(session.user.id);
+      const cached = readCachedRole(userId);
+      if (cached) {
+        setUserRole(cached);
+        setRoleUserId(userId);
       }
-      
-      // Always set loading to false after initial check
-      setLoading(false);
+
+      let role = 'editor';
+      try {
+        const { data, error } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userId)
+          .single();
+        if (error) console.error('Error fetching user role:', error);
+        role = data?.role || 'editor';
+      } catch (error) {
+        console.error('Error in fetchUserRole:', error);
+      }
+
+      if (roleRequest.current !== userId) return;
+      writeCachedRole(userId, role);
+      setUserRole(role);
+      setRoleUserId(userId);
+    };
+
+    const applySession = (next: Session | null) => {
+      setSession(next);
+      setUser(next?.user ?? null);
+      if (next?.user) {
+        void resolveRole(next.user.id);
+      } else {
+        if (roleRequest.current) writeCachedRole(roleRequest.current, null);
+        roleRequest.current = null;
+        setUserRole(null);
+        setRoleUserId(null);
+      }
+      setSessionLoading(false);
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, next) => {
+      applySession(next);
+    });
+
+    supabase.auth.getSession().then(({ data: { session: initial } }) => {
+      applySession(initial);
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const loading = sessionLoading || (!!user && roleUserId !== user.id);
 
   const signIn = async (email: string, password: string) => {
     try {

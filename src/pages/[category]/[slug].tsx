@@ -8,294 +8,152 @@ import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import ReadAloud from '@/components/ReadAloud';
 import ReadingProgress from '@/components/ReadingProgress';
-import RelatedArticles from '@/components/RelatedArticles';
+import { MultiplexAd } from '@/components/AdSense';
+import AdSlot from '@/components/site/AdSlot';
+import ArticleActionBar from '@/components/site/ArticleActionBar';
+import MostPopular from '@/components/site/MostPopular';
+import SectionHeading from '@/components/site/SectionHeading';
+import StoryCard from '@/components/site/StoryCard';
+import { AD_SLOTS } from '@/config/adsense';
 import ScrollToTop from '@/components/ScrollToTop';
 import UnifiedArticleSEO from '@/components/SEO/UnifiedArticleSEO';
 import ShareButtons from '@/components/ShareButtons';
 import { UserAvatar } from '@/components/UserAvatar';
-import { useArticleReactions } from '@/hooks/useArticleReactions';
-import { useImmediateIndexing } from '@/hooks/useImmediateIndexing';
 import { useViewTracking } from '@/hooks/useViewTracking';
-import { fetchArticleBySlug, fetchPublishedArticles } from '@/lib/articles';
-import { Category, NewsArticle } from '@/types/news';
-import { GetServerSideProps, GetServerSidePropsContext } from 'next';
+import { ArticlePageProps, getArticlePageProps, getArticleStaticPaths } from '@/lib/articlePage';
+import { GetStaticProps } from 'next';
 import Link from 'next/link';
 import { ParsedUrlQuery } from 'querystring';
-import { useEffect } from 'react';
-
-interface ArticlePageProps {
-  article: NewsArticle | null;
-  relatedArticles: NewsArticle[];
-  allArticles: NewsArticle[];
-  error?: string;
-  // For category pages
-  category?: Category | null;
-  categoryArticles?: NewsArticle[];
-  totalArticles?: number;
-  isCategoryPage?: boolean;
-}
 
 interface Params extends ParsedUrlQuery {
   category: string;
   slug: string;
 }
 
-const ArticlePage = ({ article, relatedArticles, allArticles, error }: ArticlePageProps) => {
-  const { notifySearchEngines } = useImmediateIndexing();
-  
-  // Use our hooks with the server-side article data
-  const { reactions, userReaction, loading: reactionsLoading, handleReaction } = useArticleReactions(article?.id || '');
+const ArticlePage = ({ article, relatedArticles, mostPopular }: ArticlePageProps) => {
   useViewTracking(article?.slug || '');
-
-  useEffect(() => {
-    if (article) {
-      // Notify search engines about article view for immediate indexing
-      const articleAge = Date.now() - new Date(article.publishedAt).getTime();
-      const oneHourMs = 60 * 60 * 1000;
-      
-      // For recently published articles (within 1 hour), trigger immediate indexing
-      if (articleAge < oneHourMs) {
-        notifySearchEngines(article, 'view_fallback');
-      }
-    }
-  }, [article, notifySearchEngines]);
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-        <Header />
-        <main className="container mx-auto px-4 py-8 sm:py-12" role="main" aria-labelledby="error-heading">
-          <section className="text-center max-w-md mx-auto">
-            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border border-gray-200">
-              <h1 id="error-heading" className="text-2xl sm:text-3xl font-bold text-red-600 mb-4">
-                Error
-              </h1>
-              <p className="text-gray-600 text-sm sm:text-base">{error}</p>
-            </div>
-          </section>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   if (!article) {
     return <ArticleNotFound />;
   }
-
-  const breadcrumbItems = [
-    { name: 'Home', url: SITE_URL },
-    { name: article.category.name, url: `${SITE_URL}/${article.category.slug}` },
-    { name: article.title }
-  ];
 
   const articleUrl = `${SITE_URL}/${article.category.slug}/${article.slug}`;
   const authorProfileUrl = article.author.id ? `/author/${article.author.id}` : '';
   const authorHasDetails = Boolean(article.author.bio || article.author.title || article.author.id);
 
   return (
-    <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', 'Source Sans 3', system-ui, sans-serif" }}>
+    <div className="gp-site min-h-screen bg-white">
       <UnifiedArticleSEO article={article} />
 
       <ReadingProgress />
       <Header />
 
-      <main className="container mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8" role="main" aria-label={`Article: ${article.title}`}>
-        <article className="max-w-3xl mx-auto">
-          {/* Breadcrumb - Pulse Style */}
-          <div className="mb-4 sm:mb-6">
-            <nav style={{ fontSize: '12px', color: '#6B7280' }}>
-              <span>
-                <Link href="/" style={{ color: '#6B7280', textDecoration: 'none' }}>Home</Link>
-              </span>
-              <span style={{ margin: '0 8px' }}>/</span>
-              <span>
-                <Link href={`/${article.category.slug}`} style={{ color: '#6B7280', textDecoration: 'none' }}>
-                  {article.category.name}
-                </Link>
-              </span>
+      <main id="main-content" className="mx-auto max-w-[1280px] px-4" aria-label={`Article: ${article.title}`}>
+        <AdSlot slot={AD_SLOTS.BANNER_TOP} shape="leaderboard" className="my-4" />
+
+        <div className="grid grid-cols-1 gap-10 pt-4 lg:grid-cols-12 lg:pt-6">
+          <article className="min-w-0 lg:col-span-8">
+            <nav aria-label="Breadcrumb" className="mb-3 text-xs text-gp-muted">
+              <Link href="/" className="hover:underline">Home</Link>
+              <span aria-hidden className="mx-1.5">/</span>
+              <Link href={`/${article.category.slug}`} className="hover:underline">{article.category.name}</Link>
             </nav>
-          </div>
 
-          {/* Article Header - Pulse Style */}
-          <div className="mb-6 sm:mb-8">
             <ArticleHeader article={article} />
-          </div>
 
-          {/* Read Aloud Feature */}
-          <div className="mb-4 sm:mb-6">
-            <ReadAloud 
-              articleTitle={article.title}
-              articleContent={article.content}
-            />
-          </div>
+            <div className="my-5 flex flex-wrap items-center justify-between gap-3">
+              <ReadAloud articleTitle={article.title} articleContent={article.content} readTime={article.readTime} />
+              <ShareButtons url={articleUrl} title={article.title} description={article.excerpt} />
+            </div>
 
-          {/* Article Content - Pulse Style */}
-          <div className="mb-8 sm:mb-12">
-            <ArticleContent 
+            <ArticleContent
+              key={article.slug}
               content={article.content}
               featuredImage={article.featuredImage}
+              featuredImageAlt={article.title}
               featuredImageCredit={article.featured_image_credit}
               inlineImageCredits={article.inline_image_credits}
               relatedArticles={relatedArticles}
             />
-          </div>
 
-          {/* Author trust card for E-E-A-T */}
-          {authorHasDetails && (
-            <section className="mb-8 sm:mb-12 p-4 sm:p-6 border border-gray-200 rounded-lg bg-gray-50">
-              <div className="flex items-start gap-4">
-                <UserAvatar
-                  src={article.author.avatar}
-                  alt={article.author.name}
-                  className="h-16 w-16 flex-shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+            {article.tags && article.tags.length > 0 && (
+              <div className="mt-8">
+                <ArticleTags tags={article.tags} />
+              </div>
+            )}
+
+            <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-gp-line pt-5">
+              <p className="text-sm font-bold text-gp-ink">Share this story</p>
+              <ShareButtons url={articleUrl} title={article.title} description={article.excerpt} />
+            </div>
+
+            {authorHasDetails && (
+              <section aria-label="About the author" className="mt-8 flex items-start gap-4 border-t-2 border-gp-ink pt-5">
+                <UserAvatar src={article.author.avatar} alt={article.author.name} className="h-16 w-16 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-lg font-bold text-gp-ink">
                     {authorProfileUrl ? (
-                      <Link href={authorProfileUrl} className="hover:text-primary transition-colors">
-                        {article.author.name}
-                      </Link>
+                      <Link href={authorProfileUrl} className="hover:underline">{article.author.name}</Link>
                     ) : (
                       article.author.name
                     )}
                   </h2>
-                  {article.author.title && (
-                    <p className="text-sm sm:text-base text-primary font-medium mt-1">{article.author.title}</p>
-                  )}
-                  <p className="text-sm sm:text-base text-gray-700 mt-2 leading-relaxed">
-                    {article.author.bio || `${article.author.name} is a journalist at GH News Media covering ${article.category.name.toLowerCase()} and national developments in Ghana.`}
+                  {article.author.title && <p className="text-sm font-medium text-gp-accent-dark">{article.author.title}</p>}
+                  <p className="mt-2 text-sm leading-relaxed text-gp-muted">
+                    {article.author.bio || `${article.author.name} is a journalist at Ghana Point covering ${article.category.name.toLowerCase()} and national developments in Ghana.`}
                   </p>
                   {authorProfileUrl && (
-                    <div className="mt-3">
-                      <Link href={authorProfileUrl} className="text-sm font-medium text-primary hover:underline">
-                        View all articles by {article.author.name}
-                      </Link>
-                    </div>
+                    <Link href={authorProfileUrl} className="mt-2 inline-block text-sm font-bold text-gp-ink underline-offset-2 hover:underline">
+                      More from {article.author.name}
+                    </Link>
                   )}
                 </div>
-              </div>
-            </section>
-          )}
-        </article>
+              </section>
+            )}
+          </article>
 
-        {/* Share Buttons - Pulse Style */}
-        <div className="mb-6 sm:mb-8 flex justify-center">
-          <div className="w-full max-w-3xl">
-            <ShareButtons
-              url={articleUrl}
-              title={article.title}
-              description={article.excerpt}
-              image={article.featuredImage}
-            />
-          </div>
+          <aside className="lg:col-span-4">
+            <div className="space-y-8 lg:sticky lg:top-24">
+              <AdSlot slot={AD_SLOTS.SIDEBAR_TOP} shape="rectangle" />
+              <MostPopular articles={mostPopular} />
+            </div>
+          </aside>
         </div>
 
-        {/* Article Tags - Pulse Style */}
-        {article.tags && article.tags.length > 0 && (
-          <div className="mb-6 sm:mb-8 max-w-3xl mx-auto">
-            <ArticleTags tags={article.tags} />
-          </div>
+        {relatedArticles.length > 0 && (
+          <section aria-label="Recommended stories" className="gp-cv mt-12">
+            <SectionHeading title="Recommended stories" />
+            <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {relatedArticles.map((related) => (
+                <li key={related.id}>
+                  <StoryCard article={related} variant="card" showCategory showDate />
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
 
-        {/* Related Articles - Pulse Style */}
-        <div className="mb-8 sm:mb-12 max-w-3xl mx-auto">
-          <RelatedArticles articles={relatedArticles} />
-        </div>
+        <MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} className="mt-12" />
       </main>
 
-      <Footer />
-      <ScrollToTop />
+      <div className="gp-cv">
+        <Footer />
+      </div>
+      <div className="hidden lg:block">
+        <ScrollToTop />
+      </div>
+      <ArticleActionBar url={articleUrl} title={article.title} excerpt={article.excerpt} />
     </div>
   );
 };
 
-export const getServerSideProps: GetServerSideProps<ArticlePageProps, Params> = async (
-  context: GetServerSidePropsContext<Params>
-) => {
-  const { category, slug } = context.params!;
+export const getStaticPaths = getArticleStaticPaths;
 
-  // Ensure both category and slug are present (this route should only match two-segment paths)
-  if (!category || !slug) {
-    return {
-      notFound: true,
-    };
+export const getStaticProps: GetStaticProps<ArticlePageProps, Params> = async ({ params }) => {
+  if (!params?.category || !params.slug) {
+    return { notFound: true };
   }
-
-  try {
-    // Fetch the specific article by slug
-    const { article, error: articleError } = await fetchArticleBySlug(slug);
-
-    if (articleError || !article) {
-      return {
-        notFound: true, // This will show Next.js 404 page
-      };
-    }
-
-    // Verify that the category in the URL matches the article's category
-    // If not, redirect to the correct URL
-    if (article.category.slug !== category) {
-      return {
-        redirect: {
-          destination: `/${article.category.slug}/${article.slug}`,
-          permanent: true, // 301 redirect for SEO
-        },
-      };
-    }
-
-    // Fetch all articles to get related ones
-    const { articles } = await fetchPublishedArticles();
-
-    // Enhanced related articles logic with fallback
-    const getRelatedArticles = (currentArticle: NewsArticle, allArticles: NewsArticle[]) => {
-      // First, try to get articles from the same category
-      const sameCategoryArticles = allArticles
-        .filter((a) => a.id !== currentArticle.id && a.category.id === currentArticle.category.id)
-        .slice(0, 3);
-
-      // If we have enough articles from the same category, return them
-      if (sameCategoryArticles.length === 3) {
-        return sameCategoryArticles;
-      }
-
-      // If we need more articles, add articles from other categories
-      const otherCategoryArticles = allArticles
-        .filter((a) => a.id !== currentArticle.id && a.category.id !== currentArticle.category.id)
-        .slice(0, 3 - sameCategoryArticles.length);
-
-      return [...sameCategoryArticles, ...otherCategoryArticles];
-    };
-
-    const relatedArticles = getRelatedArticles(article, articles);
-
-    // Set cache headers for better performance
-    context.res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600'); // Cache for 5 minutes, serve stale for 10 minutes
-
-    // Set canonical URL header
-    context.res.setHeader('Link', `<${SITE_URL}/${article.category.slug}/${article.slug}>; rel="canonical"`);
-
-    // Set last modified header for better caching
-    if (article.updatedAt) {
-      context.res.setHeader('Last-Modified', new Date(article.updatedAt).toUTCString());
-    }
-
-    return {
-      props: {
-        article,
-        relatedArticles,
-        allArticles: articles,
-      },
-    };
-  } catch (error) {
-    return {
-      props: {
-        article: null,
-        relatedArticles: [],
-        allArticles: [],
-        error: 'Failed to load article',
-      },
-    };
-  }
+  return getArticlePageProps(params.category, params.slug);
 };
 
 export default ArticlePage;

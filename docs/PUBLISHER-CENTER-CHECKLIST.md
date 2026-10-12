@@ -1,6 +1,6 @@
 # Google Publisher Center — Setup Checklist (Phase 4)
 
-Use this checklist when setting up [Google Publisher Center](https://publishercenter.google.com/) for **ghnewsmedia.com**. Publisher Center helps Google understand your publication for Google News and Discover.
+Use this checklist when setting up [Google Publisher Center](https://publishercenter.google.com/) for **ghanapoint.com**. Publisher Center helps Google understand your publication for Google News and Discover.
 
 ---
 
@@ -17,12 +17,12 @@ Use this checklist when setting up [Google Publisher Center](https://publisherce
 
 - [ ] Go to [Publisher Center](https://publishercenter.google.com/).
 - [ ] Click **Add publication** (or use the existing one if you already added the site).
-- [ ] Enter your publication URL: **https://www.ghnewsmedia.com**
+- [ ] Enter your publication URL: **https://ghanapoint.com**
 - [ ] Complete **ownership verification** (e.g. via Search Console; same as for Search Console verification).
 
 ### 2. Publication details
 
-- [ ] **Publication name:** **GH News Media** (must match the name used in your schema and sitemaps).
+- [ ] **Publication name:** **Ghana Point** (must match the name used in your schema and sitemaps).
 - [ ] **Primary language:** English.
 - [ ] **Geographic focus:** Ghana (and any other regions you target).
 
@@ -41,13 +41,13 @@ Use this checklist when setting up [Google Publisher Center](https://publisherce
 ### 4. Contact and about
 
 - [ ] **Contact email:** e.g. editor@ghnewsmedia.com or ghnewsmedia7@gmail.com (match your site).
-- [ ] **About / editorial page:** Link to **https://ghnewsmedia.com/about**.
+- [ ] **About / editorial page:** Link to **https://ghanapoint.com/about**.
 - [ ] Ensure the About and Contact pages are live and match what you declare.
 
 ### 5. Optional but recommended
 
 - [ ] **Publishing frequency:** Set if the interface offers it (e.g. daily).
-- [ ] **Logo:** Use the same logo as in your schema (e.g. https://ghnewsmedia.com/logo.png).
+- [ ] **Logo:** Use the same logo as in your schema (e.g. https://ghanapoint.com/logo.png).
 - [ ] Review any **content labels** or **policies** and complete if required.
 
 ---

@@ -1,4 +1,4 @@
-# GhNewsMedia - Complete Project Documentation
+# Ghana Point - Complete Project Documentation
 
 ## 📋 Table of Contents
 
@@ -18,7 +18,7 @@
 
 ## 🎯 Project Overview
 
-**GhNewsMedia** is a modern, SEO-optimized news platform built for Ghana's digital news landscape. The platform provides a comprehensive content management system, real-time article publishing, advanced SEO features, and a mobile-first responsive design.
+**Ghana Point** is a modern, SEO-optimized news platform built for Ghana's digital news landscape. The platform provides a comprehensive content management system, real-time article publishing, advanced SEO features, and a mobile-first responsive design.
 
 ### Key Objectives
 - **Fast Content Publishing**: Streamlined workflow for journalists and editors
@@ -725,7 +725,7 @@ article-images/
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-NEXT_PUBLIC_SITE_URL=https://ghnewsmedia.com
+NEXT_PUBLIC_SITE_URL=https://ghanapoint.com
 ```
 
 ### 2. Supabase Setup
@@ -927,7 +927,7 @@ npm run lint
 
 ## 📝 Conclusion
 
-GhNewsMedia is a comprehensive, modern news platform with:
+Ghana Point is a comprehensive, modern news platform with:
 - ✅ **Full-featured CMS** with Tiptap editor
 - ✅ **Advanced SEO** with automatic indexing
 - ✅ **Mobile-first design** with responsive layouts

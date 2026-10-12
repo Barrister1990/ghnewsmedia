@@ -1,8 +1,8 @@
 
-# SEO Setup Instructions for GhNewsMedia
+# SEO Setup Instructions for Ghana Point
 
 ## Overview
-This document outlines the comprehensive SEO implementation for GhNewsMedia, including dynamic meta tags, structured data, sitemap generation, and Google indexing optimization.
+This document outlines the comprehensive SEO implementation for Ghana Point, including dynamic meta tags, structured data, sitemap generation, and Google indexing optimization.
 
 ## Components Implemented
 

@@ -1,7 +1,7 @@
 # 🖼️ **Image Credit System Implementation**
 
 ## **Overview**
-This document outlines the comprehensive image credit system implemented in the GhNewsMedia platform to ensure proper copyright compliance and attribution for all images used in articles.
+This document outlines the comprehensive image credit system implemented in the Ghana Point platform to ensure proper copyright compliance and attribution for all images used in articles.
 
 ## **🎯 System Components**
 

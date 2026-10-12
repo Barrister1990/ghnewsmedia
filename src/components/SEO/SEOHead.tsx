@@ -1,19 +1,17 @@
-import { ArticleJsonLd, NextSeo } from 'next-seo';
+import { NextSeo } from 'next-seo';
+import { ROBOTS_PROPS } from 'next-seo.config';
 import React from 'react';
-import { SITE_DISPLAY_NAME, SITE_URL } from '@/config/site';
+import { DEFAULT_OG_IMAGE, SITE_DISPLAY_NAME, SITE_URL } from '@/config/site';
 
 interface SEOHeadProps {
   title: string;
   description: string;
   canonical?: string;
   image?: string;
-  type?: 'website' | 'article';
-  publishedTime?: string;
-  modifiedTime?: string;
-  author?: string;
-  section?: string;
   tags?: string[];
   structuredData?: object;
+  /** Keep the page out of the index (error states, thin utility pages). */
+  noindex?: boolean;
 }
 
 const SEOHead: React.FC<SEOHeadProps> = ({
@@ -21,58 +19,40 @@ const SEOHead: React.FC<SEOHeadProps> = ({
   description,
   canonical,
   image,
-  type = 'website',
-  publishedTime,
-  modifiedTime,
-  author,
-  section,
   tags,
-  structuredData
+  structuredData,
+  noindex = false,
 }) => {
   const siteName = SITE_DISPLAY_NAME;
-  const siteUrl = SITE_URL;
   // Remove any existing site name from title to avoid duplication
   const cleanTitle = title
-    .replace(/\s*\|\s*GhNewsMedia\s*$/i, '')
-    .replace(/\s*\|\s*GH News Media\s*$/i, '')
-    .replace(/\s*\|\s*GH News\s*$/i, '')
+    .replace(/\s*\|\s*(?:Ghana\s?Point|GhNewsMedia|GH News Media|GH News)\s*$/i, '')
     .trim();
   const fullTitle = cleanTitle.includes('|') ? cleanTitle : `${cleanTitle} | ${siteName}`;
-  const canonicalUrl = canonical || siteUrl;
-  const imageUrl = image || `${siteUrl}/placeholder.svg`;
+  const canonicalUrl = canonical || SITE_URL;
 
   return (
     <>
       <NextSeo
         title={fullTitle}
         description={description}
-        canonical={canonicalUrl}
+        canonical={noindex ? undefined : canonicalUrl}
+        noindex={noindex}
+        robotsProps={noindex ? undefined : ROBOTS_PROPS}
         openGraph={{
-          type: type,
+          type: 'website',
           title: fullTitle,
-          description: description,
+          description,
           url: canonicalUrl,
-          siteName: siteName,
-          locale: 'en_GB',
-          images: [
-            {
-              url: imageUrl,
-              alt: title,
-            },
-          ],
-          ...(type === 'article' && {
-            article: {
-              publishedTime: publishedTime,
-              modifiedTime: modifiedTime,
-              authors: author ? [author] : undefined,
-              section: section,
-              tags: tags,
-            },
-          }),
+          siteName,
+          locale: 'en_GH',
+          images: image
+            ? [{ url: image, alt: title }]
+            : [{ url: DEFAULT_OG_IMAGE.url, width: DEFAULT_OG_IMAGE.width, height: DEFAULT_OG_IMAGE.height, alt: siteName }],
         }}
         twitter={{
-          handle: '@GhNewsMedia',
-          site: '@GhNewsMedia',
+          handle: '@ghnewsmedia',
+          site: '@ghnewsmedia',
           cardType: 'summary_large_image',
         }}
         additionalMetaTags={[
@@ -80,43 +60,9 @@ const SEOHead: React.FC<SEOHeadProps> = ({
             name: 'keywords',
             content: tags?.join(', ') || 'Ghana news, breaking news, politics, business, sports',
           },
-          {
-            name: 'robots',
-            content: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
-          },
-          {
-            name: 'googlebot',
-            content: 'index, follow',
-          },
-          {
-            name: 'bingbot',
-            content: 'index, follow',
-          },
-        ]}
-        additionalLinkTags={[
-          {
-            rel: 'canonical',
-            href: canonicalUrl,
-          },
         ]}
       />
 
-      {/* Article Structured Data */}
-      {type === 'article' && publishedTime && (
-        <ArticleJsonLd
-          url={canonicalUrl}
-          title={title}
-          description={description}
-          images={[imageUrl]}
-          datePublished={publishedTime}
-          dateModified={modifiedTime || publishedTime}
-          authorName={author || 'GH News Media Editorial Team'}
-          publisherName={siteName}
-          publisherLogo={`${siteUrl}/logo.png`}
-        />
-      )}
-
-      {/* Custom Structured Data */}
       {structuredData && (
         <script
           type="application/ld+json"

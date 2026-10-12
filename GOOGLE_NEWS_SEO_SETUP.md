@@ -22,16 +22,16 @@ This guide will help you set up your website for immediate Google indexing, Goog
 
 ### Step 1: Google Search Console Setup
 1. Go to [Google Search Console](https://search.google.com/search-console)
-2. Add your property: `https://ghnewsmedia.com`
+2. Add your property: `https://ghanapoint.com`
 3. Verify ownership (recommended: HTML tag method)
 4. Submit your sitemaps:
-   - `https://ghnewsmedia.com/sitemap.xml`
-   - `https://ghnewsmedia.com/sitemap-index.xml`
-   - `https://ghnewsmedia.com/news-sitemap.xml`
+   - `https://ghanapoint.com/sitemap.xml`
+   - `https://ghanapoint.com/sitemap-index.xml`
+   - `https://ghanapoint.com/news-sitemap.xml`
 
 ### Step 2: Google News Setup
 1. In Google Search Console, go to "Enhancements" > "News"
-2. Submit your news sitemap: `https://ghnewsmedia.com/news-sitemap.xml`
+2. Submit your news sitemap: `https://ghanapoint.com/news-sitemap.xml`
 3. Ensure your site meets Google News requirements:
    - ✅ Original content (no duplicate content)
    - ✅ Professional editorial standards
@@ -59,7 +59,7 @@ GOOGLE_CLOUD_CLIENT_EMAIL=your-service-account@project.iam.gserviceaccount.com
 Add these to your `.env.local`:
 
 ```env
-NEXT_PUBLIC_SITE_URL=https://ghnewsmedia.com
+NEXT_PUBLIC_SITE_URL=https://ghanapoint.com
 GOOGLE_INDEXING_API_ENABLED=true
 GOOGLE_NEWS_ENABLED=true
 ```

@@ -1,65 +1,69 @@
-import { PUBLICATION_NAME, SITE_URL } from '../config/site';
-import SEOService from '../services/seoService';
-import { NewsArticle } from '../types/news';
+import {
+  CONTACT_EMAIL,
+  PUBLICATION_NAME,
+  PUBLISHER_LOGO,
+  SITE_ALTERNATE_NAMES,
+  SITE_LANGUAGE,
+  SITE_URL,
+  SOCIAL_PROFILES,
+} from '../config/site';
 
-const seoService = SEOService.getInstance();
+/** Author social handles may be stored as full URLs or bare usernames. */
+export const profileUrl = (value: string, base: string) =>
+  /^https?:\/\//i.test(value) ? value : `${base}${value.replace(/^@/, '')}`;
 
-export const generateArticleStructuredData = (article: NewsArticle) => {
-  return seoService.generateEnhancedStructuredData(article);
-};
+/** Publisher entity shared by the homepage Organization schema and every NewsArticle `publisher`. */
+export const publisherSchema = () => ({
+  "@type": "NewsMediaOrganization",
+  "@id": `${SITE_URL}/#organization`,
+  "name": PUBLICATION_NAME,
+  "url": SITE_URL,
+  "logo": {
+    "@type": "ImageObject",
+    "url": PUBLISHER_LOGO.url,
+    "width": PUBLISHER_LOGO.width,
+    "height": PUBLISHER_LOGO.height,
+  },
+  "sameAs": SOCIAL_PROFILES,
+});
 
-export const generateOrganizationStructuredData = () => {
-  return seoService.generateOrganizationData();
-};
+export const generateOrganizationStructuredData = () => ({
+  "@context": "https://schema.org",
+  ...publisherSchema(),
+  "alternateName": SITE_ALTERNATE_NAMES,
+  "description": "Ghana's digital news platform providing credible, timely coverage of politics, business, sports, entertainment and technology.",
+  "address": {
+    "@type": "PostalAddress",
+    "addressCountry": "GH",
+    "addressLocality": "Accra",
+  },
+  "contactPoint": [
+    {
+      "@type": "ContactPoint",
+      "contactType": "Editorial",
+      "email": CONTACT_EMAIL,
+      "url": `${SITE_URL}/contact`,
+    },
+  ],
+  "publishingPrinciples": `${SITE_URL}/editorial-policy`,
+  "ethicsPolicy": `${SITE_URL}/editorial-policy#ethics`,
+  "correctionsPolicy": `${SITE_URL}/editorial-policy#corrections`,
+  "verificationFactCheckingPolicy": `${SITE_URL}/editorial-policy#fact-checking`,
+  "actionableFeedbackPolicy": `${SITE_URL}/editorial-policy#feedback`,
+  "ownershipFundingInfo": `${SITE_URL}/editorial-policy#ownership`,
+  "masthead": `${SITE_URL}/authors`,
+});
 
-export const generateWebSiteStructuredData = (categories?: Array<{name: string, slug: string}>) => {
-  // Default main navigation items (matching Header.tsx menuItems)
-  const defaultNavItems = [
-    { name: 'News', slug: 'news' },
-    { name: 'Entertainment', slug: 'entertainment' },
-    { name: 'Sports', slug: 'sports' },
-    { name: 'Business', slug: 'business' },
-    { name: 'Lifestyle', slug: 'lifestyle' },
-    { name: 'Tech', slug: 'tech' },
-    { name: 'Features', slug: 'features' },
-    { name: 'Opinions', slug: 'opinions' },
-  ];
-
-  // Use provided categories or default navigation
-  const navItems = categories && categories.length > 0 
-    ? categories.slice(0, 8) // Limit to 8 for sitelinks
-    : defaultNavItems;
-
-  return {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": PUBLICATION_NAME,
-    "alternateName": "GhNewsMedia",
-    "url": SITE_URL,
-    "description": "Ghana's trusted source for breaking news, politics, business, sports, and entertainment.",
-    "inLanguage": "en-GH",
-    "potentialAction": [
-      {
-        "@type": "SearchAction",
-        "target": `${SITE_URL}/search?q={search_term_string}`,
-        "query-input": "required name=search_term_string"
-      }
-    ],
-    "mainEntity": {
-      "@type": "ItemList",
-      "itemListElement": navItems.map((item, index) => ({
-        "@type": "SiteNavigationElement",
-        "position": index + 1,
-        "name": item.name,
-        "url": `${SITE_URL}/${item.slug}`
-      }))
-    }
-  };
-};
-
-export const generateBreadcrumbStructuredData = (items: Array<{name: string, url?: string}>) => {
-  return seoService.generateBreadcrumbData(items);
-};
+export const generateWebSiteStructuredData = () => ({
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${SITE_URL}/#website`,
+  "name": PUBLICATION_NAME,
+  "alternateName": SITE_ALTERNATE_NAMES,
+  "url": SITE_URL,
+  "inLanguage": SITE_LANGUAGE,
+  "publisher": { "@id": `${SITE_URL}/#organization` },
+});
 
 // Truncate description to 150-160 characters (920 pixels) for optimal display
 export const truncateDescription = (text: string, maxLength: number = 155): string => {
@@ -101,12 +105,10 @@ export const articleLinkAriaLabel = (
 };
 
 export const generateMetaTitle = (title: string, category?: string): string => {
-  const siteName = 'GH News Media';
+  const siteName = 'Ghana Point';
   // Remove any existing site name or "|" suffix to avoid duplication
   const cleanTitle = title
-    .replace(/\s*\|\s*GhNewsMedia\s*$/i, '')
-    .replace(/\s*\|\s*GH News Media\s*$/i, '')
-    .replace(/\s*\|\s*GH News\s*$/i, '')
+    .replace(/\s*\|\s*(?:Ghana\s?Point|GhNewsMedia|GH News Media|GH News)\s*$/i, '')
     .trim();
   
   // Build title with proper truncation to stay within 50-60 characters (580 pixels)
@@ -132,108 +134,4 @@ export const generateMetaTitle = (title: string, category?: string): string => {
   }
   
   return fullTitle;
-};
-
-export const generateMetaDescription = (excerpt: string, category?: string): string => {
-  // Base description should be 150-160 characters max
-  const baseDescription = truncateDescription(excerpt, 155);
-  
-  // If adding category info would exceed limit, just return base description
-  if (category) {
-    const categorySuffix = ` | Latest ${category} news from Ghana's trusted source.`;
-    const combined = `${baseDescription}${categorySuffix}`;
-    if (combined.length <= 160) {
-      return combined;
-    }
-  }
-  
-  // Return base description if adding suffix would exceed limit
-  return baseDescription;
-};
-
-// Enhanced image optimization for social media sharing
-export const optimizeImageForSEO = (imageUrl: string, _title: string): string => {
-  if (!imageUrl) {
-    return `${SITE_URL}/og-image.jpg`;
-  }
-  
-  // If it's already a full URL, return as is
-  if (imageUrl.startsWith('http')) {
-    return imageUrl;
-  }
-  
-  // If it's a relative URL, make it absolute
-  if (imageUrl.startsWith('/')) {
-    return `${SITE_URL}${imageUrl}`;
-  }
-  
-  // Add optimization parameters for better social media display
-  if (imageUrl.includes('supabase') || imageUrl.includes('unsplash')) {
-    return `${imageUrl}?w=1200&h=630&fit=crop&q=85`;
-  }
-  
-  return imageUrl;
-};
-
-export const generateArticleSchema = (article: NewsArticle) => {
-  return generateArticleStructuredData(article);
-};
-
-// Helper function to generate article URL with category
-export const getArticleUrl = (article: { slug: string; category: { slug: string } }): string => {
-  return `${SITE_URL}/${article.category.slug}/${article.slug}`;
-};
-
-// Helper function to generate article URL path (without domain)
-export const getArticlePath = (article: { slug: string; category: { slug: string } }): string => {
-  return `/${article.category.slug}/${article.slug}`;
-};
-
-export const notifySearchEnginesOfNewContent = async (articleSlug: string, categorySlug: string) => {
-  const articleUrl = `${SITE_URL}/${categorySlug}/${articleSlug}`;
-  const sitemapUrl = `${SITE_URL}/sitemap.xml`;
-  
-  try {
-    await seoService.notifySearchEngines(sitemapUrl);
-    console.log(`Search engines notified of new article: ${articleUrl}`);
-  } catch (error) {
-    console.error('Failed to notify search engines:', error);
-  }
-};
-
-// Generate social media preview tags specifically for WhatsApp and other messaging apps
-export const generateSocialPreviewTags = (article: NewsArticle) => {
-  const siteUrl = SITE_URL;
-  const articleUrl = getArticleUrl(article);
-  const optimizedImage = optimizeImageForSEO(article.featuredImage, article.title);
-  const description = truncateDescription(article.excerpt || article.content.replace(/<[^>]*>/g, ''));
-
-  return {
-    // Primary Open Graph tags
-    'og:type': 'article',
-    'og:title': article.title,
-    'og:description': description,
-    'og:image': optimizedImage,
-    'og:image:width': '1200',
-    'og:image:height': '630',
-    'og:image:alt': article.title,
-    'og:url': articleUrl,
-    'og:site_name': 'GH News Media',
-    
-    // Twitter Cards
-    'twitter:card': 'summary_large_image',
-    'twitter:title': article.title,
-    'twitter:description': description,
-    'twitter:image': optimizedImage,
-    
-    // WhatsApp specific (uses Open Graph)
-    'og:image:type': 'image/jpeg',
-    'og:image:secure_url': optimizedImage,
-    
-    // Article specific (ISO 8601 for Google News)
-    'article:published_time': new Date(article.publishedAt).toISOString(),
-    'article:author': article.author.name,
-    'article:section': article.category.name,
-    'article:tag': article.tags.join(', ')
-  };
 };

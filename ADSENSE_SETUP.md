@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-This guide explains how to use the AdSense components in your GH News application.
+This guide explains how to use the AdSense components in your Ghana Point application.
 
 ## 🚀 Getting Started
 
@@ -10,7 +10,7 @@ This guide explains how to use the AdSense components in your GH News applicatio
 
 1. Go to [Google AdSense](https://www.google.com/adsense/)
 2. Sign in with your Google account
-3. Add your site: `ghnewsmedia.com`
+3. Add your site: `ghanapoint.com`
 4. Submit for review
 5. Wait for approval (typically 1-2 weeks)
 

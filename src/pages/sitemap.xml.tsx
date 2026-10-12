@@ -1,108 +1,71 @@
 // pages/sitemap.xml.tsx
-import { SITE_URL } from '@/config/site';
-import { fetchPublishedArticles } from '@/lib/articles';
+import { absoluteUrl, buildArticleUrl, SITE_URL } from '@/config/site';
+import { fetchPublishedArticles, PLACEHOLDER_FEATURED_IMAGE } from '@/lib/articles';
 import { fetchAllCategories } from '@/lib/categories';
+import { escapeXml } from '@/utils/escapeXml';
 import { GetServerSideProps } from 'next';
 
 const Sitemap = () => null;
 
+const IMPORTANT_SECTION_SLUGS = ['news', 'entertainment', 'sports', 'business', 'lifestyle', 'tech', 'features', 'opinions'];
+const STATIC_PATHS = ['/about', '/contact', '/editorial-policy', '/advertise', '/privacy', '/terms'];
+
+const iso = (date: string) => new Date(date).toISOString();
+
+/** Google only trusts <lastmod> when it reflects a real content change, so omit it when unknown. */
+const urlEntry = (loc: string, lastmod?: string, extra = '') => `  <url>
+    <loc>${escapeXml(loc)}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ''}${extra}
+  </url>`;
+
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   try {
-    const { articles } = await fetchPublishedArticles();
-    const { categories } = await fetchAllCategories();
+    const [{ articles, error }, { categories }] = await Promise.all([
+      fetchPublishedArticles(),
+      fetchAllCategories(),
+    ]);
+    if (error) throw new Error(error);
 
-    const currentDate = new Date().toISOString();
-    const importantSectionSlugs = ['news', 'entertainment', 'sports', 'business', 'lifestyle', 'tech', 'features', 'opinions'];
     const categoryMap = new Map(categories.map((category) => [category.slug, category]));
     const orderedCategorySlugs = [
-      ...importantSectionSlugs.filter((slug) => categoryMap.has(slug)),
-      ...categories
-        .map((category) => category.slug)
-        .filter((slug) => !importantSectionSlugs.includes(slug)),
+      ...IMPORTANT_SECTION_SLUGS.filter((slug) => categoryMap.has(slug)),
+      ...categories.map((category) => category.slug).filter((slug) => !IMPORTANT_SECTION_SLUGS.includes(slug)),
+    ];
+
+    // Articles are newest-first, so the first one seen per key is the latest.
+    const categoryLastmod = new Map<string, string>();
+    const authorLastmod = new Map<string, string>();
+    for (const article of articles) {
+      const published = iso(article.publishedAt);
+      if (!categoryLastmod.has(article.category.slug)) categoryLastmod.set(article.category.slug, published);
+      if (article.author.id && !authorLastmod.has(article.author.id)) authorLastmod.set(article.author.id, published);
+    }
+    const newest = articles[0] ? iso(articles[0].publishedAt) : undefined;
+
+    const entries = [
+      urlEntry(SITE_URL, newest),
+      ...orderedCategorySlugs.map((slug) => urlEntry(`${SITE_URL}/${slug}`, categoryLastmod.get(slug))),
+      urlEntry(`${SITE_URL}/authors`, newest),
+      ...STATIC_PATHS.map((path) => urlEntry(`${SITE_URL}${path}`)),
+      ...Array.from(authorLastmod).map(([authorId, lastmod]) => urlEntry(`${SITE_URL}/author/${authorId}`, lastmod)),
+      ...articles.map((article) => {
+        const image = article.featuredImage && article.featuredImage !== PLACEHOLDER_FEATURED_IMAGE
+          ? `\n    <image:image>\n      <image:loc>${escapeXml(absoluteUrl(article.featuredImage))}</image:loc>\n    </image:image>`
+          : '';
+        return urlEntry(
+          buildArticleUrl(article.category.slug, article.slug),
+          iso(article.updatedAt || article.publishedAt),
+          image
+        );
+      }),
     ];
 
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  
-  <!-- Homepage -->
-  <url>
-    <loc>${SITE_URL}</loc>
-    <lastmod>${currentDate}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  
-  <!-- Category pages -->
-  ${orderedCategorySlugs
-    .map((slug) => {
-      const category = categoryMap.get(slug);
-      if (!category) {
-        return '';
-      }
-      const isPrioritySection = importantSectionSlugs.includes(slug);
-      return `  <url>
-    <loc>${SITE_URL}/${category.slug}</loc>
-    <lastmod>${category.updated_at || currentDate}</lastmod>
-    <changefreq>${isPrioritySection ? 'hourly' : 'daily'}</changefreq>
-    <priority>${isPrioritySection ? '0.9' : '0.8'}</priority>
-  </url>`;
-    })
-    .join('\n')}
-  
-  <!-- Static pages -->
-  <url>
-    <loc>${SITE_URL}/about</loc>
-    <lastmod>${currentDate}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>${SITE_URL}/contact</loc>
-    <lastmod>${currentDate}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>${SITE_URL}/privacy</loc>
-    <lastmod>${currentDate}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${SITE_URL}/terms</loc>
-    <lastmod>${currentDate}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${SITE_URL}/advertise</loc>
-    <lastmod>${currentDate}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>${SITE_URL}/authors</loc>
-    <lastmod>${currentDate}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <!-- Article pages (news metadata lives in news-sitemap.xml only) -->
-  ${articles
-    .map((article) => {
-      const lastmod = new Date(article.updatedAt || article.publishedAt).toISOString();
-      return `  <url>
-    <loc>${SITE_URL}/${article.category.slug}/${article.slug}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>`;
-    })
-    .join('\n')}
-    
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+${entries.join('\n')}
 </urlset>`;
 
-    res.setHeader('Content-Type', 'text/xml');
+    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
     res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=120');
     res.write(sitemap);
     res.end();

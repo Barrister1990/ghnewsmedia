@@ -1,67 +1,69 @@
-
+import Link from 'next/link';
 import React from 'react';
 import { NewsArticle } from '../types/news';
-import { getCategoryColor } from '../utils/categoryColors';
-import Link from 'next/link';
+import { formatPublishedDateTime } from './site/TimeAgo';
+import { UserAvatar } from './UserAvatar';
 
 interface ArticleHeaderProps {
   article: NewsArticle;
 }
 
 const ArticleHeader: React.FC<ArticleHeaderProps> = ({ article }) => {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-GB', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+  const published = new Date(article.publishedAt);
+  const updated = article.updatedAt ? new Date(article.updatedAt) : null;
+  const showUpdated = updated && updated.getTime() - published.getTime() > 60 * 60 * 1000;
 
   return (
     <header>
-      {/* Category Badge - Pulse Style */}
-      <div className="mb-3 sm:mb-4">
-        <span
-          className="inline-block px-2 py-1 rounded text-xs font-medium text-white"
-          style={{ backgroundColor: getCategoryColor(article.category.name, article.category.color), fontSize: '12px' }}
-        >
-          {article.category.name}
-        </span>
-      </div>
-      
-      {/* Title - Pulse Style */}
-      <h1 className="text-2xl sm:text-3xl lg:text-4xl" style={{ 
-        color: '#111111', 
-        fontSize: '24px', 
-        fontWeight: 'bold',
-        lineHeight: '1.3',
-        marginBottom: '16px'
-      }}>
+      <Link
+        href={`/${article.category.slug}`}
+        className="mb-3 inline-block text-sm font-bold uppercase tracking-wide text-gp-accent-dark hover:underline"
+      >
+        {article.category.name}
+      </Link>
+
+      <h1 className="text-[1.75rem] font-bold leading-[1.15] tracking-[-0.01em] text-balance text-gp-ink sm:text-[2.4rem] lg:text-[2.75rem]">
         {article.title}
       </h1>
 
-      {/* Author and Date - Pulse Style (visible date for Google News; use <time> with ISO for accessibility) */}
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-4 text-sm sm:text-base" style={{ fontSize: '14px', color: '#6B7280' }}>
-        {article.author.id ? (
-          <Link
-            href={`/author/${article.author.id}`}
-            style={{ fontWeight: '500', color: '#111111', textDecoration: 'none' }}
-            aria-label={`View profile for ${article.author.name}`}
-          >
-            {article.author.name}
-          </Link>
-        ) : (
-          <span style={{ fontWeight: '500', color: '#111111' }}>{article.author.name}</span>
+      {article.excerpt && (
+        <p className="mt-3 text-[1.0625rem] leading-relaxed text-gp-muted text-pretty sm:mt-4 sm:text-xl">{article.excerpt}</p>
+      )}
+
+      <div className="mt-5 flex items-center gap-3 border-y border-gp-line py-3">
+        {article.author.avatar && (
+          <UserAvatar src={article.author.avatar} alt={article.author.name} className="h-10 w-10 shrink-0" size={40} />
         )}
-        <span aria-hidden="true">·</span>
-        <span>
-          <time dateTime={new Date(article.publishedAt).toISOString()} itemProp="datePublished">
-            Published: {formatDate(article.publishedAt)}
-          </time>
-        </span>
+        <div className="min-w-0 text-sm">
+          <p className="font-bold text-gp-ink">
+            By{' '}
+            {article.author.id ? (
+              <Link href={`/author/${article.author.id}`} className="underline-offset-2 hover:underline" rel="author">
+                {article.author.name}
+              </Link>
+            ) : (
+              article.author.name
+            )}
+          </p>
+          <p className="flex flex-wrap gap-x-2 text-gp-muted">
+            <span>
+              Published{' '}
+              <time dateTime={published.toISOString()}>{formatPublishedDateTime(article.publishedAt)}</time>
+            </span>
+            {showUpdated && (
+              <span>
+                <span aria-hidden>· </span>Updated{' '}
+                <time dateTime={updated!.toISOString()}>{formatPublishedDateTime(article.updatedAt)}</time>
+              </span>
+            )}
+            {article.readTime ? (
+              <span>
+                <span aria-hidden>· </span>
+                {article.readTime} min read
+              </span>
+            ) : null}
+          </p>
+        </div>
       </div>
     </header>
   );

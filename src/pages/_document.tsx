@@ -2,8 +2,6 @@ import { Html, Head, Main, NextScript } from "next/document";
 import { SITE_LANGUAGE } from "@/config/site";
 
 export default function Document() {
-  const GA_MEASUREMENT_ID = 'G-DQZ3JPQ1XG';
-
   return (
     <Html lang={SITE_LANGUAGE}>
       <Head>
@@ -17,29 +15,6 @@ export default function Document() {
         <meta
           name="google-site-verification"
           content="JGfzO_K34iWzkRJ7peIKmbAL6GCFNq-9BJZMnt3OhhI"
-        />
-
-        {/* Google Analytics */}
-        <script
-          async
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${GA_MEASUREMENT_ID}');
-            `,
-          }}
-        />
-        
-        {/* Google AdSense */}
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9758177091764288"
-          crossOrigin="anonymous"
         />
       </Head>
       <body className="antialiased">

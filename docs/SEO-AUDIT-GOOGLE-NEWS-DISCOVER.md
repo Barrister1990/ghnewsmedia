@@ -1,7 +1,7 @@
-# GH News Media — SEO Audit: Google News & Google Discover Indexing
+# Ghana Point — SEO Audit: Google News & Google Discover Indexing
 
 **Audit date:** March 2025  
-**Site:** https://ghnewsmedia.com  
+**Site:** https://ghanapoint.com  
 **Context:** ~8 months in operation, ~2 stories/day; not being indexed in Google News / Google Discover. Goal: identify weaknesses, loopholes, and actions to achieve indexing comparable to major news brands (e.g. BBC).
 
 ---
@@ -29,8 +29,8 @@ Fixing these, then layering in Publisher Center, consistent branding, and option
 **Issue:**  
 Rewrites send `/sitemap.xml` and `/rss.xml` to `/api/sitemap.xml` and `/api/rss.xml`. There are **no** API route handlers for those paths (only page components `sitemap.xml.tsx` and `rss.xml.tsx`). As a result, requests to:
 
-- `https://ghnewsmedia.com/sitemap.xml`
-- `https://ghnewsmedia.com/rss.xml`
+- `https://ghanapoint.com/sitemap.xml`
+- `https://ghanapoint.com/rss.xml`
 
 may be served as **404**, so Google cannot discover or use your sitemap and RSS.
 
@@ -68,8 +68,8 @@ After changing, verify in a browser and with `curl` that both URLs return **200*
 **Issue:**  
 The sitemap index references:
 
-- `https://ghnewsmedia.com/category-sitemap-{slug}.xml` (per category)
-- `https://ghnewsmedia.com/static-pages-sitemap.xml`
+- `https://ghanapoint.com/category-sitemap-{slug}.xml` (per category)
+- `https://ghanapoint.com/static-pages-sitemap.xml`
 
 There are **no** pages or API routes for:
 
@@ -85,8 +85,8 @@ So any crawler (including Google) that follows the sitemap index will get **404*
 **Recommendation:**
 
 - **Short term:** Remove the sitemap index entries for category and static sitemaps so the index only lists **existing** sitemaps, e.g.:
-  - `https://ghnewsmedia.com/sitemap.xml`
-  - `https://ghnewsmedia.com/news-sitemap.xml`
+  - `https://ghanapoint.com/sitemap.xml`
+  - `https://ghanapoint.com/news-sitemap.xml`
 - **Later:** If you want category/static sitemaps, add real routes (e.g. `category-sitemap-[slug].xml.tsx` and `static-pages-sitemap.xml.tsx`) that return valid XML, then add them back to the index.
 
 ---
@@ -137,18 +137,18 @@ The Indexing API call has no `Authorization` header (commented as “Add in prod
 ### 2.1 Publisher name and branding inconsistency
 
 **Issue:**  
-Mixed use of “GH News” vs “GhNewsMedia” across:
+Mixed use of “Ghana Point” vs “Ghana Point” across:
 
-- `next-seo.config.ts`: “GH News”
-- `ArticleSEO.tsx` / schema: “GhNewsMedia”
-- `GoogleNewsSEO.tsx`: “GhNewsMedia” in schema, “GH News” in news sitemap
-- Sitemaps: “GH News” in `<news:name>`
+- `next-seo.config.ts`: “Ghana Point”
+- `ArticleSEO.tsx` / schema: “Ghana Point”
+- `GoogleNewsSEO.tsx`: “Ghana Point” in schema, “Ghana Point” in news sitemap
+- Sitemaps: “Ghana Point” in `<news:name>`
 
 Google News and Discover rely on clear, consistent publisher identity.
 
 **Recommendation:**
 
-- Choose **one** official name (e.g. “GH News” for the product and “GhNewsMedia” for the company if needed) and use it consistently in:
+- Choose **one** official name (e.g. “Ghana Point” for the product and “Ghana Point” for the company if needed) and use it consistently in:
   - All JSON-LD (Organization/NewsMediaOrganization and NewsArticle publisher)
   - All sitemaps (`<news:name>`)
   - Open Graph / Twitter meta
@@ -169,7 +169,7 @@ Sites that are not clearly set up in Publisher Center can be at a disadvantage f
 
 **Recommendation:**
 
-- In [Publisher Center](https://publishercenter.google.com/), add and verify the property `https://ghnewsmedia.com` (and any www variant you use).
+- In [Publisher Center](https://publishercenter.google.com/), add and verify the property `https://ghanapoint.com` (and any www variant you use).
 - Use the **same** publication name and branding as in your schema and sitemaps.
 - Set:
   - Primary language (e.g. English)
@@ -307,7 +307,7 @@ Suggested next steps:
    - Unify publisher name and branding everywhere (schema, sitemaps, OG, Publisher Center).
    - Remove `news:stock_tickers` from news sitemap; ensure dates are ISO 8601 everywhere.
    - Clean robots.txt (remove Crawl-delay and rss from Sitemap list); remove SEO debug logs.
-   - Add and complete Publisher Center for ghnewsmedia.com.
+   - Add and complete Publisher Center for ghanapoint.com.
 3. **Next**
    - Implement Google Indexing API with proper service-account auth and trigger on publish.
    - Optionally introduce schema-dts and/or @next/sitemap for maintainability and correctness.
@@ -323,7 +323,7 @@ Suggested next steps:
 | Sitemap index | Critical | 404s for category/static sitemaps | Remove broken entries or add real sitemaps |
 | Structured data | Critical | Two NewsArticle blocks per article | Single component, one JSON-LD |
 | Indexing API | High | Not authenticated | Add service account auth and use on publish |
-| Branding | High | GH News vs GhNewsMedia | Pick one and use everywhere |
+| Branding | High | Ghana Point vs Ghana Point | Pick one and use everywhere |
 | Publisher Center | High | Not confirmed | Add site, verify, complete profile |
 | News sitemap | Medium | stock_tickers misuse | Remove or use only for real tickers |
 | robots.txt | Medium | Crawl-delay; RSS as Sitemap | Clean up |

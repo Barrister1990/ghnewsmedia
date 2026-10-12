@@ -1,4 +1,4 @@
-# GH News Media — SEO Implementation Plan (Phased)
+# Ghana Point — SEO Implementation Plan (Phased)
 
 **Purpose:** Permanent fixes for all issues in [SEO-AUDIT-GOOGLE-NEWS-DISCOVER.md](./SEO-AUDIT-GOOGLE-NEWS-DISCOVER.md), in a clear order so the news site is robust for Google News and Google Discover.  
 **Reference:** Audit doc = `docs/SEO-AUDIT-GOOGLE-NEWS-DISCOVER.md`
@@ -67,7 +67,7 @@
 - [ ] `/sitemap.xml` → 200, valid XML  
 - [ ] `/rss.xml` → 200, valid XML  
 - [ ] `/sitemap-index.xml` → 200, only links to existing sitemaps  
-- [ ] After deploy: same checks on `https://ghnewsmedia.com`
+- [ ] After deploy: same checks on `https://ghanapoint.com`
 
 ---
 
@@ -90,7 +90,7 @@
   - `mainEntityOfPage`: WebPage with `@id` = article URL.
   - `articleSection`, `keywords` (from tags), `wordCount`, `inLanguage: "en-GB"`, `isAccessibleForFree: true`.
   - Optional: `speakable` (cssSelector for headline and body), `contentLocation` (Ghana) if you want.
-- **Do not:** Output a second NewsArticle block or mix “GH News” and “GhNewsMedia” in the same block (use one name; Phase 3).
+- **Do not:** Output a second NewsArticle block or mix “Ghana Point” and “Ghana Point” in the same block (use one name; Phase 3).
 
 **Acceptance criteria:** Component renders one JSON-LD; validate with [Google Rich Results Test](https://search.google.com/test/rich-results) on a sample article URL.
 
@@ -132,20 +132,20 @@
 
 ### 3.1 Choose and apply one publisher name
 
-- **Decision:** e.g. **“GH News”** for the product (what readers see) and **“GhNewsMedia”** only where legally needed (e.g. footer “© GhNewsMedia”). For **Google News, schema, and sitemaps use one name everywhere** — e.g. **“GH News”** in:
+- **Decision:** e.g. **“Ghana Point”** for the product (what readers see) and **“Ghana Point”** only where legally needed (e.g. footer “© Ghana Point”). For **Google News, schema, and sitemaps use one name everywhere** — e.g. **“Ghana Point”** in:
   - All JSON-LD (Organization, NewsMediaOrganization, NewsArticle publisher name).
-  - All sitemaps: `<news:name>GH News</news:name>`.
+  - All sitemaps: `<news:name>Ghana Point</news:name>`.
   - Open Graph / Twitter: `site_name`, etc.
-- **Files to update (search for “GhNewsMedia” and “GH News”):**
+- **Files to update (search for “Ghana Point” and “Ghana Point”):**
   - `next-seo.config.ts`
   - `src/components/SEO/UnifiedArticleSEO.tsx` (or the component you use)
   - `src/pages/sitemap.xml.tsx` (news publication name)
   - `src/pages/news-sitemap.xml.tsx`
   - `src/services/seoService.ts`, `src/services/advancedSEOService.ts`
   - Any remaining SEO components that output schema or meta.
-- **Method:** Use “GH News” in all user-facing and crawler-facing places; keep “GhNewsMedia” only for legal/copyright if desired.
+- **Method:** Use “Ghana Point” in all user-facing and crawler-facing places; keep “Ghana Point” only for legal/copyright if desired.
 
-**Acceptance criteria:** Grep for “GhNewsMedia” and “GH News” in SEO/sitemap code; usage is consistent and intentional (no mixed publisher name in schema or sitemaps).
+**Acceptance criteria:** Grep for “Ghana Point” and “Ghana Point” in SEO/sitemap code; usage is consistent and intentional (no mixed publisher name in schema or sitemaps).
 
 ---
 
@@ -193,7 +193,7 @@
 
 ## Phase 4 — Dates and Publisher Center
 
-**Goal:** All dates in schema/meta are ISO 8601; article page shows a visible date; Publisher Center is set up for ghnewsmedia.com.
+**Goal:** All dates in schema/meta are ISO 8601; article page shows a visible date; Publisher Center is set up for ghanapoint.com.
 
 ### 4.1 Normalize dates to ISO 8601 everywhere
 
@@ -220,9 +220,9 @@
 
 - **URL:** [Google Publisher Center](https://publishercenter.google.com/).
 - **Steps:**
-  1. Add publication / property: `https://ghnewsmedia.com` (and www if you use it).
+  1. Add publication / property: `https://ghanapoint.com` (and www if you use it).
   2. Verify ownership (same as Search Console if possible).
-  3. Set **publication name** to the same name used in schema and sitemaps (e.g. “GH News”).
+  3. Set **publication name** to the same name used in schema and sitemaps (e.g. “Ghana Point”).
   4. Set **primary language** (e.g. English) and **geographic focus** (e.g. Ghana).
   5. Add **sections/topics** (e.g. News, Politics, Sports, Business, Entertainment).
   6. Add contact / about URLs to match your site (about, contact).
@@ -236,7 +236,7 @@
 
 - [ ] All article dates in schema/meta are ISO 8601  
 - [ ] Visible date on article page  
-- [ ] Publisher Center configured and verified for ghnewsmedia.com
+- [ ] Publisher Center configured and verified for ghanapoint.com
 
 ---
 
@@ -253,7 +253,7 @@
 - Create a **service account**; download JSON key.
 - In **Search Console** → Settings → Users and permissions, add the **service account email** as a user with “Full” or at least “URL Inspection / Submit to Indexing” (if available). Alternatively add the service account as an owner for the property so it can use the Indexing API.
 
-**Acceptance criteria:** Service account key exists; Indexing API enabled; service account has access in Search Console for ghnewsmedia.com.
+**Acceptance criteria:** Service account key exists; Indexing API enabled; service account has access in Search Console for ghanapoint.com.
 
 ---
 
@@ -331,7 +331,7 @@
 
 ### 6.4 Search Console and monitoring
 
-- **Sitemaps:** In Search Console, submit `https://ghnewsmedia.com/sitemap-index.xml` (or `sitemap.xml`) and fix any reported errors.
+- **Sitemaps:** In Search Console, submit `https://ghanapoint.com/sitemap-index.xml` (or `sitemap.xml`) and fix any reported errors.
 - **Coverage:** Periodically check Coverage (or URL Inspection) for article URLs to ensure they’re indexed.
 - **Discover:** If available, check Discover performance report and fix policy or quality issues.
 - **Optional:** Use Search Console API or a simple script to list indexing status for recent articles.

@@ -1,20 +1,22 @@
 import React from 'react';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import Pagination, { pageHref, parsePageParam } from '@/components/Pagination';
 import ScrollToTop from '@/components/ScrollToTop';
 import BreadcrumbSEO from '@/components/SEO/BreadcrumbSEO';
 import SEOHead from '@/components/SEO/SEOHead';
 import { MultiplexAd } from '@/components/AdSense';
 import { AD_SLOTS } from '@/config/adsense';
+import { SITE_URL } from '@/config/site';
 import { supabase } from '@/integrations/supabase/client';
 import { categorySectionHeading, categorySlugCandidates } from '@/lib/categorySlugAliases';
-import { transformToNewsArticle } from '@/lib/articles';
+import { ARTICLE_CARD_COLUMNS, ArticleRow, fetchMostPopular, transformToNewsArticle } from '@/lib/articles';
+import AdSlot from '@/components/site/AdSlot';
+import MostPopular from '@/components/site/MostPopular';
+import StoryCard from '@/components/site/StoryCard';
 import { Category, NewsArticle } from '@/types/news';
-import { getCategoryColor } from '@/utils/categoryColors';
 import { generateMetaTitle, truncateDescription } from '@/utils/seo';
-import { formatDistanceToNow } from 'date-fns';
 import { GetServerSideProps } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 
 interface CategoryPageProps {
@@ -24,22 +26,27 @@ interface CategoryPageProps {
   error?: string;
   /** Public URL segment (e.g. `lifestyle` → may resolve DB slug `entertainment`). */
   urlSlug: string;
+  currentPage: number;
+  totalPages: number;
+  mostPopular: NewsArticle[];
 }
 
+const ARTICLES_PER_PAGE = 30;
+
 const CATEGORY_SEO_TITLE_BY_SLUG: Record<string, string> = {
-  news: 'Ghana News Today - Latest Headlines | GH News Media',
-  sports: 'Ghana Sports News - Black Stars, Football Updates | GH News Media',
-  business: 'Ghana Business & Economy News | GH News Media',
-  entertainment: 'Ghana Entertainment News, Celebrities | GH News Media',
-  lifestyle: 'Ghana Lifestyle News | GH News Media',
-  tech: 'Ghana Tech News, Innovation & Digital | GH News Media',
-  technology: 'Ghana Tech News, Innovation & Digital | GH News Media',
-  politics: 'Ghana Politics News - Parliament, Government | GH News Media',
-  health: 'Ghana Health News | GH News Media',
-  feature: 'Featured Stories | GH News Media',
-  features: 'Featured Stories | GH News Media',
-  opinions: 'Opinion & Analysis | GH News Media',
-  opinion: 'Opinion & Analysis | GH News Media',
+  news: 'Ghana News Today - Latest Headlines | Ghana Point',
+  sports: 'Ghana Sports News - Black Stars, Football Updates | Ghana Point',
+  business: 'Ghana Business & Economy News | Ghana Point',
+  entertainment: 'Ghana Entertainment News, Celebrities | Ghana Point',
+  lifestyle: 'Ghana Lifestyle News | Ghana Point',
+  tech: 'Ghana Tech News, Innovation & Digital | Ghana Point',
+  technology: 'Ghana Tech News, Innovation & Digital | Ghana Point',
+  politics: 'Ghana Politics News - Parliament, Government | Ghana Point',
+  health: 'Ghana Health News | Ghana Point',
+  feature: 'Featured Stories | Ghana Point',
+  features: 'Featured Stories | Ghana Point',
+  opinions: 'Opinion & Analysis | Ghana Point',
+  opinion: 'Opinion & Analysis | Ghana Point',
 };
 
 const CategoryPage: React.FC<CategoryPageProps> = ({
@@ -48,6 +55,9 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
   totalArticles,
   error,
   urlSlug,
+  currentPage,
+  totalPages,
+  mostPopular,
 }) => {
   const canShowCategoryAds = articles.length >= 8;
   // Handle error state
@@ -57,7 +67,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
         <SEOHead
           title="Error"
           description="An error occurred while loading the category page."
-          canonical="https://www.ghnewsmedia.com"
+          noindex
         />
         <div className="text-center px-4">
           <h1 style={{ color: '#111111', fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>
@@ -92,7 +102,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
         <SEOHead
           title="Category Not Found"
           description="The category you're looking for could not be found. Browse our news categories and latest updates from Ghana."
-          canonical="https://www.ghnewsmedia.com/404"
+          noindex
         />
         <div className="text-center px-4">
           <h1 style={{ color: '#111111', fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>
@@ -123,24 +133,26 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
   const sectionHeading = categorySectionHeading(urlSlug, category.name);
 
   const breadcrumbItems = [
-    { name: 'Home', url: 'https://www.ghnewsmedia.com' },
+    { name: 'Home', url: SITE_URL },
     { name: sectionHeading },
   ];
+
+  const canonicalUrl = `${SITE_URL}${pageHref(`/${urlSlug}`, currentPage)}`;
 
   const categoryStructuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "name": `${category.name} News`,
     "description": category.description,
-    "url": `https://www.ghnewsmedia.com/${urlSlug}`,
+    "url": canonicalUrl,
     "mainEntity": {
       "@type": "ItemList",
       "numberOfItems": totalArticles,
       "itemListElement": articles.slice(0, 10).map((article, index) => ({
         "@type": "NewsArticle",
-        "position": index + 1,
+        "position": (currentPage - 1) * ARTICLES_PER_PAGE + index + 1,
         "headline": article.title,
-        "url": `https://www.ghnewsmedia.com/${article.category.slug}/${article.slug}`,
+        "url": `${SITE_URL}/${article.category.slug}/${article.slug}`,
         "datePublished": new Date(article.publishedAt).toISOString(),
         "author": {
           "@type": "Person",
@@ -150,177 +162,94 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
     }
   };
 
-  const getFullImageUrl = (imagePath: string | null | undefined): string => {
-    if (!imagePath) return '/images/placeholder.jpg';
-    if (imagePath.startsWith('http')) return imagePath;
-    return `https://zodidixpxznfsopxdhyr.supabase.co/storage/v1/object/public/article-images/${imagePath}`;
-  };
-
+  // Later pages get a short, unique title so the page number survives truncation.
   const categorySeoTitle =
-    CATEGORY_SEO_TITLE_BY_SLUG[urlSlug.toLowerCase()] ||
-    CATEGORY_SEO_TITLE_BY_SLUG[category.slug] ||
-    generateMetaTitle(`${sectionHeading} News`, 'Category');
+    currentPage > 1
+      ? generateMetaTitle(`${sectionHeading} News – Page ${currentPage}`)
+      : CATEGORY_SEO_TITLE_BY_SLUG[urlSlug.toLowerCase()] ||
+        CATEGORY_SEO_TITLE_BY_SLUG[category.slug] ||
+        generateMetaTitle(`${sectionHeading} News`, 'Category');
+
+  const pagePrefix = currentPage > 1 ? `Page ${currentPage} of ${totalPages}: ` : '';
+
+  const [lead, ...rest] = articles;
+  const showLeadBlock = currentPage === 1 && articles.length >= 4;
+  const sideStories = showLeadBlock ? rest.slice(0, 3) : [];
+  const feed = showLeadBlock ? rest.slice(3) : articles;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="gp-site min-h-screen bg-white">
       <SEOHead
         title={categorySeoTitle}
-        description={truncateDescription(`${category.description} Stay updated with the latest ${category.name.toLowerCase()} news from Ghana.`)}
-        canonical={`https://www.ghnewsmedia.com/${urlSlug}`}
+        description={truncateDescription(`${pagePrefix}${category.description} Stay updated with the latest ${category.name.toLowerCase()} news from Ghana.`)}
+        canonical={canonicalUrl}
         tags={[`${category.name} news`, 'Ghana news', category.name.toLowerCase(), 'breaking news']}
         structuredData={categoryStructuredData}
       />
-      
+
       <Header />
-      
-      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8" style={{ fontFamily: "'Inter', 'Source Sans 3', system-ui, sans-serif" }}>
-        <BreadcrumbSEO items={breadcrumbItems} />
-        
-        {/* Category Header - Clean and Minimal */}
-        <div className="mb-6 sm:mb-8 md:mb-10">
-          <div className="mb-3 sm:mb-4">
-            <span 
-              className="inline-block px-2 py-1 rounded text-xs font-medium"
-              style={{ 
-                backgroundColor: getCategoryColor(category.name, category.color),
-                color: '#FFFFFF',
-                fontSize: '12px'
-              }}
-            >
-              {sectionHeading.toUpperCase()}
-            </span>
-          </div>
-          <h1 style={{ 
-            color: '#111111', 
-            fontSize: '24px', 
-            fontWeight: 'bold',
-            lineHeight: '1.3',
-            marginBottom: '8px'
-          }}>
-            {sectionHeading}
-          </h1>
-          {category.description && (
-            <p style={{ 
-              color: '#6B7280', 
-              fontSize: '14px',
-              lineHeight: '1.5'
-            }}>
-              {category.description}
-            </p>
-          )}
+
+      <main id="main-content" className="mx-auto max-w-[1280px] px-4 pb-4">
+        <AdSlot slot={AD_SLOTS.BANNER_TOP} shape="leaderboard" className="my-4" />
+
+        <div className="pt-4">
+          <BreadcrumbSEO items={breadcrumbItems} />
         </div>
-        
-        {/* Category ad slot 1 */}
-        {canShowCategoryAds && <MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} />}
-        
-        {/* Articles List - Clean Card Layout */}
-        <section>
-          {articles.length > 0 ? (
-            <div className="space-y-4 sm:space-y-6">
-              {articles.map((article, index) => {
-                const publishedDate = new Date(article.publishedAt);
-                const timeAgo = formatDistanceToNow(publishedDate, { addSuffix: true });
-                
-                // Category ad slot 2 (single in-list insertion)
-                const showAd = canShowCategoryAds && index === 7;
-                
-                return (
-                  <React.Fragment key={article.id}>
-                    {showAd && <MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} />}
-                    <Link 
-                      href={`/${article.category.slug}/${article.slug}`}
-                      style={{ textDecoration: 'none', display: 'block' }}
-                    >
-                      <article className="bg-white border-b border-gray-200 pb-4 sm:pb-6">
-                      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                        {/* Image */}
-                        <div className="relative w-full sm:w-32 md:w-40 lg:w-48 h-48 sm:h-32 md:h-40 lg:h-48 flex-shrink-0">
-                          <Image
-                            src={getFullImageUrl(article.featuredImage)}
-                            alt={article.title}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 640px) 100vw, (max-width: 768px) 128px, (max-width: 1024px) 160px, 192px"
-                          />
-                        </div>
-                        
-                        {/* Content */}
-                        <div className="flex-1 flex flex-col justify-between">
-                          <div>
-                            {/* Category Badge */}
-                            <div className="mb-2">
-                              <span 
-                                className="inline-block px-2 py-0.5 rounded text-xs font-medium"
-                                style={{ 
-                                  backgroundColor: getCategoryColor(article.category.name, article.category.color),
-                                  color: '#FFFFFF',
-                                  fontSize: '12px'
-                                }}
-                              >
-                                {article.category.name}
-                              </span>
-                            </div>
-                            
-                            {/* Title */}
-                            <h2 style={{ 
-                              color: '#111111', 
-                              fontSize: '16px',
-                              fontWeight: 'bold',
-                              lineHeight: '1.3',
-                              marginBottom: '8px'
-                            }}>
-                              {article.title}
-                            </h2>
-                            
-                            {/* Excerpt */}
-                            {article.excerpt && (
-                              <p style={{ 
-                                color: '#6B7280', 
-                                fontSize: '13px',
-                                lineHeight: '1.5',
-                                marginBottom: '8px',
-                                display: '-webkit-box',
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden'
-                              }}>
-                                {article.excerpt}
-                              </p>
-                            )}
-                          </div>
-                          
-                          {/* Meta Info */}
-                          <div className="flex items-center gap-3 text-xs" style={{ color: '#6B7280' }}>
-                            <span style={{ fontSize: '11px' }}>
-                              {timeAgo}
-                            </span>
-                            {article.author && (
-                              <>
-                                <span>•</span>
-                                <span style={{ fontSize: '11px' }}>
-                                  {article.author.name}
-                                </span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                  </Link>
-                  </React.Fragment>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-12 sm:py-16">
-              <p style={{ color: '#6B7280', fontSize: '14px' }}>
-                No articles found in this category yet.
-              </p>
-            </div>
+
+        <header className="mb-6 border-b-2 border-gp-ink pb-4">
+          <h1 className="text-[2rem] font-black leading-tight text-gp-ink sm:text-[2.75rem]">
+            {sectionHeading}
+            {currentPage > 1 && <span className="ml-3 align-middle text-base font-bold text-gp-muted">Page {currentPage}</span>}
+          </h1>
+          {category.description && currentPage === 1 && (
+            <p className="mt-2 max-w-3xl text-base leading-relaxed text-gp-muted">{category.description}</p>
           )}
-        </section>
+        </header>
+
+        {articles.length === 0 ? (
+          <p className="py-16 text-center text-gp-muted">No articles found in this category yet. Check back soon.</p>
+        ) : (
+          <>
+            {showLeadBlock && (
+              <section aria-label={`Top ${sectionHeading} stories`} className="mb-6 grid grid-cols-1 gap-6 border-b border-gp-line pb-6 lg:grid-cols-12 lg:gap-8">
+                <StoryCard article={lead} variant="lead" preload showExcerpt showDate headingLevel="h2" className="lg:col-span-8" />
+                <ul className="divide-y divide-gp-line self-start lg:col-span-4">
+                  {sideStories.map((article, i) => (
+                    <li key={article.id} className={i === 0 ? 'pb-4' : 'py-4'}>
+                      <StoryCard article={article} variant={i === 0 ? 'card' : 'list'} showDate headingLevel="h2" />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+              <section aria-label={`Latest ${sectionHeading} news`} className="lg:col-span-8">
+                {feed.map((article, index) => (
+                  <React.Fragment key={article.id}>
+                    {canShowCategoryAds && index === 7 && <MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} />}
+                    {index > 0 && index % 10 === 0 && (
+                      <AdSlot slot={AD_SLOTS.HOMEPAGE_MIDDLE} shape="infeed" className="border-b border-gp-line py-5" />
+                    )}
+                    <StoryCard article={article} variant="feed" preload={!showLeadBlock && index === 0} headingLevel="h2" />
+                  </React.Fragment>
+                ))}
+                <Pagination basePath={`/${urlSlug}`} currentPage={currentPage} totalPages={totalPages} />
+              </section>
+
+              <aside className="lg:col-span-4">
+                <div className="space-y-8 lg:sticky lg:top-24">
+                  <MostPopular articles={mostPopular} />
+                  <AdSlot slot={AD_SLOTS.SIDEBAR_TOP} shape="rectangle" />
+                </div>
+              </aside>
+            </div>
+
+            {canShowCategoryAds && <MultiplexAd adSlot={AD_SLOTS.MULTIPLEX_1} className="mt-10" />}
+          </>
+        )}
       </main>
-      
+
       <Footer />
       <ScrollToTop />
     </div>
@@ -328,12 +257,20 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
 };
 
 export const getServerSideProps: GetServerSideProps<CategoryPageProps> = async (context) => {
-  const { slug } = context.query;
+  const { slug, page: pageParam } = context.query;
   
   // Ensure slug is a string
   if (!slug || typeof slug !== 'string') {
     return {
       notFound: true,
+    };
+  }
+
+  // Only "?page=N" with N >= 2 is a distinct URL; anything else collapses to the base page.
+  const currentPage = parsePageParam(pageParam);
+  if (currentPage === null) {
+    return {
+      redirect: { destination: `/${slug}`, permanent: true },
     };
   }
 
@@ -355,6 +292,14 @@ export const getServerSideProps: GetServerSideProps<CategoryPageProps> = async (
       };
     }
 
+    // One URL per section: aliases and odd casing (/feature, /Sports) 301 to the real slug.
+    const canonicalSlug = String(categoryData.slug);
+    if (canonicalSlug !== slug) {
+      return {
+        redirect: { destination: pageHref(`/${canonicalSlug}`, currentPage), permanent: true },
+      };
+    }
+
     // Transform category data
     const categoryId = String(categoryData.id);
 
@@ -368,17 +313,33 @@ export const getServerSideProps: GetServerSideProps<CategoryPageProps> = async (
       updated_at: String(categoryData.updated_at ?? ''),
     };
 
-    // Fetch articles for this category
-    const { data: articlesData, error: articlesError } = await supabase
+    // Fetch one page of articles for this category, plus the total count
+    const offset = (currentPage - 1) * ARTICLES_PER_PAGE;
+    const mostPopularPromise = fetchMostPopular(5);
+    const { data: articlesData, error: articlesError, count } = await supabase
       .from('articles_with_details')
-      .select('*')
+      .select(ARTICLE_CARD_COLUMNS, { count: 'exact' })
       .eq('status', 'published')
       .eq('category_id', categoryId)
+      .not('content', 'is', null)
       .order('published_at', { ascending: false, nullsFirst: false })
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: true })
+      .range(offset, offset + ARTICLES_PER_PAGE - 1);
+
+    const totalArticles = count ?? 0;
+    const totalPages = Math.max(1, Math.ceil(totalArticles / ARTICLES_PER_PAGE));
+
+    // PGRST103: requested range starts past the last row.
+    if (articlesError?.code === 'PGRST103' || (!articlesError && currentPage > totalPages)) {
+      return {
+        notFound: true,
+      };
+    }
 
     if (articlesError) {
       console.error('Error fetching articles:', articlesError);
+      context.res.statusCode = 503;
       return {
         props: {
           category,
@@ -386,13 +347,16 @@ export const getServerSideProps: GetServerSideProps<CategoryPageProps> = async (
           totalArticles: 0,
           error: 'Failed to load articles',
           urlSlug: slug,
+          currentPage,
+          totalPages: 1,
+          mostPopular: [],
         },
       };
     }
 
     // Transform articles
-    const transformedArticles = (articlesData || [])
-      .filter(article => article.id && article.title && article.content)
+    const transformedArticles = ((articlesData || []) as ArticleRow[])
+      .filter(article => article.id && article.title)
       .map(transformToNewsArticle);
 
     // Set cache headers for better performance
@@ -401,18 +365,23 @@ export const getServerSideProps: GetServerSideProps<CategoryPageProps> = async (
       'public, s-maxage=300, stale-while-revalidate=600'
     );
 
+    const mostPopular = await mostPopularPromise;
+
     return {
       props: {
         category,
         articles: transformedArticles,
-        totalArticles: transformedArticles.length,
+        totalArticles,
         urlSlug: slug,
+        currentPage,
+        totalPages,
+        mostPopular,
       },
     };
 
   } catch (error) {
     console.error('Error in getServerSideProps:', error);
-    
+    context.res.statusCode = 503;
     return {
       props: {
         category: null,
@@ -420,6 +389,9 @@ export const getServerSideProps: GetServerSideProps<CategoryPageProps> = async (
         totalArticles: 0,
         error: 'An unexpected error occurred',
         urlSlug: slug,
+        currentPage,
+        totalPages: 1,
+          mostPopular: [],
       }
     };
   }

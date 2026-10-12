@@ -1,134 +1,61 @@
-
-import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
+import Link from 'next/link';
 import React from 'react';
 
-interface PaginationProps {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-  className?: string;
-}
+export const pageHref = (basePath: string, page: number) =>
+  page <= 1 ? basePath : `${basePath}?page=${page}`;
 
-const Pagination: React.FC<PaginationProps> = ({ 
-  currentPage, 
-  totalPages, 
-  onPageChange, 
-  className = '' 
+/** Page numbers to show around the current page, with `null` marking a gap. */
+const visiblePages = (current: number, total: number): (number | null)[] => {
+  const pages = new Set([1, total, current - 1, current, current + 1]);
+  const sorted = [...pages].filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
+  return sorted.flatMap((p, i) => (i > 0 && p - sorted[i - 1] > 1 ? [null, p] : [p]));
+};
+
+/**
+ * Parses `?page=N`. Returns 1 when absent, or null when the value is not a canonical
+ * integer ≥ 2 (callers redirect those to the base URL).
+ */
+export const parsePageParam = (raw: string | string[] | undefined): number | null => {
+  if (raw === undefined) return 1;
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  if (!/^\d+$/.test(value)) return null;
+  const page = Number(value);
+  return page >= 2 ? page : null;
+};
+
+const Pagination: React.FC<{ basePath: string; currentPage: number; totalPages: number }> = ({
+  basePath,
+  currentPage,
+  totalPages,
 }) => {
-  // Don't render if there's only one page
   if (totalPages <= 1) return null;
 
-  // Calculate the range of pages to show
-  const getPageRange = () => {
-    const delta = 2; // Number of pages to show on each side of current page
-    const range = [];
-    const rangeWithDots = [];
-
-    for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
-      range.push(i);
-    }
-
-    if (currentPage - delta > 2) {
-      rangeWithDots.push(1, '...');
-    } else {
-      rangeWithDots.push(1);
-    }
-
-    rangeWithDots.push(...range);
-
-    if (currentPage + delta < totalPages - 1) {
-      rangeWithDots.push('...', totalPages);
-    } else if (totalPages > 1) {
-      rangeWithDots.push(totalPages);
-    }
-
-    return rangeWithDots;
-  };
-
-  const pageRange = getPageRange();
+  const linkClass = 'min-w-9 rounded border border-gray-300 px-3 py-1.5 text-center text-sm text-gray-700 hover:bg-gray-100';
+  const currentClass = 'min-w-9 rounded border border-gray-900 bg-gray-900 px-3 py-1.5 text-center text-sm font-semibold text-white';
 
   return (
-    <nav className={`flex items-center justify-center space-x-1 sm:space-x-2 ${className}`} aria-label="Pagination">
-      {/* Previous Button */}
-      <button
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className={`
-          flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200
-          ${currentPage === 1
-            ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
-            : 'text-gray-700 bg-white hover:bg-gray-50 hover:text-red-600 border border-gray-200 hover:border-red-300 hover:shadow-md'
-          }
-          focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
-          disabled:opacity-50 disabled:cursor-not-allowed
-        `}
-        aria-label="Go to previous page"
-      >
-        <ChevronLeft className="w-4 h-4 mr-1" />
-        <span className="hidden sm:inline">Previous</span>
-      </button>
-
-      {/* Page Numbers */}
-      <div className="flex items-center space-x-1 sm:space-x-2">
-        {pageRange.map((page, index) => {
-          if (page === '...') {
-            return (
-              <span
-                key={`dots-${index}`}
-                className="flex items-center justify-center w-8 h-8 text-gray-400"
-              >
-                <MoreHorizontal className="w-4 h-4" />
-              </span>
-            );
-          }
-
-          const isCurrentPage = page === currentPage;
-          
-          return (
-            <button
-              key={page}
-              onClick={() => onPageChange(page as number)}
-              className={`
-                flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 text-sm font-medium rounded-lg transition-all duration-200
-                ${isCurrentPage
-                  ? 'bg-gradient-to-r from-red-600 to-blue-600 text-white shadow-lg scale-105'
-                  : 'text-gray-700 bg-white hover:bg-gray-50 hover:text-red-600 border border-gray-200 hover:border-red-300 hover:shadow-md'
-                }
-                focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
-                transform hover:scale-105 active:scale-95
-              `}
-              aria-label={`Go to page ${page}`}
-              aria-current={isCurrentPage ? 'page' : undefined}
-            >
-              {page}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Next Button */}
-      <button
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className={`
-          flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200
-          ${currentPage === totalPages
-            ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
-            : 'text-gray-700 bg-white hover:bg-gray-50 hover:text-red-600 border border-gray-200 hover:border-red-300 hover:shadow-md'
-          }
-          focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
-          disabled:opacity-50 disabled:cursor-not-allowed
-        `}
-        aria-label="Go to next page"
-      >
-        <span className="hidden sm:inline">Next</span>
-        <ChevronRight className="w-4 h-4 ml-1" />
-      </button>
-
-      {/* Page Info - Mobile Only */}
-      <div className="sm:hidden ml-4 text-sm text-gray-500 font-medium">
-        {currentPage} of {totalPages}
-      </div>
+    <nav aria-label="Pagination" className="mt-8 flex flex-wrap items-center justify-center gap-2">
+      {currentPage > 1 && (
+        <Link href={pageHref(basePath, currentPage - 1)} rel="prev" className={linkClass}>
+          ← Previous
+        </Link>
+      )}
+      {visiblePages(currentPage, totalPages).map((page, i) =>
+        page === null ? (
+          <span key={`gap-${i}`} className="px-1 text-gray-500">…</span>
+        ) : page === currentPage ? (
+          <span key={page} aria-current="page" className={currentClass}>{page}</span>
+        ) : (
+          <Link key={page} href={pageHref(basePath, page)} className={linkClass}>
+            {page}
+          </Link>
+        )
+      )}
+      {currentPage < totalPages && (
+        <Link href={pageHref(basePath, currentPage + 1)} rel="next" className={linkClass}>
+          Next →
+        </Link>
+      )}
     </nav>
   );
 };

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
+import { SITE_URL } from '@/config/site';
 import { AlertCircle, Check, Eye, Plus, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
@@ -57,7 +58,7 @@ const SEOManager: React.FC<SEOManagerProps> = ({
 
     // Auto-generate meta title if empty
     if (!newSeoData.metaTitle && title) {
-      newSeoData.metaTitle = `${title} | ${category} | GH News`;
+      newSeoData.metaTitle = `${title} | ${category} | Ghana Point`;
       hasChanged = true;
     }
 
@@ -93,7 +94,7 @@ const SEOManager: React.FC<SEOManagerProps> = ({
 
     // Auto-generate canonical URL if empty
     if (!newSeoData.canonicalUrl && slug) {
-      newSeoData.canonicalUrl = `https://www.ghnewsmedia.com/news/${slug}`;
+      newSeoData.canonicalUrl = `${SITE_URL}/news/${slug}`;
       hasChanged = true;
     }
 
@@ -329,7 +330,7 @@ const SEOManager: React.FC<SEOManagerProps> = ({
               id="canonicalUrl"
               value={seoData.canonicalUrl}
               onChange={(e) => updateSEOField('canonicalUrl', e.target.value)}
-              placeholder="https://www.ghnewsmedia.com/news/article-slug"
+              placeholder={`${SITE_URL}/news/article-slug`}
             />
           </div>
         </CardContent>
@@ -456,14 +457,14 @@ const SEOManager: React.FC<SEOManagerProps> = ({
                 {seoData.additional_keywords.length} additional keywords
               </p>
               {seoData.additional_keywords.length > 0 && (
-                <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700">
+                <span className="text-xs px-2 py-1 rounded bg-dash-mint text-dash-teal-deep">
                   Supporting Keywords
                 </span>
               )}
             </div>
             <div className="flex flex-wrap gap-2">
               {seoData.additional_keywords.map((keyword, index) => (
-                <Badge key={index} variant="outline" className="flex items-center space-x-1 hover:bg-blue-50 transition-colors">
+                <Badge key={index} variant="outline" className="flex items-center space-x-1 hover:bg-dash-mint transition-colors">
                   <span>{keyword}</span>
                   <X
                     className="w-3 h-3 cursor-pointer hover:text-red-600"
@@ -589,7 +590,7 @@ const SEOManager: React.FC<SEOManagerProps> = ({
               {seoData.metaTitle || title || 'Your article title will appear here...'}
             </h3>
             <p className="text-green-700 text-sm">
-              {seoData.canonicalUrl || `https://www.ghnewsmedia.com/news/${slug}` || 'https://www.ghnewsmedia.com/news/...'}
+              {seoData.canonicalUrl || `${SITE_URL}/news/${slug}` || `${SITE_URL}/news/...`}
             </p>
             <p className="text-gray-600 text-sm mt-1">
               {seoData.metaDescription || excerpt || 'Your meta description will appear here...'}
@@ -597,7 +598,7 @@ const SEOManager: React.FC<SEOManagerProps> = ({
             {seoData.keywords.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1">
                 {seoData.keywords.slice(0, 5).map((keyword, index) => (
-                  <span key={index} className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                  <span key={index} className="text-xs bg-dash-mint text-dash-teal-deep px-2 py-1 rounded">
                     {keyword}
                   </span>
                 ))}

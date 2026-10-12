@@ -1,204 +1,76 @@
-
 import Footer from '@/components/Footer';
 import { UserAvatar } from '@/components/UserAvatar';
 import Header from '@/components/Header';
-import NewsCard from '@/components/NewsCard';
+import Pagination, { pageHref, parsePageParam } from '@/components/Pagination';
 import ScrollToTop from '@/components/ScrollToTop';
+import StoryCard from '@/components/site/StoryCard';
 import BreadcrumbSEO from '@/components/SEO/BreadcrumbSEO';
 import SEOHead from '@/components/SEO/SEOHead';
+import { PUBLICATION_NAME, SITE_URL } from '@/config/site';
 import { supabase } from '@/integrations/supabase/client';
+import { ARTICLE_CARD_COLUMNS, ArticleRow, transformToNewsArticle } from '@/lib/articles';
 import { Author, NewsArticle } from '@/types/news';
-import { generateMetaTitle, truncateDescription } from '@/utils/seo';
+import { generateMetaTitle, profileUrl, truncateDescription } from '@/utils/seo';
 import { Facebook, Linkedin, Twitter } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { GetServerSideProps } from 'next';
 
-// This function transforms article data from Supabase to the app's NewsArticle type.
-const transformToNewsArticle = (article: any): NewsArticle => {
-  return {
-    id: article.id,
-    title: article.title,
-    slug: article.slug,
-    excerpt: article.excerpt || '',
-    content: article.content,
-    featuredImage: article.featured_image || 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&h=400&fit=crop',
-    author: {
-      id: article.author_id || '',
-      name: article.author_name || 'Unknown Author',
-      bio: '',
-      avatar: article.author_avatar || '',
-      title: '',
-      social: {}
-    },
-    category: {
-      id: article.category_id || '',
-      name: article.category_name || 'General',
-      slug: article.category_name?.toLowerCase().replace(/\s+/g, '-') || 'general',
-      description: '',
-      color: article.category_color || '#3B82F6',
-      icon: article.category_icon || '📰',
-      updated_at: article.updated_at
-    },
-    tags: article.tag_names || [],
-    publishedAt: article.published_at || article.created_at,
-    updatedAt: article.updated_at,
-    readTime: article.read_time,
-    views: article.views,
-    reactions: { likes: 0, hearts: 0, laughs: 0, angry: 0 },
-    comments: [],
-    featured: article.featured,
-    trending: article.trending
-  };
-};
+const ARTICLES_PER_PAGE = 30;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-const AuthorPage = () => {
-   const router = useRouter();
-  const { id } = router.query;
-  const [author, setAuthor] = useState<Author | null>(null);
-  const [authorArticles, setAuthorArticles] = useState<NewsArticle[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface AuthorPageProps {
+  author: Author;
+  articles: NewsArticle[];
+  totalArticles: number;
+  currentPage: number;
+  totalPages: number;
+}
 
-  useEffect(() => {
-    const authorId = Array.isArray(id) ? id[0] : id;
-    if (!authorId) {
-      setLoading(false);
-      setError("Author ID is missing.");
-      return;
-    }
-
-    const fetchAuthorData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const { data: authorData, error: authorError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', authorId)
-          .single();
-
-        if (authorError && authorError.code !== 'PGRST116') { // PGRST116 is 'not found'
-          throw authorError;
-        }
-
-        if (authorData) {
-          const formattedAuthor: Author = {
-            id: authorData.id,
-            name: authorData.name || 'GhNewsMedia Author',
-            bio: authorData.bio || 'No biography available.',
-            avatar: authorData.avatar ?? '',
-            title: authorData.title || 'Journalist',
-            social: {
-              twitter: authorData.twitter || undefined,
-              facebook: authorData.facebook || undefined,
-              linkedin: authorData.linkedin || undefined,
-            },
-          };
-          setAuthor(formattedAuthor);
-
-          const { data: articlesData, error: articlesError } = await supabase
-            .from('articles_with_details')
-            .select('*')
-            .eq('author_id', authorId)
-            .eq('status', 'published')
-            .order('published_at', { ascending: false, nullsFirst: false });
-
-          if (articlesError) {
-            throw articlesError;
-          }
-          
-          const transformedArticles = (articlesData || []).map(transformToNewsArticle);
-          setAuthorArticles(transformedArticles);
-        } else {
-          setAuthor(null);
-        }
-      } catch (err:any) {
-        console.error("Error fetching author data:", err);
-        setError(err.message || 'An unknown error occurred.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAuthorData();
-  }, [id]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading author details...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center p-4">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Error</h1>
-          <p className="text-gray-600 mb-8">Could not load author details: {error}</p>
-          <Link href="/" className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors">
-            Go Home
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (!author) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <SEOHead
-          title="Author Not Found - GhNewsMedia"
-          description="The author you're looking for could not be found. Browse our team of journalists and their latest articles."
-          canonical="https://www.ghnewsmedia.com/404"
-        />
-        <div className="text-center p-4">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Author Not Found</h1>
-          <p className="text-gray-600 mb-8">Sorry, the author you&apos;re looking for doesn&apos;t exist.</p>
-          <Link href="/" className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors">
-            Go Home
-          </Link>
-        </div>
-      </div>
-    );
-  }
+const AuthorPage = ({ author, articles, totalArticles, currentPage, totalPages }: AuthorPageProps) => {
+  const basePath = `/author/${author.id}`;
+  const canonicalUrl = `${SITE_URL}${pageHref(basePath, currentPage)}`;
 
   const breadcrumbItems = [
-    { name: 'Home', url: 'https://www.ghnewsmedia.com' },
-    { name: 'Authors', url: 'https://www.ghnewsmedia.com/authors' },
+    { name: 'Home', url: SITE_URL },
+    { name: 'Authors', url: `${SITE_URL}/authors` },
     { name: author.name }
   ];
 
   const authorStructuredData = {
     "@context": "https://schema.org",
-    "@type": "Person",
-    "name": author.name,
-    "jobTitle": author.title,
-    "description": author.bio,
-    ...(author.avatar?.trim() ? { image: author.avatar } : {}),
-    "url": `https://www.ghnewsmedia.com/author/${author.id}`,
-    "worksFor": {
-      "@type": "Organization",
-      "name": "GH News"
-    },
-    "sameAs": [
-      ...(author.social.twitter ? [`https://twitter.com/${author.social.twitter.replace('@', '')}`] : []),
-      ...(author.social.facebook ? [`https://facebook.com/${author.social.facebook}`] : []),
-      ...(author.social.linkedin ? [`https://linkedin.com/in/${author.social.linkedin}`] : [])
-    ]
+    "@type": "ProfilePage",
+    "url": canonicalUrl,
+    "mainEntity": {
+      "@type": "Person",
+      "name": author.name,
+      "jobTitle": author.title,
+      "description": author.bio,
+      ...(author.avatar?.trim() ? { image: author.avatar } : {}),
+      "url": `${SITE_URL}${basePath}`,
+      "worksFor": {
+        "@type": "NewsMediaOrganization",
+        "@id": `${SITE_URL}/#organization`,
+        "name": PUBLICATION_NAME,
+        "url": SITE_URL
+      },
+      "sameAs": [
+        ...(author.social.twitter ? [profileUrl(author.social.twitter, 'https://x.com/')] : []),
+        ...(author.social.facebook ? [profileUrl(author.social.facebook, 'https://facebook.com/')] : []),
+        ...(author.social.linkedin ? [profileUrl(author.social.linkedin, 'https://linkedin.com/in/')] : [])
+      ]
+    }
   };
 
+  const pagePrefix = currentPage > 1 ? `Page ${currentPage} of ${totalPages}: ` : '';
+  const title = currentPage > 1
+    ? generateMetaTitle(`${author.name} – Articles Page ${currentPage}`)
+    : generateMetaTitle(`${author.name} - ${author.title}`);
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="gp-site min-h-screen bg-white">
       <SEOHead
-        title={generateMetaTitle(`${author.name} - ${author.title}`, 'Author')}
-        description={truncateDescription(`Read articles by ${author.name}, ${author.title} at GH News. ${author.bio}`)}
-        canonical={`https://www.ghnewsmedia.com/author/${author.id}`}
+        title={title}
+        description={truncateDescription(`${pagePrefix}Read articles by ${author.name}, ${author.title} at ${PUBLICATION_NAME}. ${author.bio}`)}
+        canonical={canonicalUrl}
         image={author.avatar}
         tags={[author.name, 'journalist', 'Ghana news', 'author', author.title]}
         structuredData={authorStructuredData}
@@ -206,99 +78,137 @@ const AuthorPage = () => {
       
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
-        <BreadcrumbSEO items={breadcrumbItems} />
-        
-        {/* Author Profile */}
-        <div className="bg-white rounded-xl p-8 mb-12 shadow-sm">
-          <div className="flex flex-col md:flex-row items-start space-y-6 md:space-y-0 md:space-x-8">
-            <UserAvatar
-              src={author.avatar}
-              alt={author.name}
-              className="mx-auto h-32 w-32 md:mx-0"
-            />
-            <div className="flex-1 text-center md:text-left">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {author.name}
-              </h1>
-              <p className="text-accent font-medium text-lg mb-4">
-                {author.title}
-              </p>
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                {author.bio}
-              </p>
-              
-              {/* Social Links */}
-              <div className="flex justify-center md:justify-start space-x-4">
+      <main id="main-content" className="gp-site mx-auto max-w-[1280px] px-4 pb-8">
+        <div className="pt-6">
+          <BreadcrumbSEO items={breadcrumbItems} />
+        </div>
+
+        <header className="mt-3 flex flex-col gap-5 border-b-2 border-gp-ink pb-6 sm:flex-row sm:items-start">
+          <UserAvatar src={author.avatar} alt={author.name} className="h-28 w-28 flex-shrink-0" size={112} />
+          <div className="min-w-0 flex-1">
+            <h1 className="text-[2rem] font-black leading-tight text-gp-ink sm:text-[2.75rem]">{author.name}</h1>
+            <p className="mt-1 text-sm font-bold uppercase tracking-wide text-gp-accent-dark">{author.title}</p>
+            <p className="mt-3 max-w-3xl text-base leading-relaxed text-gp-muted">{author.bio}</p>
+            {(author.social.twitter || author.social.facebook || author.social.linkedin) && (
+              <ul className="mt-4 flex items-center gap-2">
                 {author.social.twitter && (
-                  <a
-                    href={`https://twitter.com/${author.social.twitter.replace('@', '')}`}
-                    className="flex items-center space-x-2 text-blue-500 hover:text-blue-600 transition-colors"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                  >
-                    <Twitter className="w-5 h-5" />
-                    <span>{author.social.twitter}</span>
-                  </a>
+                  <li>
+                    <a href={`https://twitter.com/${author.social.twitter.replace('@', '')}`} target="_blank" rel="noopener noreferrer" aria-label={`${author.name} on X`} className="flex h-9 w-9 items-center justify-center rounded-full border border-gp-ink hover:bg-gp-ink hover:text-white">
+                      <Twitter className="h-4 w-4" />
+                    </a>
+                  </li>
                 )}
                 {author.social.facebook && (
-                  <a
-                    href={`https://facebook.com/${author.social.facebook}`}
-                    className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                  >
-                    <Facebook className="w-5 h-5" />
-                    <span>Facebook</span>
-                  </a>
+                  <li>
+                    <a href={`https://facebook.com/${author.social.facebook}`} target="_blank" rel="noopener noreferrer" aria-label={`${author.name} on Facebook`} className="flex h-9 w-9 items-center justify-center rounded-full border border-gp-ink hover:bg-gp-ink hover:text-white">
+                      <Facebook className="h-4 w-4" />
+                    </a>
+                  </li>
                 )}
                 {author.social.linkedin && (
-                  <a
-                    href={`https://linkedin.com/in/${author.social.linkedin}`}
-                    className="flex items-center space-x-2 text-blue-700 hover:text-blue-800 transition-colors"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                  >
-                    <Linkedin className="w-5 h-5" />
-                    <span>LinkedIn</span>
-                  </a>
+                  <li>
+                    <a href={`https://linkedin.com/in/${author.social.linkedin}`} target="_blank" rel="noopener noreferrer" aria-label={`${author.name} on LinkedIn`} className="flex h-9 w-9 items-center justify-center rounded-full border border-gp-ink hover:bg-gp-ink hover:text-white">
+                      <Linkedin className="h-4 w-4" />
+                    </a>
+                  </li>
                 )}
-              </div>
-            </div>
+              </ul>
+            )}
           </div>
-        </div>
-        
-        {/* Author's Articles */}
-        <section>
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Articles by {author.name}
-            </h2>
-            <span className="text-gray-600">
-              {authorArticles.length} articles
-            </span>
+        </header>
+
+        <section aria-labelledby="author-articles-heading" className="mt-6">
+          <div className="flex items-end justify-between">
+            <h2 id="author-articles-heading" className="text-xl font-bold text-gp-ink sm:text-2xl">Articles by {author.name}</h2>
+            <span className="text-sm text-gp-muted">{totalArticles} articles</span>
           </div>
-          
-          {authorArticles.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {authorArticles.map((article) => (
-                <NewsCard key={article.id} article={article} />
+
+          {articles.length > 0 ? (
+            <div className="max-w-4xl">
+              {articles.map((article, index) => (
+                <StoryCard key={article.id} article={article} variant="feed" showCategory preload={index === 0} headingLevel="h3" />
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <p className="text-gray-600 text-lg">
-                No articles found by this author yet.
-              </p>
-            </div>
+            <p className="py-12 text-center text-gp-muted">No articles found by this author yet.</p>
           )}
+          <Pagination basePath={basePath} currentPage={currentPage} totalPages={totalPages} />
         </section>
       </main>
-      
+
       <Footer />
       <ScrollToTop />
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps<AuthorPageProps> = async ({ params, query, res }) => {
+  const authorId = String(params?.id ?? '');
+  if (!UUID_PATTERN.test(authorId)) {
+    return { notFound: true };
+  }
+
+  const currentPage = parsePageParam(query.page);
+  if (currentPage === null) {
+    return { redirect: { destination: `/author/${authorId}`, permanent: true } };
+  }
+
+  const offset = (currentPage - 1) * ARTICLES_PER_PAGE;
+  const [profileResult, articlesResult] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, name, bio, avatar, title, twitter, facebook, linkedin')
+      .eq('id', authorId)
+      .maybeSingle(),
+    supabase
+      .from('articles_with_details')
+      .select(ARTICLE_CARD_COLUMNS, { count: 'exact' })
+      .eq('author_id', authorId)
+      .eq('status', 'published')
+      .not('content', 'is', null)
+      .order('published_at', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: true })
+      .range(offset, offset + ARTICLES_PER_PAGE - 1),
+  ]);
+
+  if (profileResult.error) throw profileResult.error;
+  if (!profileResult.data) {
+    return { notFound: true };
+  }
+
+  const totalArticles = articlesResult.count ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalArticles / ARTICLES_PER_PAGE));
+
+  // PGRST103: requested range starts past the last row.
+  if (articlesResult.error?.code === 'PGRST103' || (!articlesResult.error && currentPage > totalPages)) {
+    return { notFound: true };
+  }
+  if (articlesResult.error) throw articlesResult.error;
+
+  const profile = profileResult.data;
+  const author: Author = {
+    id: profile.id,
+    name: profile.name || `${PUBLICATION_NAME} Author`,
+    bio: profile.bio || 'No biography available.',
+    avatar: profile.avatar ?? '',
+    title: profile.title || 'Journalist',
+    social: {
+      ...(profile.twitter ? { twitter: profile.twitter } : {}),
+      ...(profile.facebook ? { facebook: profile.facebook } : {}),
+      ...(profile.linkedin ? { linkedin: profile.linkedin } : {}),
+    },
+  };
+
+  const articles = ((articlesResult.data || []) as ArticleRow[])
+    .filter((article) => article.id && article.title)
+    .map(transformToNewsArticle);
+
+  res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+
+  return {
+    props: { author, articles, totalArticles, currentPage, totalPages },
+  };
 };
 
 export default AuthorPage;

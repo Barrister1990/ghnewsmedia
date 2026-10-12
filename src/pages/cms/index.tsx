@@ -1,219 +1,192 @@
-import { AnimatedLoading } from '@/components/admin/AnimatedLoading';
 import CMSLayout from '@/components/cms/CMSLayout';
-import { PANEL_CARD, PanelPageHeader } from '@/components/shell/PanelChrome';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
 import {
-  FolderTree,
-  Heart,
-  MessageSquare,
-  Newspaper,
-  Plus,
-  TrendingUp,
-  Users,
-} from 'lucide-react';
+  ArticleListSkeleton,
+  ArticleRow,
+  compact,
+  type DashArticle,
+  firstName,
+  greeting,
+  pillOutline,
+  pillPrimary,
+  SectionCard,
+  StatTile,
+} from '@/components/shell/DashWidgets';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { ArrowRight, CalendarCheck, Check, Eye, FileClock, Newspaper, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-interface DashboardStats {
-  totalArticles: number;
-  publishedArticles: number;
-  totalCategories: number;
-  totalUsers: number;
-  totalComments: number;
-  totalReactions: number;
+interface Stats {
+  published: number;
+  drafts: number;
+  views: number;
+  siteThisWeek: number;
 }
 
+type TopArticle = { id: string; title: string; slug: string; views: number };
+
+const ARTICLE_FIELDS = 'id,title,slug,status,featured_image,category_name,author_name,updated_at';
+
+const checklist = [
+  'Headline under 110 characters that says what happened',
+  'Featured image cropped to 1200×675 with a credit',
+  'First paragraph answers who, what, where and when',
+  'Category, tags and a meta description filled in',
+];
+
 const CMSDashboard = () => {
-  const [stats, setStats] = useState<DashboardStats>({
-    totalArticles: 0,
-    publishedArticles: 0,
-    totalCategories: 0,
-    totalUsers: 0,
-    totalComments: 0,
-    totalReactions: 0,
-  });
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [recent, setRecent] = useState<DashArticle[] | null>(null);
+  const [top, setTop] = useState<TopArticle[] | null>(null);
 
   useEffect(() => {
-    fetchDashboardStats();
-  }, []);
+    if (!user) return;
+    let cancelled = false;
+    const weekAgo = new Date(Date.now() - 7 * 864e5).toISOString();
+    const count = { count: 'exact' as const, head: true };
 
-  const fetchDashboardStats = async () => {
-    try {
-      const [
-        articlesResult,
-        publishedResult,
-        categoriesResult,
-        usersResult,
-        commentsResult,
-        reactionsResult,
-      ] = await Promise.all([
-        supabase.from('articles').select('id', { count: 'exact' }),
-        supabase.from('articles').select('id', { count: 'exact' }).eq('status', 'published'),
-        supabase.from('categories').select('id', { count: 'exact' }),
-        supabase.from('profiles').select('id', { count: 'exact' }),
-        supabase.from('comments').select('id', { count: 'exact' }),
-        supabase.from('reactions').select('id', { count: 'exact' }),
-      ]);
+    Promise.all([
+      supabase.from('articles').select('id', count).eq('author_id', user.id).eq('status', 'published'),
+      supabase.from('articles').select('id', count).eq('author_id', user.id).eq('status', 'draft'),
+      supabase
+        .from('articles')
+        .select('id,title,slug,views')
+        .eq('author_id', user.id)
+        .eq('status', 'published')
+        .order('views', { ascending: false })
+        .limit(1000),
+      supabase.from('articles').select('id', count).eq('status', 'published').gte('published_at', weekAgo),
+    ])
+      .then(([published, drafts, mine, siteWeek]) => {
+        if (cancelled) return;
+        const rows = (mine.data ?? []) as TopArticle[];
+        setStats({
+          published: published.count ?? 0,
+          drafts: drafts.count ?? 0,
+          views: rows.reduce((sum, a) => sum + (a.views ?? 0), 0),
+          siteThisWeek: siteWeek.count ?? 0,
+        });
+        setTop(rows.slice(0, 5));
+      })
+      .catch((error) => console.error('Error fetching dashboard stats:', error));
 
-      setStats({
-        totalArticles: articlesResult.count || 0,
-        publishedArticles: publishedResult.count || 0,
-        totalCategories: categoriesResult.count || 0,
-        totalUsers: usersResult.count || 0,
-        totalComments: commentsResult.count || 0,
-        totalReactions: reactionsResult.count || 0,
+    supabase
+      .from('articles_with_details')
+      .select(ARTICLE_FIELDS)
+      .eq('author_id', user.id)
+      .order('updated_at', { ascending: false })
+      .limit(8)
+      .then(({ data, error }) => {
+        if (error) console.error('Error fetching recent articles:', error);
+        if (!cancelled) setRecent((data as DashArticle[]) ?? []);
       });
-    } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  if (loading) {
-    return (
-      <CMSLayout>
-        <AnimatedLoading />
-      </CMSLayout>
-    );
-  }
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
-  const statCards = [
-    {
-      title: 'Total articles',
-      value: stats.totalArticles,
-      description: `${stats.publishedArticles} published`,
-      icon: Newspaper,
-    },
-    {
-      title: 'Categories',
-      value: stats.totalCategories,
-      description: 'Content categories',
-      icon: FolderTree,
-    },
-    {
-      title: 'Users',
-      value: stats.totalUsers,
-      description: 'Registered users',
-      icon: Users,
-    },
-    {
-      title: 'Comments',
-      value: stats.totalComments,
-      description: 'User comments',
-      icon: MessageSquare,
-    },
-    {
-      title: 'Reactions',
-      value: stats.totalReactions,
-      description: 'User reactions',
-      icon: Heart,
-    },
-  ];
+  const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
 
   return (
     <CMSLayout>
       <div className="space-y-8">
-        <PanelPageHeader
-          title="CMS overview"
-          description="Your editor snapshot of activity across the site."
-        />
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 xl:gap-6">
-          {statCards.map((card) => {
-            const Icon = card.icon;
-            return (
-              <Card key={card.title} className={cn(PANEL_CARD)}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-stone-800">{card.title}</CardTitle>
-                  <Icon className="h-5 w-5 text-stone-400" aria-hidden />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-semibold tabular-nums text-stone-900">{card.value}</div>
-                  <p className="text-xs text-stone-500">{card.description}</p>
-                </CardContent>
-              </Card>
-            );
-          })}
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-dash-teal-dark">{today}</p>
+            <h1 className="mt-2 text-4xl font-black leading-[1.02] sm:text-5xl">
+              {greeting()}, {firstName(user?.user_metadata, user?.email)}.
+            </h1>
+            <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-dash-muted">
+              Pick up where you left off, or start the next big story.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/cms/articles/create" className={pillPrimary}>
+              <Plus className="h-4 w-4" /> Write a story
+            </Link>
+            <Link href="/cms/articles" className={pillOutline}>
+              My articles
+            </Link>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <Card className={cn(PANEL_CARD)}>
-            <CardHeader>
-              <CardTitle className="text-stone-900">Recent activity</CardTitle>
-              <CardDescription>Illustrative items for the workspace</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-stone-200 bg-stone-50">
-                    <Newspaper className="h-4 w-4 text-stone-600" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-stone-900">New article created</p>
-                    <p className="text-xs text-stone-500">2 minutes ago</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-stone-200 bg-stone-50">
-                    <MessageSquare className="h-4 w-4 text-stone-600" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-stone-900">New comment received</p>
-                    <p className="text-xs text-stone-500">5 minutes ago</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-stone-200 bg-stone-50">
-                    <Users className="h-4 w-4 text-stone-600" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-stone-900">New user registered</p>
-                    <p className="text-xs text-stone-500">10 minutes ago</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+          <StatTile label="My published" value={stats?.published ?? null} hint="Live under your byline" icon={Newspaper} tone="mint" href="/cms/articles" />
+          <StatTile label="My drafts" value={stats?.drafts ?? null} hint="Finish and publish" icon={FileClock} tone="lemon" href="/cms/articles" />
+          <StatTile label="My views" value={stats?.views ?? null} hint="Across your stories" icon={Eye} tone="lilac" />
+          <StatTile label="Site this week" value={stats?.siteThisWeek ?? null} hint="Stories published" icon={CalendarCheck} tone="sky" />
+        </div>
 
-          <Card className={cn(PANEL_CARD)}>
-            <CardHeader>
-              <CardTitle className="text-stone-900">Quick actions</CardTitle>
-              <CardDescription>Jump to common editor tasks</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Button
-                  variant="outline"
-                  className="h-auto w-full justify-start border-stone-200 bg-white py-3 text-left font-medium text-stone-800 hover:bg-stone-50"
-                  asChild
-                >
-                  <Link href="/cms/articles/create" className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-stone-200 bg-stone-50">
-                      <Plus className="h-4 w-4 text-stone-700" />
-                    </span>
-                    Create new article
-                  </Link>
-                </Button>
-                <Button
-                  variant="outline"
-                  className="h-auto w-full justify-start border-stone-200 bg-white py-3 text-left font-medium text-stone-800 hover:bg-stone-50"
-                  asChild
-                >
-                  <Link href="/cms/articles" className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-stone-200 bg-stone-50">
-                      <TrendingUp className="h-4 w-4 text-stone-700" />
-                    </span>
-                    Manage articles
-                  </Link>
-                </Button>
+        <div className="grid gap-6 xl:grid-cols-3">
+          <SectionCard
+            title="Your recent work"
+            className="xl:col-span-2"
+            action={
+              <Link href="/cms/articles" className="inline-flex items-center gap-1 text-sm font-bold text-dash-teal-dark hover:underline">
+                View all <ArrowRight className="h-4 w-4" />
+              </Link>
+            }
+          >
+            {recent === null ? (
+              <ArticleListSkeleton />
+            ) : recent.length === 0 ? (
+              <div className="py-10 text-center">
+                <p className="text-sm text-dash-muted">You haven&apos;t written anything yet.</p>
+                <Link href="/cms/articles/create" className={`${pillPrimary} mt-4`}>
+                  <Plus className="h-4 w-4" /> Write your first story
+                </Link>
               </div>
-            </CardContent>
-          </Card>
+            ) : (
+              <ul className="divide-y divide-dash-line">
+                {recent.map((a) => (
+                  <ArticleRow key={a.id} article={a} editHref={`/cms/articles/edit/${a.id}`} />
+                ))}
+              </ul>
+            )}
+          </SectionCard>
+
+          <div className="flex flex-col gap-6">
+            <section className="rounded-3xl bg-dash-ink p-6 text-white">
+              <h2 className="text-xl font-black">Your most read</h2>
+              <p className="mt-1 text-xs text-white/55">All-time views on your published stories</p>
+              <ol className="mt-5 space-y-4">
+                {top === null ? (
+                  Array.from({ length: 4 }).map((_, i) => <li key={i} className="h-10 rounded-xl bg-white/10" />)
+                ) : top.length === 0 ? (
+                  <li className="text-sm text-white/60">Publish a story to see it here.</li>
+                ) : (
+                  top.map((a, i) => (
+                    <li key={a.id} className="flex items-start gap-4">
+                      <span className="w-6 shrink-0 text-2xl font-black leading-none text-dash-teal">{i + 1}</span>
+                      <div className="min-w-0 flex-1">
+                        <Link href={`/news/${a.slug}`} target="_blank" className="line-clamp-2 text-sm font-bold leading-snug hover:underline">
+                          {a.title}
+                        </Link>
+                        <p className="mt-1 text-xs text-white/50">{compact(a.views ?? 0)} views</p>
+                      </div>
+                    </li>
+                  ))
+                )}
+              </ol>
+            </section>
+
+            <section className="rounded-3xl bg-dash-yellow p-6">
+              <h2 className="text-xl font-black">Before you publish</h2>
+              <ul className="mt-4 space-y-3">
+                {checklist.map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-sm font-medium">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-dash-ink">
+                      <Check className="h-3 w-3 text-dash-yellow" />
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </div>
         </div>
       </div>
     </CMSLayout>

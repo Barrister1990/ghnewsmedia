@@ -1,3 +1,4 @@
+import { notifyArticleChange } from '@/hooks/useImmediateIndexing';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -145,7 +146,8 @@ export const useArticles = () => {
         .eq('id', articleId);
 
       if (error) throw error;
-      
+
+      void notifyArticleChange({ articleId }, newStatus === 'published' ? 'publish_event' : 'status_change');
       toast.success(`Article ${newStatus} successfully`);
       fetchArticles();
     } catch (error) {

@@ -264,11 +264,11 @@ const EmbedDialog: React.FC<EmbedDialogProps> = ({ isOpen, onClose, onInsert }) 
     // URL preview
     if (embedCode.includes('http') && !embedCode.includes('<')) {
       return (
-        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-          <p className="text-blue-700 text-sm">
+        <div className="bg-dash-mint p-4 rounded-lg border border-dash-teal/30">
+          <p className="text-dash-teal-deep text-sm">
             <strong>URL:</strong> {embedCode}
           </p>
-          <p className="text-blue-600 text-xs mt-1">
+          <p className="text-dash-teal-dark text-xs mt-1">
             This will be converted to a clickable link
           </p>
         </div>
@@ -298,7 +298,7 @@ const EmbedDialog: React.FC<EmbedDialogProps> = ({ isOpen, onClose, onInsert }) 
               onClick={() => setEmbedType('youtube')}
               className={`px-2 py-2 text-xs font-medium rounded-t-lg transition-colors whitespace-nowrap flex-shrink-0 ${
                 embedType === 'youtube'
-                  ? 'bg-blue-100 text-blue-700 border-b-2 border-blue-500'
+                  ? 'bg-dash-mint text-dash-teal-deep border-b-2 border-dash-teal-dark'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
@@ -310,7 +310,7 @@ const EmbedDialog: React.FC<EmbedDialogProps> = ({ isOpen, onClose, onInsert }) 
               onClick={() => setEmbedType('vimeo')}
               className={`px-2 py-2 text-xs font-medium rounded-t-lg transition-colors whitespace-nowrap flex-shrink-0 ${
                 embedType === 'vimeo'
-                  ? 'bg-blue-100 text-blue-700 border-b-2 border-blue-500'
+                  ? 'bg-dash-mint text-dash-teal-deep border-b-2 border-dash-teal-dark'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
@@ -322,7 +322,7 @@ const EmbedDialog: React.FC<EmbedDialogProps> = ({ isOpen, onClose, onInsert }) 
               onClick={() => setEmbedType('twitter')}
               className={`px-2 py-2 text-xs font-medium rounded-t-lg transition-colors whitespace-nowrap flex-shrink-0 ${
                 embedType === 'twitter'
-                  ? 'bg-blue-100 text-blue-700 border-b-2 border-blue-500'
+                  ? 'bg-dash-mint text-dash-teal-deep border-b-2 border-dash-teal-dark'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
@@ -334,7 +334,7 @@ const EmbedDialog: React.FC<EmbedDialogProps> = ({ isOpen, onClose, onInsert }) 
               onClick={() => setEmbedType('instagram')}
               className={`px-2 py-2 text-xs font-medium rounded-t-lg transition-colors whitespace-nowrap flex-shrink-0 ${
                 embedType === 'instagram'
-                  ? 'bg-blue-100 text-blue-700 border-b-2 border-blue-500'
+                  ? 'bg-dash-mint text-dash-teal-deep border-b-2 border-dash-teal-dark'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
@@ -346,7 +346,7 @@ const EmbedDialog: React.FC<EmbedDialogProps> = ({ isOpen, onClose, onInsert }) 
               onClick={() => setEmbedType('url')}
               className={`px-2 py-2 text-xs font-medium rounded-t-lg transition-colors whitespace-nowrap flex-shrink-0 ${
                 embedType === 'url'
-                  ? 'bg-blue-100 text-blue-700 border-b-2 border-blue-500'
+                  ? 'bg-dash-mint text-dash-teal-deep border-b-2 border-dash-teal-dark'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
@@ -357,7 +357,7 @@ const EmbedDialog: React.FC<EmbedDialogProps> = ({ isOpen, onClose, onInsert }) 
               onClick={() => setEmbedType('manual')}
               className={`px-2 py-2 text-xs font-medium rounded-t-lg transition-colors whitespace-nowrap flex-shrink-0 ${
                 embedType === 'manual'
-                  ? 'bg-blue-100 text-blue-700 border-b-2 border-blue-500'
+                  ? 'bg-dash-mint text-dash-teal-deep border-b-2 border-dash-teal-dark'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
@@ -378,7 +378,7 @@ const EmbedDialog: React.FC<EmbedDialogProps> = ({ isOpen, onClose, onInsert }) 
                   value={url}
                   onChange={(e) => handleUrlChange(e.target.value)}
                   placeholder="https://www.youtube.com/watch?v=..."
-                  className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dash-teal/40"
                   style={{ maxWidth: '100%' }}
                 />
               </div>
@@ -404,7 +404,7 @@ const EmbedDialog: React.FC<EmbedDialogProps> = ({ isOpen, onClose, onInsert }) 
                   value={url}
                   onChange={(e) => handleUrlChange(e.target.value)}
                   placeholder="https://vimeo.com/VIDEO_ID"
-                  className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dash-teal/40"
                   style={{ maxWidth: '100%' }}
                 />
               </div>
@@ -468,7 +468,7 @@ const EmbedDialog: React.FC<EmbedDialogProps> = ({ isOpen, onClose, onInsert }) 
                   value={url}
                   onChange={(e) => handleUrlChange(e.target.value)}
                   placeholder="https://example.com"
-                  className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full max-w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dash-teal/40"
                   style={{ maxWidth: '100%' }}
                 />
               </div>

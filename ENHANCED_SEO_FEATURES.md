@@ -256,7 +256,7 @@ const calculateKeywordDensity = (keyword: string, content: string): number => {
     {seoData.metaTitle || title || 'Your article title will appear here...'}
   </h3>
   <p className="text-green-700 text-sm">
-    {seoData.canonicalUrl || `https://ghnewsmedia.com/news/${slug}` || 'https://ghnewsmedia.com/news/...'}
+    {seoData.canonicalUrl || `https://ghanapoint.com/news/${slug}` || 'https://ghanapoint.com/news/...'}
   </p>
   <p className="text-gray-600 text-sm mt-1">
     {seoData.metaDescription || excerpt || 'Your meta description will appear here...'}
@@ -283,7 +283,7 @@ useEffect(() => {
 
   // Auto-generate meta title if empty
   if (!newSeoData.metaTitle && title) {
-    newSeoData.metaTitle = `${title} | ${category} | GhNewsMedia`;
+    newSeoData.metaTitle = `${title} | ${category} | Ghana Point`;
     hasChanged = true;
   }
 
@@ -295,7 +295,7 @@ useEffect(() => {
 
   // Auto-generate canonical URL if empty
   if (!newSeoData.canonicalUrl && slug) {
-    newSeoData.canonicalUrl = `https://ghnewsmedia.com/news/${slug}`;
+    newSeoData.canonicalUrl = `https://ghanapoint.com/news/${slug}`;
     hasChanged = true;
   }
 

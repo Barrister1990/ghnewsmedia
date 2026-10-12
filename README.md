@@ -1,4 +1,4 @@
-# GhNewsMedia - Modern News Platform
+# Ghana Point - Modern News Platform
 
 A professional news website built with Next.js, featuring advanced SEO optimization, real-time content management, and social media integration.
 
@@ -148,10 +148,10 @@ Edit `lib/seo.ts` to customize SEO settings:
 
 ```typescript
 export const siteConfig = {
-  name: "GhNewsMedia",
+  name: "Ghana Point",
   description: "Ghana's Premier News Source",
-  url: "https://ghnewsmedia.com",
-  ogImage: "https://ghnewsmedia.com/og-image.jpg",
+  url: "https://ghanapoint.com",
+  ogImage: "https://ghanapoint.com/og-image.jpg",
   twitter: "@GhNewsMedia",
 };
 ```

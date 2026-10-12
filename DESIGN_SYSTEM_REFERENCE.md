@@ -1,4 +1,4 @@
-# GhNewsMedia Design System Reference
+# Ghana Point Design System Reference
 
 ## 🎨 Color Palette
 

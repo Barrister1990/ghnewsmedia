@@ -79,12 +79,12 @@ const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+          className="flex items-center space-x-2 px-4 py-2 bg-gp-surface hover:bg-gp-line transition-colors"
         >
           <Filter className="w-4 h-4" />
           <span>Advanced Filters</span>
           {hasActiveFilters && (
-            <span className="bg-primary text-white text-xs px-2 py-1 rounded-full">
+            <span className="bg-gp-ink text-white text-xs px-2 py-1">
               {Object.values(filters).flat().filter(Boolean).length}
             </span>
           )}
@@ -93,7 +93,7 @@ const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
         {hasActiveFilters && (
           <button
             onClick={clearFilters}
-            className="text-sm text-gray-600 hover:text-gray-800 flex items-center space-x-1"
+            className="text-sm text-gp-text hover:text-gp-text flex items-center space-x-1"
           >
             <X className="w-3 h-3" />
             <span>Clear all</span>
@@ -102,17 +102,17 @@ const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
       </div>
 
       {isOpen && (
-        <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-4 shadow-sm">
+        <div className="bg-white border border-gp-line p-4 space-y-4 shadow-sm">
           {/* Category Filter */}
           <div>
-            <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 mb-2">
+            <label className="flex items-center space-x-2 text-sm font-medium text-gp-text mb-2">
               <Tag className="w-4 h-4" />
               <span>Category</span>
             </label>
             <select
               value={filters.category}
               onChange={(e) => updateFilters('category', e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full p-2 border border-gp-ink focus:ring-2 focus:ring-gp-ink focus:border-transparent"
             >
               <option value="">All categories</option>
               {categories.map((category) => (
@@ -125,14 +125,14 @@ const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
 
           {/* Date Range Filter */}
           <div>
-            <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 mb-2">
+            <label className="flex items-center space-x-2 text-sm font-medium text-gp-text mb-2">
               <Calendar className="w-4 h-4" />
               <span>Date Range</span>
             </label>
             <select
               value={filters.dateRange}
               onChange={(e) => updateFilters('dateRange', e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full p-2 border border-gp-ink focus:ring-2 focus:ring-gp-ink focus:border-transparent"
             >
               {dateRangeOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -144,11 +144,11 @@ const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
 
           {/* Sort By */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Sort By</label>
+            <label className="text-sm font-medium text-gp-text mb-2 block">Sort By</label>
             <select
               value={filters.sortBy}
               onChange={(e) => updateFilters('sortBy', e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full p-2 border border-gp-ink focus:ring-2 focus:ring-gp-ink focus:border-transparent"
             >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -160,16 +160,16 @@ const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
 
           {/* Tags Filter */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Tags</label>
+            <label className="text-sm font-medium text-gp-text mb-2 block">Tags</label>
             <div className="flex flex-wrap gap-2">
               {popularTags.map((tag) => (
                 <button
                   key={tag}
                   onClick={() => toggleTag(tag)}
-                  className={`px-3 py-1 text-sm rounded-full border transition-colors ${
+                  className={`px-3 py-1 text-sm  border transition-colors ${
                     filters.tags.includes(tag)
-                      ? 'bg-primary text-white border-primary'
-                      : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                      ? 'bg-gp-ink text-white border-gp-ink'
+                      : 'bg-gp-surface text-gp-text border-gp-ink hover:bg-gp-line'
                   }`}
                 >
                   {tag}
@@ -180,7 +180,7 @@ const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
 
           {/* Author Filter */}
           <div>
-            <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 mb-2">
+            <label className="flex items-center space-x-2 text-sm font-medium text-gp-text mb-2">
               <User className="w-4 h-4" />
               <span>Author</span>
             </label>
@@ -189,7 +189,7 @@ const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
               value={filters.author}
               onChange={(e) => updateFilters('author', e.target.value)}
               placeholder="Search by author name..."
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full p-2 border border-gp-ink focus:ring-2 focus:ring-gp-ink focus:border-transparent"
             />
           </div>
         </div>

@@ -221,6 +221,7 @@ const CreateUser = () => {
                         credit=""
                         onCreditChange={() => {}}
                         placeholder="Upload profile image or enter image URL"
+                        crop={false}
                       />
                     </FormControl>
                     <FormMessage />

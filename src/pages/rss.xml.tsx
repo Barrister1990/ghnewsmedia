@@ -1,30 +1,33 @@
 // pages/rss.xml.tsx - RSS Feed for news syndication and Google News
-import { buildArticleUrl, PUBLICATION_NAME, SITE_LANGUAGE, SITE_URL } from '@/config/site';
-import { fetchPublishedArticles } from '@/lib/articles';
+import { absoluteUrl, buildArticleUrl, PUBLICATION_NAME, PUBLISHER_LOGO, SITE_LANGUAGE, SITE_URL } from '@/config/site';
+import { fetchPublishedArticles, PLACEHOLDER_FEATURED_IMAGE } from '@/lib/articles';
+import { WEBSUB_HUB_URL } from '@/lib/websub';
 import { escapeXml } from '@/utils/escapeXml';
 import { GetServerSideProps } from 'next';
 
 const RSSFeed = () => null;
 
+/** A literal "]]>" inside article HTML would end the CDATA section early. */
+const cdata = (text: string) => `<![CDATA[${text.replace(/]]>/g, ']]]]><![CDATA[>')}]]>`;
+
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   try {
-    const { articles } = await fetchPublishedArticles();
+    const { articles, error } = await fetchPublishedArticles({ columns: '*', limit: 50 });
+    if (error) throw new Error(error);
     const currentDate = new Date().toUTCString();
 
-    const sortedArticles = articles.sort(
-      (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-    );
-
-    const items = sortedArticles.slice(0, 50).map((article) => {
+    const items = articles.map((article) => {
       const publicationDate = new Date(article.publishedAt).toUTCString();
       const articleUrl = buildArticleUrl(article.category.slug, article.slug);
-      const imageUrl = article.featuredImage.startsWith('http')
-        ? article.featuredImage
-        : `${SITE_URL}${article.featuredImage.startsWith('/') ? '' : '/'}${article.featuredImage}`;
+      const hasImage = Boolean(article.featuredImage) && article.featuredImage !== PLACEHOLDER_FEATURED_IMAGE;
+      const imageUrl = hasImage ? absoluteUrl(article.featuredImage) : '';
 
       const cleanContent = article.content
         .replace(/<[^>]*>/g, '')
         .substring(0, 500) + '...';
+      const mediaBlock = hasImage
+        ? `\n      <media:content url="${escapeXml(imageUrl)}" medium="image" />\n      <media:description type="plain">${escapeXml(article.title)}</media:description>`
+        : '';
 
       const tagCategories = (article.tags || [])
         .map((tag) => `      <category>${escapeXml(tag)}</category>`)
@@ -32,17 +35,15 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
 
       return `    <item>
       <title>${escapeXml(article.title)}</title>
-      <link>${articleUrl}</link>
-      <guid isPermaLink="true">${articleUrl}</guid>
-      <description><![CDATA[${article.excerpt || cleanContent}]]></description>
-      <content:encoded><![CDATA[${article.content}]]></content:encoded>
+      <link>${escapeXml(articleUrl)}</link>
+      <guid isPermaLink="true">${escapeXml(articleUrl)}</guid>
+      <description>${cdata(article.excerpt || cleanContent)}</description>
+      <content:encoded>${cdata(article.content)}</content:encoded>
       <pubDate>${publicationDate}</pubDate>
       <dc:creator>${escapeXml(article.author.name)}</dc:creator>
       <dc:date>${new Date(article.publishedAt).toISOString()}</dc:date>
       <category>${escapeXml(article.category.name)}</category>
-${tagCategories}
-      <media:content url="${escapeXml(imageUrl)}" medium="image" width="1200" height="630" />
-      <media:description type="plain">${escapeXml(article.title)}</media:description>
+${tagCategories}${mediaBlock}
       <georss:featureName>Ghana</georss:featureName>
       <geo:lat>5.5600</geo:lat>
       <geo:long>-0.2057</geo:long>
@@ -68,6 +69,12 @@ ${tagCategories}
     <sy:updateFrequency>1</sy:updateFrequency>
     <generator>${escapeXml(PUBLICATION_NAME)} RSS Generator</generator>
     <atom:link href="${SITE_URL}/rss.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="${WEBSUB_HUB_URL}" rel="hub" />
+    <image>
+      <url>${PUBLISHER_LOGO.url}</url>
+      <title>${escapeXml(PUBLICATION_NAME)}</title>
+      <link>${SITE_URL}</link>
+    </image>
 ${items}
   </channel>
 </rss>`;

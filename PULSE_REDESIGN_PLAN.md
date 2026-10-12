@@ -1,7 +1,7 @@
 # Pulse.com.gh Homepage Redesign Plan
 
 ## 🎯 Objective
-Redesign GhNewsMedia homepage to match Pulse.com.gh's exact layout and design, excluding advertisements and video sections, while using our own categories and keeping the breaking news feature.
+Redesign Ghana Point homepage to match Pulse.com.gh's exact layout and design, excluding advertisements and video sections, while using our own categories and keeping the breaking news feature.
 
 ---
 
