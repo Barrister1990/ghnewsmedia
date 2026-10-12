@@ -1,3 +1,4 @@
+import { CONTACT_EMAIL } from '@/config/site';
 import { ChevronDown, Facebook, MessageCircle, Rss, Twitter, Youtube } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -25,7 +26,7 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
     links: [
       { href: '/contact', label: 'Contact Us' },
       { href: '/advertise', label: 'Advertise with us' },
-      { href: 'mailto:tips@ghnewsmedia.com', label: 'Submit a Tip', external: true },
+      { href: `mailto:${CONTACT_EMAIL}?subject=News tip`, label: 'Submit a Tip', external: true },
       { href: '/rss.xml', label: 'RSS Feed' },
     ],
   },

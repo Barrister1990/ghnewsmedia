@@ -1,18 +1,15 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { LEGACY_DOMAIN, SITE_DOMAIN } from './config/site';
+import { SITE_DOMAIN } from './config/site';
 
-const REDIRECT_HOSTS = new Set([
-  `www.${SITE_DOMAIN}`,
-  LEGACY_DOMAIN,
-  `www.${LEGACY_DOMAIN}`,
-]);
+/** Hosts that must 301 to the canonical apex (ghanapoint.com). */
+const REDIRECT_HOSTS = new Set([`www.${SITE_DOMAIN}`]);
 
 export function middleware(request: NextRequest) {
   const host = (request.headers.get('host') ?? '').toLowerCase().split(':')[0];
   const { pathname } = request.nextUrl;
 
-  // Always serve the apex canonical host (matches SITE_URL and Search Console).
+  // Canonical host is apex. Vercel Domains must also redirect www → apex, or you get a loop.
   if (REDIRECT_HOSTS.has(host)) {
     const url = request.nextUrl.clone();
     url.host = SITE_DOMAIN;
@@ -27,7 +24,7 @@ export function middleware(request: NextRequest) {
     url.pathname = pathname.replace(/^\/_category/, '');
     return NextResponse.redirect(url, 301);
   }
-  
+
   // Static pages that should not be rewritten to category routes
   const staticPages = [
     '/privacy',
@@ -45,9 +42,9 @@ export function middleware(request: NextRequest) {
     '/sitemap.xml',
     '/sitemap-index.xml',
     '/news-sitemap.xml',
-    '/rss.xml'
+    '/rss.xml',
   ];
-  
+
   // Skip middleware for static files, API routes, Next.js internals, and static pages
   if (
     pathname.startsWith('/_next') ||
@@ -65,9 +62,8 @@ export function middleware(request: NextRequest) {
   }
 
   // Check if path is a single segment (potential category)
-  // e.g., /news, /sports, /business
   const pathSegments = pathname.split('/').filter(Boolean);
-  
+
   // If it's a single segment, rewrite to internal category route
   if (pathSegments.length === 1) {
     const categorySlug = pathSegments[0];
@@ -77,9 +73,8 @@ export function middleware(request: NextRequest) {
     url.pathname = `/_category/${categorySlug}`;
     return NextResponse.rewrite(url);
   }
-  
+
   // Two segments - definitely an article (category/article-slug)
-  // Let the [category]/[slug].tsx route handle it
   if (pathSegments.length === 2) {
     return NextResponse.next();
   }

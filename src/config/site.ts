@@ -4,9 +4,6 @@ export const SITE_DOMAIN = 'ghanapoint.com';
 /** Canonical site URL — must match the domain verified in Search Console. */
 export const SITE_URL = `https://${SITE_DOMAIN}`;
 
-/** Previous domain, kept so stored links and legacy URLs can be normalized. */
-export const LEGACY_DOMAIN = 'ghnewsmedia.com';
-
 /** Primary language for HTML lang, meta tags, and structured data. */
 export const SITE_LANGUAGE = 'en-GH';
 
@@ -34,14 +31,15 @@ export function buildArticleUrl(categorySlug: string, articleSlug: string): stri
   return `${SITE_URL}/${categorySlug}/${articleSlug}`;
 }
 
+/** Old site domains still appear in stored article HTML; rewrite them to the apex host. */
 const NON_CANONICAL_ORIGIN = /^https?:\/\/(?:www\.)?(?:ghnewsmedia\.com|ghanapoint\.com)/i;
 
-/** Normalize legacy-domain and www URLs to the canonical host. */
+/** Normalize www / retired-domain URLs to the canonical apex host. */
 export function normalizeToSiteUrl(url: string): string {
   return url.replace(NON_CANONICAL_ORIGIN, SITE_URL);
 }
 
-/** Absolute URL on the canonical host for a path or a (possibly legacy/www) URL. */
+/** Absolute URL on the canonical host for a path or a (possibly www / old-domain) URL. */
 export function absoluteUrl(pathOrUrl: string): string {
   if (/^https?:\/\//i.test(pathOrUrl)) return normalizeToSiteUrl(pathOrUrl);
   return `${SITE_URL}${pathOrUrl.startsWith('/') ? '' : '/'}${pathOrUrl}`;
@@ -68,7 +66,7 @@ export const SOCIAL_PROFILES = [
 /** Public contact address shown on the About/Contact pages. */
 export const CONTACT_EMAIL = 'ghnewsmedia7@gmail.com';
 
-/** True if the URL points at this site (current or legacy domain). */
+/** True if the URL points at this site (apex, www, or retired old domain in stored content). */
 export function isSiteUrl(url: string): boolean {
   return NON_CANONICAL_ORIGIN.test(url);
 }
