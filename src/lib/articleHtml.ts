@@ -181,7 +181,7 @@ function transformReadMore(html: string): string {
 }
 
 const readMoreHtml = ({ href, title }: ReadMoreLink) =>
-  `<p class="gp-readmore"><a href="${escapeHtml(href)}"><span>Read more</span>${escapeHtml(title)}</a></p>`;
+  `<p class="gp-readmore"><a href="${escapeHtml(href)}"><span>Also read</span>${escapeHtml(title)}</a></p>`;
 
 /** Byte offsets just after each top-level `</p>` (not inside lists, quotes or tables). */
 function topLevelParagraphEnds(html: string): number[] {
@@ -225,11 +225,21 @@ export function prepareArticleHtml(
   const adAt = adAfterParagraph > 0 && ends.length > adAfterParagraph ? ends[adAfterParagraph - 1] : -1;
 
   const inserts: { at: number; html: string }[] = [];
-  if (readMore.length && ends.length >= 3) {
-    const points = [Math.floor(ends.length / 3), Math.floor((ends.length * 2) / 3)]
+  // Spread up to three "Also read" links through the story (¼, ½, ¾).
+  if (readMore.length && ends.length >= 4) {
+    const n = ends.length;
+    const points = [Math.floor(n / 4), Math.floor(n / 2), Math.floor((n * 3) / 4)]
       .map((p) => (adAt >= 0 && p === adAfterParagraph ? p + 1 : p))
-      .filter((p, i, arr) => p > 0 && p < ends.length && arr.indexOf(p) === i)
-      .slice(0, readMore.length);
+      .filter((p, i, arr) => p > 0 && p < n && arr.indexOf(p) === i)
+      .slice(0, Math.min(3, readMore.length));
+    points.forEach((p, i) => inserts.push({ at: ends[p - 1], html: readMoreHtml(readMore[i]) }));
+  } else if (readMore.length && ends.length >= 3) {
+    // Short pieces: place as many as the paragraph count allows.
+    const n = ends.length;
+    const points = [Math.floor(n / 3), Math.floor((n * 2) / 3)]
+      .map((p) => (adAt >= 0 && p === adAfterParagraph ? p + 1 : p))
+      .filter((p, i, arr) => p > 0 && p < n && arr.indexOf(p) === i)
+      .slice(0, Math.min(3, readMore.length));
     points.forEach((p, i) => inserts.push({ at: ends[p - 1], html: readMoreHtml(readMore[i]) }));
   }
 

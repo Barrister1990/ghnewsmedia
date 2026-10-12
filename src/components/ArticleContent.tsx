@@ -61,7 +61,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({
       prepareArticleHtml(content, {
         inlineImageCredits,
         adAfterParagraph: 2,
-        readMore: relatedArticles.slice(0, 2).map((a) => ({
+        readMore: relatedArticles.slice(0, 3).map((a) => ({
           href: `/${a.category.slug}/${a.slug}`,
           title: a.title,
         })),

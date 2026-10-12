@@ -56,7 +56,7 @@ export async function getArticlePageProps(
   }
 
   const [relatedArticles, mostPopular] = await Promise.all([
-    fetchRelatedArticles(article, 4),
+    fetchRelatedArticles(article, 6),
     fetchMostPopular(5),
   ]);
 
